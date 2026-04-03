@@ -1,0 +1,141 @@
+/* 복무 정보 조회 전용 스타일 */
+
+.calculator-layout {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.selector-section {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+.form-select {
+    display: block;
+    width: 100%;
+    padding: 0.375rem 2.25rem 0.375rem 0.75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #212529;
+    background-color: #fff;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 16px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 0.375rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    appearance: none;
+}
+
+/* 실시간 퍼센트 강조 */
+.realtime-percent-container {
+    padding: 10px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.realtime-percent {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #0d6efd;
+    letter-spacing: -0.5px;
+}
+
+/* 프로그레스 바 */
+.progress-bar-container {
+    height: 20px;
+    background-color: #e9ecef;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #0d6efd, #0dcaf0);
+    width: 0%;
+    transition: width 0.1s linear; /* 실시간 업데이트를 위해 빠르게 설정 */
+}
+
+/* 정보 테이블 */
+.info-table {
+    width: 100%;
+    margin-top: 20px;
+    background-color: #fff;
+}
+
+.info-table thead th {
+    background-color: #f1f3f5;
+    color: #495057;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-align: center;
+    padding: 10px;
+}
+
+.info-table td {
+    padding: 12px 15px;
+    font-size: 1rem;
+    vertical-align: middle;
+}
+
+.table-label {
+    width: 35%;
+    background-color: #fafbfc;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+/* 미리보기 그리드 */
+.preview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.preview-card {
+    background: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.preview-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    border-color: #0d6efd;
+}
+
+.preview-name {
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.preview-percent {
+    font-size: 0.85rem;
+    color: #0d6efd;
+    font-weight: 600;
+}
+
+/* 유틸리티 */
+.display-name { font-size: 2rem; font-weight: 800; }
+.hidden { display: none !important; }
+.mt-2 { margin-top: 0.5rem !important; }
+.mt-4 { margin-top: 1.5rem !important; }
+.mb-4 { margin-bottom: 1.5rem !important; }
+.text-center { text-align: center; }
+.text-primary { color: #0d6efd !important; }
+.text-danger { color: #dc3545 !important; }
+.font-weight-bold { font-weight: 700; }
+.d-flex { display: flex; }
+.justify-content-between { justify-content: space-between; }
+.align-items-center { align-items: center; }
+.small { font-size: 0.875rem; }

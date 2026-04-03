@@ -1,0 +1,53 @@
+body { margin: 0; background: #1a1a1a; color: white; overflow: hidden; }
+
+.survival-main {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 30px;
+    height: 100vh;
+    gap: 15px;
+}
+
+.game-layout { display: flex; gap: 15px; }
+
+.canvas-area {
+    border: 3px solid #4db8ff;
+    background: #000;
+}
+
+#gameCanvas { display: block; background: #050505; cursor: crosshair; width: 600px; height: 600px; }
+
+.info-panel { width: 240px; display: flex; flex-direction: column; gap: 10px; }
+
+.panel-section {
+    background: #2c3e50;
+    padding: 12px;
+    border-radius: 8px;
+    border: 2px solid #4db8ff;
+}
+
+.panel-section h3 { margin: 0 0 10px 0; font-size: 0.9rem; color: #f1c40f; letter-spacing: 1px; }
+
+/* 스태이터스 스타일 */
+.stat-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; font-family: 'Consolas', monospace; font-size: 0.85rem; }
+.bar-bg { width: 120px; height: 10px; background: #1a2a3a; border-radius: 5px; overflow: hidden; border: 1px solid #444; }
+.bar-fill { width: 0%; height: 100%; background: #4db8ff; transition: 0.2s; }
+.bar-fill.hp { width: 100%; background: #ff4d4d; }
+
+/* 인벤토리 스타일 */
+.inv-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
+.inv-slot { width: 38px; height: 38px; background: #1a2a3a; border: 1px solid #4db8ff; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; }
+
+.recipe-list { list-style: none; padding: 0; font-size: 0.75rem; line-height: 1.6; color: #bdc3c7; }
+
+#start-btn { padding: 12px; background: #4db8ff; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
+
+/* 모달 */
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 100; justify-content: center; align-items: center; }
+.modal-content { background: #2c3e50; padding: 30px; border-radius: 15px; border: 3px solid #f1c40f; width: 380px; text-align: center; }
+.upgrade-item { background: #34495e; padding: 12px; border: 1px solid #4db8ff; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 15px; margin-bottom: 10px; transition: 0.2s; }
+.upgrade-item:hover { background: #4db8ff; }
+.upgrade-info { text-align: left; }
+.upgrade-name { font-weight: bold; font-size: 0.9rem; display: block; }
+.upgrade-desc { font-size: 0.75rem; color: #bdc3c7; }

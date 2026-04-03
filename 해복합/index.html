@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CCSS - Coastal Composite Surveillance System</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="menu/menu.css">
+    <link rel="stylesheet" href="workSchedule/workSchedule.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container navbar-container">
+            <div class="navbar-nav">
+                <a href="index.html" class="nav-link active">대시보드</a>
+                <a href="milCalc/milCalc.html" class="nav-link">복무 정보</a>
+                <a href="shipSearch/shipSearch.html" class="nav-link">선박 찾기</a>
+            </div>
+            <div class="navbar-right">
+                <div id="realtime-clock" class="clock"></div>
+                <a href="game/game.html" class="nav-link game-link">놀이터</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container py-4">
+        <div class="row">
+            <div class="col-main">
+                <section class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">오늘의 메뉴</h5>
+                        <div class="menu-controls">
+                            <span id="meal-type" class="badge-primary clickable" title="식단 검색"></span>
+                            <div id="menu-search-ui" class="menu-search-pannel hidden">
+                                <input type="date" id="search-date" class="form-control-sm">
+                                <select id="search-meal" class="form-control-sm">
+                                    <option value="breakfast">아침</option>
+                                    <option value="brunch">브런치</option>
+                                    <option value="lunch">점심</option>
+                                    <option value="dinner">저녁</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body menu-container">
+                        <pre id="menu-display">데이터를 불러오는 중...</pre>
+                    </div>
+                </section>
+
+            </div>
+
+            <div class="col-side">
+                <section class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">근무표</h5>
+                        <a href="workSchedule/workSchedule.html" class="more-btn" title="전체보기">+</a>
+                    </div>
+                    <div class="card-body">
+                        <div id="work-display">데이터 로딩 실패</div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container text-center">
+            <div class="btn-group">
+                <a href="https://www.google.com" target="_blank" class="btn-outline">Google</a>
+                <a href="https://www.youtube.com" target="_blank" class="btn-outline">YouTube</a>
+                <a href="https://gemini.google.com" target="_blank" class="btn-outline">Gemini</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="menu/menuData.js"></script>
+    <script src="workSchedule/workScheduleData.js"></script>
+    <script src="script.js"></script>
+    <script src="menu/menu.js"></script>
+    <script src="workSchedule/workSchedule.js"></script>
+</body>
+</html>

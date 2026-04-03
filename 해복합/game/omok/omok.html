@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>오목 - CCSS</title>
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="omok.css">
+</head>
+<body class="bg-light">
+    <nav class="navbar">
+        <div class="container navbar-container">
+            <div class="navbar-nav">
+                <a href="../../index.html" class="nav-link">대시보드</a>
+                <a href="../../milCalc/milCalc.html" class="nav-link">복무 정보</a>
+                <a href="../../shipSearch/shipSearch.html" class="nav-link">선박 찾기</a>
+            </div>
+            <div class="navbar-right">
+                <div id="realtime-clock" class="clock"></div>
+                <a href="../game.html" class="nav-link game-link active">놀이터</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="omok-main">
+        <div class="omok-container">
+            <canvas id="omokCanvas" width="600" height="600"></canvas>
+            <div class="controls">
+                <div id="status">흑 차례</div>
+                <div class="btn-group">
+                    <button id="undoBtn">무르기</button>
+                    <button id="resetBtn">다시하기</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container text-center">
+            <div class="btn-group">
+                <a href="https://www.google.com" target="_blank" class="btn-outline">Google</a>
+                <a href="https://www.youtube.com" target="_blank" class="btn-outline">YouTube</a>
+                <a href="https://gemini.google.com" target="_blank" class="btn-outline">Gemini</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../../script.js"></script>
+    <script src="omok.js"></script>
+</body>
+</html>

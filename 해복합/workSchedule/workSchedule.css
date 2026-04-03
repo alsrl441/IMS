@@ -1,0 +1,172 @@
+/* 통합 근무표 기본 스타일 (대시보드 기준) */
+
+.work-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 24px;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+}
+
+/* 대시보드용 폰트 및 패딩 (크게) */
+.work-table th, .work-table td {
+    border: 1px solid #dee2e6;
+    padding: 8px 6px; /* 넉넉한 패딩 */
+    text-align: center;
+    font-size: 12px; /* 시원시원한 크기 */
+    vertical-align: middle;
+    word-break: keep-all;
+}
+
+/* 대시보드용 그룹 헤더 너비 */
+.work-table .group-header {
+    width: 80px;
+    font-weight: 700;
+    background-color: #f8f9fa;
+}
+
+.work-table .sub-group {
+    width: 100px;
+    font-weight: 600;
+}
+
+/* ====================================================== */
+/* 월간 전체 근무표 전용 스타일 (작고 콤팩트하게) */
+/* ====================================================== */
+
+.monthly-table {
+    table-layout: fixed;
+}
+
+.monthly-table th, .monthly-table td {
+    padding: 6px 2px;
+    font-size: 9px; /* 월간용 작은 폰트 */
+}
+
+.monthly-table .group-header {
+    width: 35px; /* 좁은 너비 */
+}
+
+.monthly-table .sub-group {
+    width: 45px; /* 좁은 너비 */
+}
+
+.monthly-table th {
+    background-color: #f8f9fa;
+    font-size: 8px;
+    padding: 8px 0;
+}
+
+/* 은은한 행 구분 (월간용) */
+.monthly-table tbody tr:nth-child(even) {
+    background-color: #f0f0f0;
+}
+
+/* ====================================================== */
+
+/* 상단 날짜 헤더 */
+.table-date-header {
+    background-color: #f8f9fa !important;
+    color: #212529 !important;
+    font-size: 12px !important; /* 대시보드는 크게 */
+    font-weight: 700 !important;
+}
+
+.monthly-table .table-date-header {
+    font-size: 10px !important; /* 월간용은 작게 */
+}
+
+/* 이름 칸 상세 스타일 */
+.names-cell {
+    padding: 0 !important;
+}
+
+.names-cell .p1, .names-cell .p2 {
+    padding: 4px 0;
+    height: 35px; /* 대시보드 높이 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: #212529;
+}
+
+.monthly-table .names-cell .p1, 
+.monthly-table .names-cell .p2 {
+    height: 28px; /* 월간용 높이 */
+    font-size: 9px;
+}
+
+.names-cell .p1 {
+    border-bottom: 1px solid rgba(0,0,0,0.03);
+}
+
+/* 대시보드 더보기 버튼 */
+.more-btn {
+    text-decoration: none !important;
+    color: #212529 !important;
+    font-size: 1.2rem;
+    line-height: 1;
+    padding: 0 5px;
+    font-weight: 400;
+}
+
+.more-btn:hover {
+    color: #212529 !important;
+    text-decoration: none !important;
+}
+
+/* 주말 색상 */
+.text-primary { color: #0d6efd !important; }
+.text-danger { color: #dc3545 !important; }
+
+/* 통계 요약 대시보드 */
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 15px;
+}
+
+.summary-item {
+    background-color: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+}
+
+.summary-item span {
+    display: block;
+    font-size: 12px;
+    color: #6c757d;
+    margin-bottom: 5px;
+}
+
+.summary-item strong {
+    font-size: 16px;
+    color: #212529;
+}
+
+.stats-table th {
+    background-color: #f8f9fa !important;
+    font-size: 12px !important;
+    padding: 10px 8px !important;
+}
+
+.stats-table td {
+    font-size: 13px !important;
+    padding: 8px 8px !important;
+}
+
+.font-weight-bold { font-weight: 700; }
+.text-dark { color: #212529 !important; }
+.mb-4 { margin-bottom: 1.5rem; }
+.mb-5 { margin-bottom: 3rem; }
+.mt-5 { margin-top: 3rem; }
+
+/* 메인 컨테이너 너비 확장 (월간 페이지 전용) */
+body.bg-light main.container {
+    max-width: 1600px !important;
+    padding-left: 20px;
+    padding-right: 20px;
+}

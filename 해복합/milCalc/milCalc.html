@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>복무 정보 조회 - CCSS</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="milCalc.css">
+</head>
+<body class="bg-light">
+    <nav class="navbar">
+        <div class="container navbar-container">
+            <div class="navbar-nav">
+                <a href="../index.html" class="nav-link">대시보드</a>
+                <a href="milCalc.html" class="nav-link active">복무 정보</a>
+                <a href="../shipSearch/shipSearch.html" class="nav-link">선박 찾기</a>
+            </div>
+            <div class="navbar-right">
+                <div id="realtime-clock" class="clock"></div>
+                <a href="../game/game.html" class="nav-link game-link">놀이터</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container py-4">
+        <div class="calculator-layout">
+            <section class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="card-title">복무 정보 조회</h5>
+                </div>
+                <div class="card-body">
+                    <div class="selector-section mb-4">
+                        <label for="memberSelect" class="form-label">인원 선택</label>
+                        <select id="memberSelect" class="form-select">
+                            <option value="">이름을 선택하세요</option>
+                        </select>
+                    </div>
+
+                    <div id="resultDisplay" class="result-content hidden">
+                        <div class="result-header text-center mb-4">
+                            <div class="realtime-percent-container">
+                                <h2 id="resName" class="display-name mb-0"></h2>
+                                <span id="resPercent" class="realtime-percent"></span>
+                            </div>
+                            <div class="progress-bar-container mt-3">
+                                <div id="progressBarFill" class="progress-bar-fill"></div>
+                            </div>
+                        </div>
+
+                        <table class="info-table table table-bordered">
+                            <thead>
+                                <tr><th colspan="2">기본 복무 정보</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td class="table-label">현재 계급</td><td><span id="resRank" class="font-weight-bold"></span></td></tr>
+                                <tr><td class="table-label">입대일</td><td><span id="resStartDate"></span></td></tr>
+                                <tr><td class="table-label">전역일</td><td><span id="resEndDate"></span></td></tr>
+                                <tr><td class="table-label">남은 기간</td><td><span id="resDday" class="text-primary font-weight-bold"></span></td></tr>
+                            </tbody>
+                            <thead>
+                                <tr><th colspan="2">진급 및 휴가 예정</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td class="table-label">진급 예정일</td><td><span id="resNextPromo"></span></td></tr>
+                                <tr><td class="table-label">진급까지</td><td><span id="resPromoDday" class="text-danger"></span></td></tr>
+                                <tr><td class="table-label">휴가 예정일</td><td><span id="resNextVac"></span></td></tr>
+                                <tr><td class="table-label">휴가까지</td><td><span id="resVacDday" class="text-danger"></span></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <div id="previewDisplay" class="preview-grid"></div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container text-center">
+            <div class="btn-group">
+                <a href="https://www.google.com" target="_blank" class="btn-outline">Google</a>
+                <a href="https://www.youtube.com" target="_blank" class="btn-outline">YouTube</a>
+                <a href="https://gemini.google.com" target="_blank" class="btn-outline">Gemini</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../script.js"></script>
+    <script src="members.js"></script>
+    <script src="milCalc.js"></script>
+</body>
+</html>
