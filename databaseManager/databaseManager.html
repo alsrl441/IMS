@@ -198,17 +198,43 @@
 
     async function saveData() {
         if (!currentDB || !currentStore) return;
+        let newData;
         try {
-            const newData = JSON.parse(editor.value);
+            const content = editor.value.trim();
+            try { 
+                newData = JSON.parse(content); 
+            } catch { 
+                newData = new Function(`return ${content}`)(); 
+            }
+            
+            if (typeof newData !== 'object' || newData === null) {
+                throw new Error("Data must be a JSON Object or Array");
+            }
+
             const req = indexedDB.open(currentDB);
+            req.onerror = () => alert("DATABASE ERROR");
             req.onsuccess = (e) => {
                 const db = e.target.result;
                 const tx = db.transaction(currentStore, 'readwrite');
                 const store = tx.objectStore(currentStore);
-                store.clear().onsuccess = () => Object.keys(newData).forEach(k => store.put(newData[k], k));
+                
+                store.clear().onsuccess = () => {
+                    if (Array.isArray(newData)) {
+                        newData.forEach((item, i) => {
+                            const key = (item && (item.id || item.key)) || i.toString();
+                            store.put(item, key);
+                        });
+                    } else {
+                        Object.keys(newData).forEach(k => store.put(newData[k], k));
+                    }
+                };
+                
                 tx.oncomplete = () => { showStatus("SAVED"); db.close(); };
+                tx.onerror = (err) => { alert("SAVE TRANSACTION ERROR: " + err.target.error); db.close(); };
             };
-        } catch (e) { alert("JSON ERROR"); }
+        } catch (e) { 
+            alert("PARSING ERROR: " + e.message + "\n\n문법을 확인해주세요. (큰따옴표 사용 권장, 마지막 쉼표 제거 등)"); 
+        }
     }
 
     async function createNewDB() {
