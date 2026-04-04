@@ -39,22 +39,24 @@
 }
 
 .monthly-table th, .monthly-table td {
-    padding: 6px 2px;
-    font-size: 11px; /* 월간용 작은 폰트 */
+    padding: 8px 4px;
+    font-size: 14px;
 }
 
 .monthly-table .group-header {
-    width: 35px; /* 좁은 너비 */
+    width: 60px;
+    font-weight: 700;
 }
 
 .monthly-table .sub-group {
-    width: 45px; /* 좁은 너비 */
+    width: 85px;
+    font-weight: 600;
 }
 
 .monthly-table th {
     background-color: #f8f9fa;
-    font-size: 8px;
-    padding: 8px 0;
+    font-size: 12px;
+    padding: 10px 0;
 }
 
 /* 은은한 행 구분 (월간용) */
@@ -76,7 +78,7 @@
 .text-danger { color: #dc3545 !important; }
 
 .monthly-table .table-date-header {
-    font-size: 10px !important; /* 월간용은 작게 */
+    font-size: 14px !important;
 }
 
 /* 이름 칸 상세 스타일 */
@@ -96,8 +98,8 @@
 
 .monthly-table .names-cell .p1, 
 .monthly-table .names-cell .p2 {
-    height: 28px; /* 월간용 높이 */
-    font-size: 9px;
+    height: 35px;
+    font-size: 13px;
 }
 
 .names-cell .p1 {
