@@ -351,7 +351,7 @@ function renderShips() {
                             ${ship.history.length > 0 ? ship.history.map(h => `<img src="${h.shipImage}" class="slider-img">`).join('') : `<img src="Images/no-image.jpg" class="slider-img">`}
                         </div>
                         <div class="slider-nav slider-next" onclick="changeShipImage(${shipIdx}, 1)">&gt;</div>
-                        <div class="slider-dots">${ship.history.map((_, i) => `<div class="dot ${i === currentIdx ? 'active' : ''}"></div>`).join('')}</div>
+                        <div class="slider-dots">${ship.history.map((_, i) => `<div class="dot ${i === currentImgIdx ? 'active' : ''}"></div>`).join('')}</div>
                     </div>
                 </div>
                 <div class="ship-card-expanded">
