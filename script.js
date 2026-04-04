@@ -12,7 +12,7 @@ function updateClock() {
     
     const clockEl = document.getElementById('clock');
     if (clockEl) {
-        clockEl.innerText = `${year}-${month}-${date} (${day}) ${hours}:${minutes}:${seconds}`;
+        clockEl.innerText = `${year}-${month}-${date}(${day}) ${hours}:${minutes}:${seconds}`;
     }
 }
 
