@@ -1,6 +1,6 @@
 let selectedTags = [];
 let currentPage = 1;
-const itemsPerPage = 1; // 한 페이지에 표시할 선박 수
+const itemsPerPage = 4; // 한 페이지에 표시할 선박 수
 let currentFocus = -1; 
 let shipData = []; // IndexedDB에서 로드할 데이터
 
