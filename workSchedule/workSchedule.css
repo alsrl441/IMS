@@ -235,7 +235,7 @@
 }
 
 .monthly-table .names-cell .p2 {
-    color: #6c757d;
+    color: #212529; /* 회색에서 검정색으로 변경 */
 }
 
 /* 유틸리티 */

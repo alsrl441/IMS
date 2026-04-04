@@ -62,14 +62,14 @@ async function updateWorkSchedule() {
 
     const now = new Date();
     const todayStr = getFormattedDate(now);
-    const currentYear = now.getFullYear();
-    const currentMonth = now.getMonth();
-
+    
     // --- [2] 대시보드 렌더링 (index.html 메인용) ---
+    // (이전 코드 동일...)
     const workDisplay = document.getElementById('work-display');
     if (workDisplay) {
         const tomorrowObj = new Date(now.getTime() + 86400000);
         const tomorrowStr = getFormattedDate(tomorrowObj);
+        // ... (renderTable 정의 및 호출 로직 유지)
 
         const renderTable = async (dateStr, label) => {
             const data = await getDaySchedule(dateStr);
@@ -143,205 +143,198 @@ async function updateWorkSchedule() {
     // --- [3] 월간 상세 근무표 및 통계 (workSchedule.html용) ---
     const monthlyDisplay = document.getElementById('monthly-work-display');
     const statsDisplay = document.getElementById('stats-display');
+    const monthPicker = document.getElementById('month-picker');
 
-    if (monthlyDisplay && statsDisplay) {
-        const allSchedules = await getAllSchedules();
-        
-        const currentMonthData = allSchedules.filter(day => {
-            const d = new Date(day.date);
-            return d.getFullYear() === currentYear && d.getMonth() === currentMonth;
-        }).sort((a, b) => a.date.localeCompare(b.date));
-
-        if (currentMonthData.length === 0) {
-            monthlyDisplay.innerHTML = `<div class="alert alert-light text-center py-5" style="border:1px solid #dee2e6;">${currentYear}년 ${currentMonth + 1}월 데이터가 존재하지 않습니다.</div>`;
-            statsDisplay.innerHTML = "";
-            return;
+    if (monthlyDisplay && statsDisplay && monthPicker) {
+        // 초기값 설정 (현재 월)
+        if (!monthPicker.value) {
+            monthPicker.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
         }
 
-        const daysOfWeek = ["일", "월", "화", "수", "목", "금", "토"];
-        const stats = {};
-
-        currentMonthData.forEach(day => {
-            const namesInDay = [
-                ...day.cctv.flatMap(c => [c.p1, c.p2]),
-                ...day.tod.flatMap(t => [t.p1, t.p2])
-            ].filter(name => name && name !== "-");
+        const renderMonthlyView = async () => {
+            const [selectedYear, selectedMonth] = monthPicker.value.split('-').map(Number);
+            const allSchedules = await getAllSchedules();
             
-            namesInDay.forEach(name => {
-                if (!stats[name]) stats[name] = { wdWork: 0, weWork: 0, totalHours: 0 };
-            });
-        });
+            const currentMonthData = allSchedules.filter(day => {
+                const d = new Date(day.date);
+                return d.getFullYear() === selectedYear && (d.getMonth() + 1) === selectedMonth;
+            }).sort((a, b) => a.date.localeCompare(b.date));
 
-        let headerHtml = `<tr><th colspan="2" class="table-light-bg">구분</th>`;
-        let totalWD = 0, totalWE = 0;
+            if (currentMonthData.length === 0) {
+                monthlyDisplay.innerHTML = `<div class="alert alert-light text-center py-5" style="border:1px solid #dee2e6;">${selectedYear}년 ${selectedMonth}월 데이터가 존재하지 않습니다.</div>`;
+                statsDisplay.innerHTML = "";
+                return;
+            }
 
-        currentMonthData.forEach(dayData => {
-            const d = new Date(dayData.date);
-            const isWeekendOrHoliday = (d.getDay() === 0 || d.getDay() === 6 || dayData.isHoliday);
-            if (isWeekendOrHoliday) totalWE++; else totalWD++;
+            const daysOfWeek = ["일", "월", "화", "수", "목", "금", "토"];
+            const stats = {};
 
-            const dayName = daysOfWeek[d.getDay()];
-            const isRedDay = (d.getDay() === 0 || dayData.isHoliday);
-            const dayClass = isRedDay ? "text-danger" : (d.getDay() === 6 ? "text-primary" : "");
-            
-            headerHtml += `<th class="${dayClass} table-light-bg" style="min-width:80px; text-align:center;">${d.getMonth()+1}/${d.getDate()}<br><small>(${dayName})</small></th>`;
-
-            dayData.cctv.forEach(c => { 
-                [c.p1, c.p2].forEach(p => { 
-                    if (stats[p]) { 
-                        if (isWeekendOrHoliday) stats[p].weWork++; else stats[p].wdWork++; 
-                        stats[p].totalHours += 8; 
-                    } 
+            currentMonthData.forEach(day => {
+                const namesInDay = [
+                    ...day.cctv.flatMap(c => [c.p1, c.p2]),
+                    ...day.tod.flatMap(t => [t.p1, t.p2])
+                ].filter(name => name && name !== "-");
+                
+                namesInDay.forEach(name => {
+                    if (!stats[name]) stats[name] = { wdWork: 0, weWork: 0, totalHours: 0 };
                 });
             });
 
-            dayData.tod.forEach(t => {
-                if (t.location !== "-" && t.location !== "") {
-                    let hours = 0;
-                    if (t.location === "고하도") hours = 9;
-                    else if (t.location === "외기 평시") hours = 7;
-                    else if (t.location === "외기 핵취") hours = 10;
+            let headerHtml = `<tr><th colspan="2" class="table-light-bg">구분</th>`;
+            let totalWD = 0, totalWE = 0;
 
-                    [t.p1, t.p2].forEach(p => { 
-                        if (stats[p] && p !== "-") { 
+            currentMonthData.forEach(dayData => {
+                const d = new Date(dayData.date);
+                const isWeekendOrHoliday = (d.getDay() === 0 || d.getDay() === 6 || dayData.isHoliday);
+                if (isWeekendOrHoliday) totalWE++; else totalWD++;
+
+                const dayName = daysOfWeek[d.getDay()];
+                const isRedDay = (d.getDay() === 0 || dayData.isHoliday);
+                const dayClass = isRedDay ? "text-danger" : (d.getDay() === 6 ? "text-primary" : "");
+                
+                headerHtml += `<th class="${dayClass} table-light-bg" style="min-width:80px; text-align:center;">${d.getMonth()+1}/${d.getDate()}<br><small>(${dayName})</small></th>`;
+
+                dayData.cctv.forEach(c => { 
+                    [c.p1, c.p2].forEach(p => { 
+                        if (stats[p]) { 
                             if (isWeekendOrHoliday) stats[p].weWork++; else stats[p].wdWork++; 
-                            stats[p].totalHours += hours; 
+                            stats[p].totalHours += 8; 
                         } 
                     });
-                }
+                });
+
+                dayData.tod.forEach(t => {
+                    if (t.location !== "-" && t.location !== "") {
+                        let hours = 0;
+                        if (t.location === "고하도") hours = 9;
+                        else if (t.location === "외기 평시") hours = 7;
+                        else if (t.location === "외기 핵취") hours = 10;
+
+                        [t.p1, t.p2].forEach(p => { 
+                            if (stats[p] && p !== "-") { 
+                                if (isWeekendOrHoliday) stats[p].weWork++; else stats[p].wdWork++; 
+                                stats[p].totalHours += hours; 
+                            } 
+                        });
+                    }
+                });
             });
-        });
 
-        const renderCctvRow = (idx, label) => {
-            let row = `<tr>`;
-            if (idx === 0) row += `
-                <td rowspan="3" class="group-header table-fdfdfd-bg v-middle">CCTV</td>
-            `;
-            row += `
-                <td class="sub-group table-fdfdfd-bg">
-                    ${label}
-                </td>
-            `;
+            // (renderCctvRow, renderTodRow 정의 생략하지 않고 포함)
+            const renderCctvRow = (idx, label) => {
+                let row = `<tr>`;
+                if (idx === 0) row += `<td rowspan="3" class="group-header table-fdfdfd-bg v-middle">CCTV</td>`;
+                row += `<td class="sub-group table-fdfdfd-bg">${label}</td>`;
 
-            currentMonthData.forEach(day => {
-                const s = day.cctv[idx];
-                const p1 = (s?.p1 === "-" || !s?.p1) ? "" : s.p1;
-                const p2 = (s?.p2 === "-" || !s?.p2) ? "" : s.p2;
-                row += `
-                    <td class="names-cell">
-                        <div class="p1">${p1}</div>
-                        <div class="p2">${p2}</div>
-                    </td>
-                `;
-            });
-            return row + `</tr>`;
-        };
+                currentMonthData.forEach(day => {
+                    const s = day.cctv[idx];
+                    const p1 = (s?.p1 === "-" || !s?.p1) ? "" : s.p1;
+                    const p2 = (s?.p2 === "-" || !s?.p2) ? "" : s.p2;
+                    row += `<td class="names-cell"><div class="p1">${p1}</div><div class="p2">${p2}</div></td>`;
+                });
+                return row + `</tr>`;
+            };
 
-        const renderTodRow = (type, label) => {
-            let row = `<tr>`;
-            if (type === '고하도') row += `
-                <td rowspan="3" class="group-header table-fdfdfd-bg v-middle">TOD</td>
-            `;
-            row += `
-                <td class="sub-group table-fdfdfd-bg">
-                    ${label}
-                </td>
-            `;
+            const renderTodRow = (type, label) => {
+                let row = `<tr>`;
+                if (type === '고하도') row += `<td rowspan="3" class="group-header table-fdfdfd-bg v-middle">TOD</td>`;
+                row += `<td class="sub-group table-fdfdfd-bg">${label}</td>`;
+                
+                currentMonthData.forEach(day => {
+                    let s = day.tod.find(item => item.location === label);
+                    const p1 = (s && s.p1 !== "-") ? s.p1 : "";
+                    const p2 = (s && s.p2 !== "-") ? s.p2 : "";
+                    row += `<td class="names-cell"><div class="p1">${p1}</div><div class="p2">${p2}</div></td>`;
+                });
+                return row + `</tr>`;
+            };
+
+            let bodyHtml = "";
+            bodyHtml += renderCctvRow(0, "06-14");
+            bodyHtml += renderCctvRow(1, "14-22");
+            bodyHtml += renderCctvRow(2, "22-06");
+            bodyHtml += renderTodRow('고하도', "고하도");
+            bodyHtml += renderTodRow('외기', "외기 평시");
+            bodyHtml += renderTodRow('외기', "외기 핵취");
+
+            monthlyDisplay.innerHTML = `
+                <div class="monthly-table-wrapper">
+                    <table class="work-table table-bordered monthly-table">
+                        <thead>${headerHtml}</tr></thead>
+                        <tbody>${bodyHtml}</tbody>
+                    </table>
+                </div>`;
+
+            // 통계 렌더링
+            const hourList = Object.values(stats).map(s => s.totalHours);
+            const avgHours = hourList.length ? (hourList.reduce((a, b) => a + b, 0) / hourList.length) : 0;
+            const sortedHours = [...hourList].sort((a, b) => a - b);
+            const medianHours = sortedHours.length ? (sortedHours.length % 2 === 0 
+                ? (sortedHours[sortedHours.length/2 - 1] + sortedHours[sortedHours.length/2]) / 2 
+                : sortedHours[Math.floor(sortedHours.length/2)]) : 0;
             
-            currentMonthData.forEach(day => {
-                let s = day.tod.find(item => item.location === label);
-                const p1 = (s && s.p1 !== "-") ? s.p1 : "";
-                const p2 = (s && s.p2 !== "-") ? s.p2 : "";
-                row += `
-                    <td class="names-cell">
-                        <div class="p1">${p1}</div>
-                        <div class="p2">${p2}</div>
-                    </td>
-                `;
+            const maxVal = hourList.length ? Math.max(...hourList) : 0;
+            const minVal = hourList.length ? Math.min(...hourList) : 0;
+            const maxUsers = Object.keys(stats).filter(n => stats[n].totalHours === maxVal);
+            const minUsers = Object.keys(stats).filter(n => stats[n].totalHours === minVal);
+
+            let statsRows = "";
+            Object.keys(stats).sort().forEach(name => {
+                const s = stats[name];
+                const dev = (s.totalHours - avgHours).toFixed(1);
+                const devClass = dev > 0 ? "text-danger" : (dev < 0 ? "text-primary" : "");
+                statsRows += `
+                    <tr>
+                        <td class="name-cell">${name}</td>
+                        <td>${s.wdWork}회</td>
+                        <td>${s.weWork}회</td>
+                        <td>${totalWD - s.wdWork}일</td>
+                        <td>${totalWE - s.weWork}일</td>
+                        <td class="hours-cell">${s.totalHours}h</td>
+                        <td class="dev-cell ${devClass}">${dev > 0 ? '+' : ''}${dev}h</td>
+                    </tr>`;
             });
-            return row + `</tr>`;
+
+            statsDisplay.innerHTML = `
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <div class="summary-label">평균값</div>
+                        <div class="summary-value">${avgHours.toFixed(1)}h</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">중앙값</div>
+                        <div class="summary-value">${medianHours}h</div>
+                    </div>
+                    <div class="summary-item mvp">
+                        <div class="summary-label">이달의 MVP</div>
+                        <div class="summary-value" style="font-size:1rem;">${maxUsers.join(', ')}</div>
+                    </div>
+                    <div class="summary-item bee">
+                        <div class="summary-label">이달의 꿀벌</div>
+                        <div class="summary-value" style="font-size:1rem;">${minUsers.join(', ')}</div>
+                    </div>
+                </div>
+                <div class="monthly-table-wrapper">
+                    <table class="work-table table-bordered stats-table">
+                        <thead>
+                            <tr>
+                                <th>성명</th>
+                                <th>평일 근무</th>
+                                <th>주말 근무</th>
+                                <th>평일 비번</th>
+                                <th>주말 비번</th>
+                                <th>총 시간</th>
+                                <th>평균 편차</th>
+                            </tr>
+                        </thead>
+                        <tbody>${statsRows}</tbody>
+                    </table>
+                </div>`;
         };
 
-        let bodyHtml = "";
-        bodyHtml += renderCctvRow(0, "06-14");
-        bodyHtml += renderCctvRow(1, "14-22");
-        bodyHtml += renderCctvRow(2, "22-06");
-        bodyHtml += renderTodRow('고하도', "고하도");
-        bodyHtml += renderTodRow('외기', "외기 평시");
-        bodyHtml += renderTodRow('외기', "외기 핵취");
-
-        monthlyDisplay.innerHTML = `
-            <div class="monthly-table-wrapper">
-                <table class="work-table table-bordered monthly-table">
-                    <thead>${headerHtml}</tr></thead>
-                    <tbody>${bodyHtml}</tbody>
-                </table>
-            </div>`;
-
-        const hourList = Object.values(stats).map(s => s.totalHours);
-        const avgHours = hourList.length ? (hourList.reduce((a, b) => a + b, 0) / hourList.length) : 0;
-        const sortedHours = [...hourList].sort((a, b) => a - b);
-        const medianHours = sortedHours.length ? (sortedHours.length % 2 === 0 
-            ? (sortedHours[sortedHours.length/2 - 1] + sortedHours[sortedHours.length/2]) / 2 
-            : sortedHours[Math.floor(sortedHours.length/2)]) : 0;
-        
-        const maxVal = hourList.length ? Math.max(...hourList) : 0;
-        const minVal = hourList.length ? Math.min(...hourList) : 0;
-        const maxUsers = Object.keys(stats).filter(n => stats[n].totalHours === maxVal);
-        const minUsers = Object.keys(stats).filter(n => stats[n].totalHours === minVal);
-
-        let statsRows = "";
-        Object.keys(stats).sort().forEach(name => {
-            const s = stats[name];
-            const dev = (s.totalHours - avgHours).toFixed(1);
-            const devClass = dev > 0 ? "text-danger" : (dev < 0 ? "text-primary" : "");
-            statsRows += `
-                <tr>
-                    <td class="name-cell">${name}</td>
-                    <td>${s.wdWork}회</td>
-                    <td>${s.weWork}회</td>
-                    <td>${totalWD - s.wdWork}일</td>
-                    <td>${totalWE - s.weWork}일</td>
-                    <td class="hours-cell">${s.totalHours}h</td>
-                    <td class="dev-cell ${devClass}">${dev > 0 ? '+' : ''}${dev}h</td>
-                </tr>`;
-        });
-
-        statsDisplay.innerHTML = `
-            <div class="summary-grid">
-                <div class="summary-item">
-                    <div class="summary-label">평균값</div>
-                    <div class="summary-value">${avgHours.toFixed(1)}h</div>
-                </div>
-                <div class="summary-item">
-                    <div class="summary-label">중앙값</div>
-                    <div class="summary-value">${medianHours}h</div>
-                </div>
-                <div class="summary-item mvp">
-                    <div class="summary-label">이달의 MVP</div>
-                    <div class="summary-value" style="font-size:1rem;">${maxUsers.join(', ')}</div>
-                </div>
-                <div class="summary-item bee">
-                    <div class="summary-label">이달의 꿀벌</div>
-                    <div class="summary-value" style="font-size:1rem;">${minUsers.join(', ')}</div>
-                </div>
-            </div>
-            <div class="monthly-table-wrapper">
-                <table class="work-table table-bordered stats-table">
-                    <thead>
-                        <tr>
-                            <th>성명</th>
-                            <th>평일 근무</th>
-                            <th>주말 근무</th>
-                            <th>평일 비번</th>
-                            <th>주말 비번</th>
-                            <th>총 시간</th>
-                            <th>평균 편차</th>
-                        </tr>
-                    </thead>
-                    <tbody>${statsRows}</tbody>
-                </table>
-            </div>`;
+        // 초기 실행 및 이벤트 연결
+        renderMonthlyView();
+        monthPicker.addEventListener('change', renderMonthlyView);
     }
 }
 
