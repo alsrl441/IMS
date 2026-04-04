@@ -73,56 +73,56 @@ async function updateWorkSchedule() {
 
         const renderTable = async (dateStr, label) => {
             const data = await getDaySchedule(dateStr);
-            if (!data) return `<div class="no-data" style="padding:20px; color:#6c757d; text-align:center;">${dateStr} (${label}) 데이터가 없습니다.</div>`;
+            if (!data) return `<div class="no-data">${dateStr} (${label}) 데이터가 없습니다.</div>`;
             
             const formatName = (name) => (name === "-" || !name ? "" : name);
 
             return `
-                <table class="work-table table table-bordered mb-4" style="width:100%; border-collapse:collapse; margin-bottom:20px;">
+                <table class="work-table table table-bordered mb-4">
                     <thead>
-                        <tr style="background:#f8f9fa;">
-                            <th colspan="4" class="table-date-header ${data.isHoliday ? 'text-danger' : ''}" style="padding:10px; border:1px solid #dee2e6; text-align:center;">
-                                ${dateStr} (${label}) ${data.isHoliday ? '<span style="font-size:0.8rem;">[공휴일/휴무]</span>' : ''}
+                        <tr class="table-light-bg">
+                            <th colspan="4" class="table-date-header ${data.isHoliday ? 'text-danger' : ''}">
+                                ${dateStr} (${label}) ${data.isHoliday ? '<span>[공휴일/휴무]</span>' : ''}
                             </th>
                         </tr>
-                        <tr style="background:#fff;">
-                            <th colspan="2" style="width:40%; padding:8px; border:1px solid #dee2e6; text-align:center;">구분</th>
-                            <th style="width:30%; padding:8px; border:1px solid #dee2e6; text-align:center;">사수</th>
-                            <th style="width:30%; padding:8px; border:1px solid #dee2e6; text-align:center;">부사수</th>
+                        <tr class="table-white-bg">
+                            <th colspan="2" style="width:40%;">구분</th>
+                            <th style="width:30%;">사수</th>
+                            <th style="width:30%;">부사수</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td rowspan="3" class="group-header" style="vertical-align:middle; text-align:center; border:1px solid #dee2e6; font-weight:bold; background:#fdfdfd;">해복합</td>
-                            <td class="sub-group" style="text-align:center; border:1px solid #dee2e6; padding:5px;">${data.cctv[0]?.shift || "06-14"}</td>
-                            <td style="text-align:center; border:1px solid #dee2e6; padding:5px;">${formatName(data.cctv[0]?.p1)}</td>
-                            <td style="text-align:center; border:1px solid #dee2e6; padding:5px;">${formatName(data.cctv[0]?.p2)}</td>
+                            <td rowspan="3" class="group-header table-fdfdfd-bg v-middle">해복합</td>
+                            <td class="sub-group">${data.cctv[0]?.shift || "06-14"}</td>
+                            <td>${formatName(data.cctv[0]?.p1)}</td>
+                            <td>${formatName(data.cctv[0]?.p2)}</td>
                         </tr>
                         <tr>
-                            <td class="sub-group" style="text-align:center; border:1px solid #dee2e6; padding:5px;">${data.cctv[1]?.shift || "14-22"}</td>
-                            <td style="text-align:center; border:1px solid #dee2e6; padding:5px;">${formatName(data.cctv[1]?.p1)}</td>
-                            <td style="text-align:center; border:1px solid #dee2e6; padding:5px;">${formatName(data.cctv[1]?.p2)}</td>
+                            <td class="sub-group">${data.cctv[1]?.shift || "14-22"}</td>
+                            <td>${formatName(data.cctv[1]?.p1)}</td>
+                            <td>${formatName(data.cctv[1]?.p2)}</td>
                         </tr>
                         <tr>
-                            <td class="sub-group" style="text-align:center; border:1px solid #dee2e6; padding:5px;">${data.cctv[2]?.shift || "22-06"}</td>
-                            <td style="text-align:center; border:1px solid #dee2e6; padding:5px;">${formatName(data.cctv[2]?.p1)}</td>
-                            <td style="text-align:center; border:1px solid #dee2e6; padding:5px;">${formatName(data.cctv[2]?.p2)}</td>
+                            <td class="sub-group">${data.cctv[2]?.shift || "22-06"}</td>
+                            <td>${formatName(data.cctv[2]?.p1)}</td>
+                            <td>${formatName(data.cctv[2]?.p2)}</td>
                         </tr>
                         <tr>
-                            <td rowspan="3" class="group-header" style="vertical-align:middle; text-align:center; border:1px solid #dee2e6; font-weight:bold; background:#fdfdfd;">TOD</td>
-                            <td class="sub-group" style="text-align:center; border:1px solid #dee2e6; padding:5px;">${data.tod[0]?.location || "고하도"}</td>
-                            <td style="text-align:center; border:1px solid #dee2e6; padding:5px;">${formatName(data.tod[0]?.p1)}</td>
-                            <td style="text-align:center; border:1px solid #dee2e6; padding:5px;">${formatName(data.tod[0]?.p2)}</td>
+                            <td rowspan="3" class="group-header table-fdfdfd-bg v-middle">TOD</td>
+                            <td class="sub-group">${data.tod[0]?.location || "고하도"}</td>
+                            <td>${formatName(data.tod[0]?.p1)}</td>
+                            <td>${formatName(data.tod[0]?.p2)}</td>
                         </tr>
                         <tr>
-                            <td class="sub-group" style="text-align:center; border:1px solid #dee2e6; padding:5px;">${data.tod[1]?.location || "외기 평시"}</td>
-                            <td style="text-align:center; border:1px solid #dee2e6; padding:5px;">${formatName(data.tod[1]?.p1)}</td>
-                            <td style="text-align:center; border:1px solid #dee2e6; padding:5px;">${formatName(data.tod[1]?.p2)}</td>
+                            <td class="sub-group">${data.tod[1]?.location || "외기 평시"}</td>
+                            <td>${formatName(data.tod[1]?.p1)}</td>
+                            <td>${formatName(data.tod[1]?.p2)}</td>
                         </tr>
                         <tr>
-                            <td class="sub-group" style="text-align:center; border:1px solid #dee2e6; padding:5px;">${data.tod[2]?.location || "외기 핵취"}</td>
-                            <td style="text-align:center; border:1px solid #dee2e6; padding:5px;">${formatName(data.tod[2]?.p1)}</td>
-                            <td style="text-align:center; border:1px solid #dee2e6; padding:5px;">${formatName(data.tod[2]?.p2)}</td>
+                            <td class="sub-group">${data.tod[2]?.location || "외기 핵취"}</td>
+                            <td>${formatName(data.tod[2]?.p1)}</td>
+                            <td>${formatName(data.tod[2]?.p2)}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -166,7 +166,7 @@ async function updateWorkSchedule() {
             });
         });
 
-        let headerHtml = `<tr><th colspan="2" style="background:#f8f9fa;">구분</th>`;
+        let headerHtml = `<tr><th colspan="2" class="table-light-bg">구분</th>`;
         let totalWD = 0, totalWE = 0;
 
         currentMonthData.forEach(dayData => {
@@ -178,7 +178,7 @@ async function updateWorkSchedule() {
             const isRedDay = (d.getDay() === 0 || dayData.isHoliday);
             const dayClass = isRedDay ? "text-danger" : (d.getDay() === 6 ? "text-primary" : "");
             
-            headerHtml += `<th class="${dayClass}" style="min-width:80px; text-align:center; background:#f8f9fa;">${d.getMonth()+1}/${d.getDate()}<br><small>(${dayName})</small></th>`;
+            headerHtml += `<th class="${dayClass} table-light-bg" style="min-width:80px; text-align:center;">${d.getMonth()+1}/${d.getDate()}<br><small>(${dayName})</small></th>`;
 
             dayData.cctv.forEach(c => { 
                 [c.p1, c.p2].forEach(p => { 
@@ -209,23 +209,10 @@ async function updateWorkSchedule() {
         const renderCctvRow = (idx, label) => {
             let row = `<tr>`;
             if (idx === 0) row += `
-                <td
-                    rowspan="3"
-                    class="group-header"
-                    style="background:#fdfdfd;
-                    font-weight:bold;
-                    text-align:center;
-                    vertical-align:middle;"
-                >
-                    CCTV
-                </td>
+                <td rowspan="3" class="group-header table-fdfdfd-bg v-middle">CCTV</td>
             `;
             row += `
-                <td
-                    class="sub-group"
-                    style="background:#fdfdfd;
-                    text-align:center;
-                ">
+                <td class="sub-group table-fdfdfd-bg">
                     ${label}
                 </td>
             `;
@@ -235,9 +222,9 @@ async function updateWorkSchedule() {
                 const p1 = (s?.p1 === "-" || !s?.p1) ? "" : s.p1;
                 const p2 = (s?.p2 === "-" || !s?.p2) ? "" : s.p2;
                 row += `
-                    <td class="names-cell" style="text-align:center; padding:4px; font-size:0.85rem;">
-                        <div>${p1}</div>
-                        <div>${p2}</div>
+                    <td class="names-cell">
+                        <div class="p1">${p1}</div>
+                        <div class="p2">${p2}</div>
                     </td>
                 `;
             });
@@ -247,27 +234,10 @@ async function updateWorkSchedule() {
         const renderTodRow = (type, label) => {
             let row = `<tr>`;
             if (type === '고하도') row += `
-                <td
-                    rowspan="3"
-                    class="group-header"
-                    style="
-                        background:#fdfdfd;
-                        font-weight:bold;
-                        text-align:center;
-                        vertical-align:middle;
-                    "
-                >
-                    TOD
-                </td>
+                <td rowspan="3" class="group-header table-fdfdfd-bg v-middle">TOD</td>
             `;
             row += `
-                <td
-                    class="sub-group"
-                    style="
-                        background:#fdfdfd;
-                        text-align:center;
-                    "
-                >
+                <td class="sub-group table-fdfdfd-bg">
                     ${label}
                 </td>
             `;
@@ -277,20 +247,9 @@ async function updateWorkSchedule() {
                 const p1 = (s && s.p1 !== "-") ? s.p1 : "";
                 const p2 = (s && s.p2 !== "-") ? s.p2 : "";
                 row += `
-                    <td
-                        class="names-cell"
-                        style="
-                            text-align:center;
-                            padding:4px;
-                            font-size:0.85rem;
-                        "
-                    >
-                        <div style="font-weight:500;">
-                            ${p1}
-                        </div>
-                        <div style="color:#6c757d;">
-                            ${p2}
-                        </div>
+                    <td class="names-cell">
+                        <div class="p1">${p1}</div>
+                        <div class="p2">${p2}</div>
                     </td>
                 `;
             });
@@ -306,15 +265,8 @@ async function updateWorkSchedule() {
         bodyHtml += renderTodRow('외기', "외기 핵취");
 
         monthlyDisplay.innerHTML = `
-            <div style="overflow-x:auto;">
-                <table
-                    class="work-table table-bordered monthly-table"
-                    style="
-                        width:100%;
-                        border-collapse:collapse;
-                        min-width:1000px;
-                    "
-                >
+            <div class="monthly-table-wrapper">
+                <table class="work-table table-bordered monthly-table">
                     <thead>${headerHtml}</tr></thead>
                     <tbody>${bodyHtml}</tbody>
                 </table>
@@ -339,46 +291,46 @@ async function updateWorkSchedule() {
             const devClass = dev > 0 ? "text-danger" : (dev < 0 ? "text-primary" : "");
             statsRows += `
                 <tr>
-                    <td style="font-weight:bold; text-align:center; padding:8px; border:1px solid #dee2e6;">${name}</td>
-                    <td style="text-align:center; padding:8px; border:1px solid #dee2e6;">${s.wdWork}회</td>
-                    <td style="text-align:center; padding:8px; border:1px solid #dee2e6;">${s.weWork}회</td>
-                    <td style="text-align:center; padding:8px; border:1px solid #dee2e6;">${totalWD - s.wdWork}일</td>
-                    <td style="text-align:center; padding:8px; border:1px solid #dee2e6;">${totalWE - s.weWork}일</td>
-                    <td style="font-weight:bold; color:#212529; text-align:center; padding:8px; border:1px solid #dee2e6;">${s.totalHours}h</td>
-                    <td class="${devClass}" style="text-align:center; padding:8px; border:1px solid #dee2e6; font-weight:600;">${dev > 0 ? '+' : ''}${dev}h</td>
+                    <td class="name-cell">${name}</td>
+                    <td>${s.wdWork}회</td>
+                    <td>${s.weWork}회</td>
+                    <td>${totalWD - s.wdWork}일</td>
+                    <td>${totalWE - s.weWork}일</td>
+                    <td class="hours-cell">${s.totalHours}h</td>
+                    <td class="dev-cell ${devClass}">${dev > 0 ? '+' : ''}${dev}h</td>
                 </tr>`;
         });
 
         statsDisplay.innerHTML = `
-            <div class="summary-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:15px; margin-bottom:30px;">
-                <div style="background:#f8f9fa; padding:15px; border-radius:8px; text-align:center; border:1px solid #dee2e6;">
-                    <div style="font-size:0.8rem; color:#6c757d; margin-bottom:5px;">평균값</div>
-                    <strong style="font-size:1.2rem;">${avgHours.toFixed(1)}h</strong>
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <div class="summary-label">평균값</div>
+                    <div class="summary-value">${avgHours.toFixed(1)}h</div>
                 </div>
-                <div style="background:#f8f9fa; padding:15px; border-radius:8px; text-align:center; border:1px solid #dee2e6;">
-                    <div style="font-size:0.8rem; color:#6c757d; margin-bottom:5px;">중앙값</div>
-                    <strong style="font-size:1.2rem;">${medianHours}h</strong>
+                <div class="summary-item">
+                    <div class="summary-label">중앙값</div>
+                    <div class="summary-value">${medianHours}h</div>
                 </div>
-                <div style="background:#fff3cd; padding:15px; border-radius:8px; text-align:center; border:1px solid #ffeeba;">
-                    <div style="font-size:0.8rem; color:#856404; margin-bottom:5px;">이달의 MVP</div>
-                    <strong style="font-size:1rem; color:#856404;">${maxUsers.join(', ')}</strong>
+                <div class="summary-item mvp">
+                    <div class="summary-label">이달의 MVP</div>
+                    <div class="summary-value" style="font-size:1rem;">${maxUsers.join(', ')}</div>
                 </div>
-                <div style="background:#d1ecf1; padding:15px; border-radius:8px; text-align:center; border:1px solid #bee5eb;">
-                    <div style="font-size:0.8rem; color:#0c5460; margin-bottom:5px;">이달의 꿀벌</div>
-                    <strong style="font-size:1rem; color:#0c5460;">${minUsers.join(', ')}</strong>
+                <div class="summary-item bee">
+                    <div class="summary-label">이달의 꿀벌</div>
+                    <div class="summary-value" style="font-size:1rem;">${minUsers.join(', ')}</div>
                 </div>
             </div>
-            <div style="overflow-x:auto;">
-                <table class="work-table table-bordered stats-table" style="width:100%; border-collapse:collapse; min-width:800px;">
-                    <thead style="background:#f8f9fa;">
+            <div class="monthly-table-wrapper">
+                <table class="work-table table-bordered stats-table">
+                    <thead>
                         <tr>
-                            <th style="padding:10px; border:1px solid #dee2e6;">성명</th>
-                            <th style="padding:10px; border:1px solid #dee2e6;">평일 근무</th>
-                            <th style="padding:10px; border:1px solid #dee2e6;">주말 근무</th>
-                            <th style="padding:10px; border:1px solid #dee2e6;">평일 비번</th>
-                            <th style="padding:10px; border:1px solid #dee2e6;">주말 비번</th>
-                            <th style="padding:10px; border:1px solid #dee2e6;">총 시간</th>
-                            <th style="padding:10px; border:1px solid #dee2e6;">평균 편차</th>
+                            <th>성명</th>
+                            <th>평일 근무</th>
+                            <th>주말 근무</th>
+                            <th>평일 비번</th>
+                            <th>주말 비번</th>
+                            <th>총 시간</th>
+                            <th>평균 편차</th>
                         </tr>
                     </thead>
                     <tbody>${statsRows}</tbody>

@@ -116,47 +116,131 @@
     text-decoration: none !important;
 }
 
-/* 주말 색상 */
-.text-primary { color: #0d6efd !important; }
-.text-danger { color: #dc3545 !important; }
+/* ====================================================== */
+/* [신규] 공통 및 대시보드 보완 스타일 */
+/* ====================================================== */
 
-/* 통계 요약 대시보드 */
-.summary-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 15px;
-}
-
-.summary-item {
-    background-color: #ffffff;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    padding: 15px;
+.no-data {
+    padding: 20px;
+    color: #6c757d;
     text-align: center;
 }
 
-.summary-item span {
-    display: block;
-    font-size: 12px;
+.table-light-bg { background-color: #f8f9fa !important; }
+.table-white-bg { background-color: #ffffff !important; }
+.table-fdfdfd-bg { background-color: #fdfdfd !important; }
+
+.table-date-header span {
+    font-size: 0.8rem;
+    font-weight: 400;
+}
+
+/* 통계 및 요약 그리드 보완 */
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.summary-item {
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    border: 1px solid #dee2e6;
+    background-color: #f8f9fa;
+}
+
+.summary-item .summary-label {
+    font-size: 0.8rem;
     color: #6c757d;
     margin-bottom: 5px;
 }
 
-.summary-item strong {
-    font-size: 16px;
+.summary-item .summary-value {
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+/* MVP & 꿀벌 특수 스타일 */
+.summary-item.mvp {
+    background-color: #fff3cd;
+    border-color: #ffeeba;
+}
+.summary-item.mvp .summary-label,
+.summary-item.mvp .summary-value {
+    color: #856404;
+}
+
+.summary-item.bee {
+    background-color: #d1ecf1;
+    border-color: #bee5eb;
+}
+.summary-item.bee .summary-label,
+.summary-item.bee .summary-value {
+    color: #0c5460;
+}
+
+/* 통계 테이블 보완 */
+.stats-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 800px;
+}
+
+.stats-table thead {
+    background-color: #f8f9fa;
+}
+
+.stats-table th, .stats-table td {
+    padding: 10px 8px;
+    border: 1px solid #dee2e6;
+    text-align: center;
+}
+
+.stats-table .name-cell {
+    font-weight: bold;
+}
+
+.stats-table .hours-cell {
+    font-weight: bold;
     color: #212529;
 }
 
-.stats-table th {
-    background-color: #f8f9fa !important;
-    font-size: 12px !important;
-    padding: 10px 8px !important;
+.stats-table .dev-cell {
+    font-weight: 600;
 }
 
-.stats-table td {
-    font-size: 13px !important;
-    padding: 8px 8px !important;
+/* 월간 테이블 보완 */
+.monthly-table-wrapper {
+    overflow-x: auto;
+    margin-bottom: 20px;
 }
+
+.monthly-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 1000px;
+}
+
+.monthly-table .names-cell div {
+    padding: 2px 0;
+}
+
+.monthly-table .names-cell .p1 {
+    font-weight: 500;
+}
+
+.monthly-table .names-cell .p2 {
+    color: #6c757d;
+}
+
+/* 유틸리티 */
+.v-middle { vertical-align: middle !important; }
+.text-center { text-align: center !important; }
+.w-100 { width: 100% !important; }
+.font-weight-600 { font-weight: 600 !important; }
+
 
 .font-weight-bold { font-weight: 700; }
 .text-dark { color: #212529 !important; }
