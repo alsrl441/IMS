@@ -208,27 +208,91 @@ async function updateWorkSchedule() {
 
         const renderCctvRow = (idx, label) => {
             let row = `<tr>`;
-            if (idx === 0) row += `<td rowspan="3" class="group-header" style="background:#fdfdfd; font-weight:bold; text-align:center; vertical-align:middle;">CCTV</td>`;
-            row += `<td class="sub-group" style="background:#fdfdfd; text-align:center;">${label}</td>`;
+            if (idx === 0) row += `
+                <td
+                    rowspan="3"
+                    class="group-header"
+                    style="background:#fdfdfd;
+                    font-weight:bold;
+                    text-align:center;
+                    vertical-align:middle;"
+                >
+                    CCTV
+                </td>
+            `;
+            row += `
+                <td
+                    class="sub-group"
+                    style="background:#fdfdfd;
+                    text-align:center;
+                ">
+                    ${label}
+                </td>
+            `;
+
             currentMonthData.forEach(day => {
                 const s = day.cctv[idx];
                 const p1 = (s?.p1 === "-" || !s?.p1) ? "" : s.p1;
                 const p2 = (s?.p2 === "-" || !s?.p2) ? "" : s.p2;
-                row += `<td class="names-cell" style="text-align:center; padding:4px; font-size:0.85rem;"><div style="font-weight:500;">${p1}</div><div style="color:#6c757d;">${p2}</div></td>`;
+                row += `
+                    <td class="names-cell" style="text-align:center; padding:4px; font-size:0.85rem;">
+                        <div>${p1}</div>
+                        <div>${p2}</div>
+                    </td>
+                `;
             });
             return row + `</tr>`;
         };
 
         const renderTodRow = (type, label) => {
             let row = `<tr>`;
-            if (type === '고하도') row += `<td rowspan="3" class="group-header" style="background:#fdfdfd; font-weight:bold; text-align:center; vertical-align:middle;">TOD</td>`;
-            row += `<td class="sub-group" style="background:#fdfdfd; text-align:center;">${label}</td>`;
+            if (type === '고하도') row += `
+                <td
+                    rowspan="3"
+                    class="group-header"
+                    style="
+                        background:#fdfdfd;
+                        font-weight:bold;
+                        text-align:center;
+                        vertical-align:middle;
+                    "
+                >
+                    TOD
+                </td>
+            `;
+            row += `
+                <td
+                    class="sub-group"
+                    style="
+                        background:#fdfdfd;
+                        text-align:center;
+                    "
+                >
+                    ${label}
+                </td>
+            `;
             
             currentMonthData.forEach(day => {
                 let s = day.tod.find(item => item.location === label);
                 const p1 = (s && s.p1 !== "-") ? s.p1 : "";
                 const p2 = (s && s.p2 !== "-") ? s.p2 : "";
-                row += `<td class="names-cell" style="text-align:center; padding:4px; font-size:0.85rem;"><div style="font-weight:500;">${p1}</div><div style="color:#6c757d;">${p2}</div></td>`;
+                row += `
+                    <td
+                        class="names-cell"
+                        style="
+                            text-align:center;
+                            padding:4px;
+                            font-size:0.85rem;
+                        "
+                    >
+                        <div style="font-weight:500;">
+                            ${p1}
+                        </div>
+                        <div style="color:#6c757d;">
+                            ${p2}
+                        </div>
+                    </td>
+                `;
             });
             return row + `</tr>`;
         };
@@ -243,7 +307,14 @@ async function updateWorkSchedule() {
 
         monthlyDisplay.innerHTML = `
             <div style="overflow-x:auto;">
-                <table class="work-table table-bordered monthly-table" style="width:100%; border-collapse:collapse; min-width:1000px;">
+                <table
+                    class="work-table table-bordered monthly-table"
+                    style="
+                        width:100%;
+                        border-collapse:collapse;
+                        min-width:1000px;
+                    "
+                >
                     <thead>${headerHtml}</tr></thead>
                     <tbody>${bodyHtml}</tbody>
                 </table>
