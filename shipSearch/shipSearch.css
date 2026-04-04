@@ -253,11 +253,19 @@
     overflow: hidden;
 }
 
-.slider-img {
+/* 슬라이드 트랙 추가 */
+.slider-track {
+    display: flex;
     width: 100%;
     height: 100%;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.slider-img {
+    flex: 0 0 100%; /* 트랙 내에서 각각 100% 너비 차지 */
+    width: 320px;
+    height: 100%;
     object-fit: cover;
-    transition: opacity 0.3s ease;
 }
 
 .slider-nav {

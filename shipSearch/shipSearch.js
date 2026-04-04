@@ -205,7 +205,7 @@ function renderSelectedTags() {
     `).join('');
 }
 
-// 이미지 슬라이더 제어 함수
+// 이미지 슬라이더 제어 함수 (슬라이드 방식)
 function changeShipImage(shipIdx, delta) {
     const ship = shipData[shipIdx];
     if (!ship || !ship.history.length) return;
@@ -215,13 +215,11 @@ function changeShipImage(shipIdx, delta) {
     shipSliderState[shipIdx] = currentImgIdx;
 
     const card = document.querySelector(`.ship-card[data-idx="${shipIdx}"]`);
-    const imgEl = card.querySelector(`.slider-img`);
-    if (imgEl) {
-        imgEl.style.opacity = 0;
-        setTimeout(() => {
-            imgEl.src = ship.history[currentImgIdx].shipImage;
-            imgEl.style.opacity = 1;
-        }, 150);
+    const trackEl = card.querySelector(`.slider-track`);
+    
+    if (trackEl) {
+        // 트랙을 가로로 밀어서 이미지 이동
+        trackEl.style.transform = `translateX(-${currentImgIdx * 100}%)`;
     }
 
     // 도트 업데이트
@@ -387,7 +385,9 @@ function renderShips() {
 
                     <div class="ship-photo-slider">
                         <div class="slider-nav slider-prev" onclick="changeShipImage(${shipIdx}, -1)">&lt;</div>
-                        <img src="${mainPhoto}" class="slider-img" alt="${ship.name}">
+                        <div class="slider-track" style="transform: translateX(-${currentImgIdx * 100}%);">
+                            ${ship.history.map(h => `<img src="${h.shipImage}" class="slider-img" alt="${ship.name}">`).join('')}
+                        </div>
                         <div class="slider-nav slider-next" onclick="changeShipImage(${shipIdx}, 1)">&gt;</div>
                         <div class="slider-dots">
                             ${ship.history.map((_, hIdx) => `<div class="dot ${hIdx === currentImgIdx ? 'active' : ''}"></div>`).join('')}
