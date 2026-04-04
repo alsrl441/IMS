@@ -10,7 +10,7 @@
     --bs-body-color: #212529;
     --bs-border-radius: 0.375rem;
     --bs-box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-    --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+    --font-sans: Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
 }
 
 /* ===== Base Styles ===== */
