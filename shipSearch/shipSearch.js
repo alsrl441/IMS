@@ -70,58 +70,161 @@ async function editTags(shipIdx) {
     renderShips();
 }
 
-// 히스토리(식별날짜) 추가 기능
-async function addHistory(shipIdx) {
+// 히스토리 폼 렌더링 (추가/수정 통합)
+function renderHistoryForm(shipIdx, historyIdx = null) {
     const ship = shipData[shipIdx];
-    const date = prompt("식별 날짜 (YYYY-MM-DD):", new Date().toISOString().split('T')[0]);
-    if (!date) return;
-    
-    const newHistory = {
-        date: date,
-        firstTime: prompt("최초 식별 시간 (HH:MM):", "08:00") || "00:00",
-        firstPos: prompt("최초 식별 위치:", "인천항") || "-",
-        lastTime: prompt("최종 식별 시간 (HH:MM):", "18:00") || "00:00",
-        lastPos: prompt("최종 식별 위치:", "인천항") || "-",
-        crewCount: parseInt(prompt("탑승 인원:", "1")) || 0,
-        handover: prompt("인수인계 사항:", "특이사항 없음") || "-",
+    const isEdit = historyIdx !== null;
+    const h = isEdit ? ship.history[historyIdx] : {
+        date: new Date().toISOString().split('T')[0],
+        firstTime: "08:00", firstPos: "",
+        lastTime: "18:00", lastPos: "",
+        crewCount: 1, handover: "특이사항 없음",
         shipImage: "Images/no-image.jpg",
         pathImage: "Images/no-image.jpg"
     };
 
-    ship.history.push(newHistory);
+    const card = document.querySelector(`.ship-card[data-idx="${shipIdx}"]`);
+    const detailView = card.querySelector('.history-detail-view');
+    const pathBox = card.querySelector('.history-path-box');
+
+    // 1. 상세 정보 영역을 입력 폼으로 교체
+    detailView.innerHTML = `
+        <div class="history-edit-form fade-in">
+            <div class="edit-group">
+                <label>식별 날짜</label>
+                <input type="date" id="edit-date" value="${h.date}">
+            </div>
+            <div class="edit-group">
+                <label>탑승 인원</label>
+                <input type="number" id="edit-crew" value="${h.crewCount}">
+            </div>
+            <div class="edit-group">
+                <label>최초 식별 (시간/위치)</label>
+                <div class="d-flex gap-2">
+                    <input type="time" id="edit-first-time" value="${h.firstTime}" style="width:100px;">
+                    <input type="text" id="edit-first-pos" value="${h.firstPos}" placeholder="위치" style="flex:1;">
+                </div>
+            </div>
+            <div class="edit-group">
+                <label>최종 식별 (시간/위치)</label>
+                <div class="d-flex gap-2">
+                    <input type="time" id="edit-last-time" value="${h.lastTime}" style="width:100px;">
+                    <input type="text" id="edit-last-pos" value="${h.lastPos}" placeholder="위치" style="flex:1;">
+                </div>
+            </div>
+            <div class="edit-group full-width">
+                <label>인수인계 사항</label>
+                <textarea id="edit-handover">${h.handover}</textarea>
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-sm btn-outline-secondary" onclick="showHistoryDetail(${shipIdx}, ${isEdit ? historyIdx : 0})">취소</button>
+                <button class="btn btn-sm btn-primary" onclick="saveHistoryData(${shipIdx}, ${historyIdx})">${isEdit ? '저장' : '추가'}</button>
+            </div>
+        </div>
+    `;
+
+    // 2. 항로 이미지 영역을 이미지 업로드/경로 입력 영역으로 교체
+    pathBox.innerHTML = `
+        <div class="history-info-group w-100 fade-in">
+            <div class="edit-group mb-3">
+                <label>선박 사진 (드래그/경로)</label>
+                <div class="drop-zone" id="drop-ship-img">
+                    <span>이미지를 여기에 드롭하거나 경로 입력</span>
+                    <input type="text" id="edit-ship-img" value="${h.shipImage}" placeholder="Images/ship1.jpg">
+                </div>
+            </div>
+            <div class="edit-group">
+                <label>항로 도식 (드래그/경로)</label>
+                <div class="drop-zone" id="drop-path-img">
+                    <span>이미지를 여기에 드롭하거나 경로 입력</span>
+                    <input type="text" id="edit-path-img" value="${h.pathImage}" placeholder="Images/path1.jpg">
+                </div>
+            </div>
+        </div>
+    `;
+
+    // 3. 드래그 & 드랍 이벤트 연결
+    [
+        {zoneId: 'drop-ship-img', inputId: 'edit-ship-img'},
+        {zoneId: 'drop-path-img', inputId: 'edit-path-img'}
+    ].forEach(setup => {
+        const zone = document.getElementById(setup.zoneId);
+        const input = document.getElementById(setup.inputId);
+        
+        zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('drag-over'); });
+        zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+        zone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            zone.classList.remove('drag-over');
+            const file = e.dataTransfer.files[0];
+            if (file) {
+                // 브라우저 보안 상 전체 경로를 알 수 없으므로, Images/파일명 형식으로 제안
+                input.value = `Images/${file.name}`;
+            }
+        });
+    });
+}
+
+// 히스토리 저장 처리
+async function saveHistoryData(shipIdx, historyIdx) {
+    const ship = shipData[shipIdx];
+    const isEdit = historyIdx !== null;
+
+    const newHistory = {
+        date: document.getElementById('edit-date').value,
+        crewCount: parseInt(document.getElementById('edit-crew').value) || 0,
+        firstTime: document.getElementById('edit-first-time').value,
+        firstPos: document.getElementById('edit-first-pos').value,
+        lastTime: document.getElementById('edit-last-time').value,
+        lastPos: document.getElementById('edit-last-pos').value,
+        handover: document.getElementById('edit-handover').value,
+        shipImage: document.getElementById('edit-ship-img').value,
+        pathImage: document.getElementById('edit-path-img').value
+    };
+
+    if (isEdit) {
+        ship.history[historyIdx] = newHistory;
+    } else {
+        ship.history.push(newHistory);
+    }
+    
     // 날짜순 정렬
     ship.history.sort((a, b) => b.date.localeCompare(a.date));
     
     await updateShipInDB(ship._dbKey, ship);
     renderShips();
     toggleCard(shipIdx); // 확장 상태 유지
+    showHistoryDetail(shipIdx, 0); // 첫 번째 히스토리(방금 저장한 것) 표시
 }
 
-// 히스토리 수정/삭제 기능
-async function editHistory(shipIdx, historyIdx) {
+// 히스토리(식별날짜) 추가 기능 (폼 호출로 변경)
+function addHistory(shipIdx) {
+    renderHistoryForm(shipIdx);
+}
+
+// 히스토리 수정 기능 (폼 호출로 변경)
+function editHistory(shipIdx, historyIdx) {
     const ship = shipData[shipIdx];
     const h = ship.history[historyIdx];
     
     const action = prompt("작업을 선택하세요: [1] 수정 [2] 삭제", "1");
     if (action === "2") {
         if (confirm(`${h.date} 기록을 삭제하시겠습니까?`)) {
-            ship.history.splice(historyIdx, 1);
-        } else return;
+            deleteHistory(shipIdx, historyIdx);
+        }
     } else if (action === "1") {
-        h.date = prompt("날짜:", h.date) || h.date;
-        h.firstTime = prompt("최초 시간:", h.firstTime) || h.firstTime;
-        h.firstPos = prompt("최초 위치:", h.firstPos) || h.firstPos;
-        h.lastTime = prompt("최종 시간:", h.lastTime) || h.lastTime;
-        h.lastPos = prompt("최종 위치:", h.lastPos) || h.lastPos;
-        h.crewCount = parseInt(prompt("인원:", h.crewCount)) || h.crewCount;
-        h.handover = prompt("인수인계:", h.handover) || h.handover;
-    } else return;
+        renderHistoryForm(shipIdx, historyIdx);
+    }
+}
 
+async function deleteHistory(shipIdx, historyIdx) {
+    const ship = shipData[shipIdx];
+    ship.history.splice(historyIdx, 1);
     await updateShipInDB(ship._dbKey, ship);
     renderShips();
     toggleCard(shipIdx);
-    if (ship.history.length > 0) showHistoryDetail(shipIdx, 0);
 }
+
 
 
 async function initShipSearch() {

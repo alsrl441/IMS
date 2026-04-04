@@ -477,10 +477,77 @@
     background: #f8f9fa;
 }
 
-/* 유틸리티 */
-.hidden { display: none !important; }
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+/* 히스토리 편집 폼 스타일 */
+.history-edit-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    width: 100%;
 }
-.fade-in { animation: fadeIn 0.3s ease; }
+
+.edit-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.edit-group label {
+    font-size: 0.75rem;
+    color: #6c757d;
+    font-weight: 600;
+}
+
+.edit-group input, .edit-group textarea {
+    padding: 8px 12px;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    font-size: 0.9rem;
+}
+
+.edit-group textarea {
+    resize: none;
+    height: 80px;
+}
+
+/* 이미지 드롭존 스타일 */
+.drop-zone {
+    border: 2px dashed #dee2e6;
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    background: #fff;
+    transition: all 0.2s;
+    cursor: pointer;
+    position: relative;
+    margin-bottom: 10px;
+}
+
+.drop-zone.drag-over {
+    border-color: #0d6efd;
+    background-color: #f0f7ff;
+}
+
+.drop-zone span {
+    font-size: 0.8rem;
+    color: #adb5bd;
+}
+
+.drop-zone input {
+    margin-top: 8px;
+    width: 100%;
+    font-size: 0.75rem;
+    border: 1px solid #eee;
+    padding: 4px;
+}
+
+.form-actions {
+    grid-column: span 2;
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 10px;
+}
+
+/* 유틸리티 */
+.mt-auto { margin-top: auto; }
+.full-width { grid-column: span 2; }
