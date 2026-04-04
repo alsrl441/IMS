@@ -123,14 +123,14 @@ function renderHistoryForm(shipIdx, historyIdx = null) {
     pathBox.innerHTML = `
         <div class="history-info-group w-100 fade-in">
             <div class="edit-group">
-                <label>선박 사진 (드래그)</label>
+                <label>선박 사진</label>
                 <div class="drop-zone" id="drop-ship-img">
                     <span>이미지 드롭 또는 경로 입력</span>
                     <input type="text" id="edit-ship-img" value="${h.shipImage}">
                 </div>
             </div>
             <div class="edit-group">
-                <label>항로 도식 (드래그)</label>
+                <label>항로 사진</label>
                 <div class="drop-zone" id="drop-path-img">
                     <span>이미지 드롭 또는 경로 입력</span>
                     <input type="text" id="edit-path-img" value="${h.pathImage}">
