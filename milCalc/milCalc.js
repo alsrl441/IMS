@@ -91,7 +91,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <div class="progress-bar-fill" style="width: ${percent}%"></div>
                 </div>
                 <div class="text-secondary small">
-                    ${remainDays > 0 ? '전역까지 D-' + remainDays : '복무 완료'}
+                    ${remainDays > 0 ? '전역까지 D-' + remainDays : '전역 완료'}
                 </div>
             `;
             card.addEventListener('click', () => {
@@ -156,10 +156,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('resPercent').innerText = `${percent}%`;
         document.getElementById('progressBarFill').style.width = `${percent}%`;
         
-        document.getElementById('resRank').innerText = remainTime > 0 ? `${rank} ${hobong}호봉` : "병장 (복무 완료)";
+        document.getElementById('resRank').innerText = remainTime > 0 ? `${rank} ${hobong}호봉` : "병장 (전역 완료)";
         document.getElementById('resStartDate').innerText = user.start;
         document.getElementById('resEndDate').innerText = user.end;
-        document.getElementById('resDday').innerText = remainTime > 0 ? `D-${remainDays}` : "복무 완료";
+        document.getElementById('resDday').innerText = remainTime > 0 ? `D-${remainDays}` : "전역 완료";
 
         if (rank === "병장" || !nextPromoDate || remainTime <= 0) {
             document.getElementById('resNextPromo').innerText = "일정 없음";
