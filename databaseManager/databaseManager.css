@@ -1,0 +1,69 @@
+:root {
+    /* Bootstrap Color System */
+    --bs-blue: #0d6efd; --bs-gray: #6c757d; --bs-success: #198754;
+    --bs-danger: #dc3545; --bs-dark: #212529; --bs-light: #f8f9fa;
+    --bs-border: #dee2e6;
+    --sidebar-bg: #f8f9fa; --sidebar-text: #212529;
+    --sidebar-hover: #e9ecef;
+}
+
+body, html { margin: 0; padding: 0; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; overflow: hidden; background-color: #fff; color: #212529; }
+.wrapper { display: flex; height: 100vh; position: relative; }
+
+/* Drag & Drop Overlay */
+.drag-over::after {
+    content: "DROP FILES TO IMPORT";
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(13, 110, 253, 0.15); border: 2px dashed var(--bs-blue);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; font-weight: bold; color: var(--bs-blue); z-index: 9999;
+    pointer-events: none;
+}
+
+/* Sidebar Style */
+#sidebar { width: 260px; background: var(--sidebar-bg); border-right: 1px solid var(--bs-border); overflow-y: auto; flex-shrink: 0; }
+.sidebar-header { padding: 1rem; border-bottom: 1px solid var(--bs-border); display: flex; justify-content: space-between; align-items: center; background: #fff; }
+.sidebar-header h6 { margin: 0; font-size: 0.9rem; letter-spacing: 1px; color: var(--bs-gray); font-weight: 700; }
+
+.tree-item { padding: 8px 16px; cursor: pointer; display: flex; align-items: center; font-size: 0.875rem; justify-content: space-between; transition: background 0.15s; }
+.tree-item:hover { background: var(--sidebar-hover); }
+.tree-label { display: flex; align-items: center; flex: 1; overflow: hidden; }
+.item-actions { display: flex; gap: 4px; opacity: 0; }
+.tree-item:hover .item-actions { opacity: 1; }
+
+/* Sidebar Buttons */
+.btn-sm-outline { background: none; border: 1px solid var(--bs-border); color: var(--bs-gray); border-radius: 4px; cursor: pointer; font-size: 0.7rem; padding: 1px 6px; }
+.btn-sm-outline:hover { background: var(--bs-gray); color: #fff; }
+.btn-del-sm:hover { background: var(--bs-danger); border-color: var(--bs-danger); color: #fff; }
+.add-db-btn { background: var(--bs-blue); color: #fff; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: 500; }
+.add-db-btn:hover { background: #0b5ed7; }
+
+.indent { margin-left: 1.25rem; border-left: 1px solid var(--bs-border); }
+
+/* Main Content Style */
+#main { flex: 1; display: flex; flex-direction: column; background: #fff; min-width: 0; }
+.header-controls { 
+    padding: 0.75rem 1.25rem; background: #fff; border-bottom: 1px solid var(--bs-border); 
+    display: flex; justify-content: space-between; align-items: center; gap: 10px;
+}
+.path-info { font-size: 0.85rem; color: var(--bs-gray); }
+.button-group { display: flex; gap: 8px; }
+
+#editor-container { flex: 1; padding: 1.25rem; display: flex; flex-direction: column; }
+#json-editor { 
+    flex: 1; border: 1px solid var(--bs-border); border-radius: 0.375rem; 
+    font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 
+    padding: 1rem; font-size: 0.875rem; outline: none; transition: border-color 0.15s;
+}
+#json-editor:focus { border-color: #86b7fe; box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25); }
+
+/* Bootstrap Buttons */
+.btn { padding: 0.375rem 0.75rem; border-radius: 0.375rem; border: 1px solid transparent; cursor: pointer; font-weight: 400; font-size: 0.875rem; transition: all 0.15s linear; }
+.btn-primary { background: var(--bs-blue); color: #fff; }
+.btn-primary:hover { background: #0b5ed7; }
+.btn-outline-secondary { background: #fff; border-color: var(--bs-border); color: var(--bs-gray); }
+.btn-outline-secondary:hover { background: #f8f9fa; border-color: #adb5bd; }
+
+#status-msg { font-size: 0.75rem; color: var(--bs-success); margin-left: 8px; font-weight: 600; }
+.hidden { display: none; }
+#welcome-msg { text-align: center; margin-top: 15vh; color: var(--bs-gray); }
