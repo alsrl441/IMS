@@ -26,9 +26,12 @@
         <div class="search-layout">
             <!-- 검색 섹션 -->
             <section class="search-box-section mb-5">
-                <div class="search-input-wrapper">
-                    <input type="text" id="tag-input" class="form-control-lg" placeholder="검색어를 입력해주세요." autocomplete="off">
-                    <div id="autocomplete-list" class="autocomplete-items"></div>
+                <div class="search-input-wrapper d-flex gap-3">
+                    <div style="flex: 1; position: relative;">
+                        <input type="text" id="tag-input" class="form-control-lg" placeholder="검색어를 입력해주세요." autocomplete="off">
+                        <div id="autocomplete-list" class="autocomplete-items"></div>
+                    </div>
+                    <button class="btn btn-primary" onclick="location.href='addShip.html'" style="border-radius: 40px; padding: 0 30px; white-space: nowrap; font-weight: 700;">선박 추가</button>
                 </div>
                 <div id="selected-tags" class="selected-tags-container mt-3"></div>
             </section>

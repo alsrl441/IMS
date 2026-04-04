@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>선박 추가 - CCSS</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="shipSearch.css">
+    <style>
+        .form-container { max-width: 600px; margin: 40px auto; background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #495057; }
+        .form-control { width: 100%; padding: 12px 15px; border: 1px solid #dee2e6; border-radius: 8px; font-size: 1rem; }
+        .btn-submit { width: 100%; padding: 15px; background: #0d6efd; color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        .btn-submit:hover { background: #0b5ed7; }
+    </style>
+</head>
+<body class="bg-light">
+    <nav class="navbar">
+        <div class="container navbar-container">
+            <div class="navbar-nav">
+                <a href="../index.html" class="nav-link">대시보드</a>
+                <a href="shipSearch.html" class="nav-link">선박 찾기</a>
+            </div>
+            <div class="navbar-right">
+                <div id="realtime-clock" class="clock"></div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="form-container">
+            <h2 class="mb-4" style="font-weight: 800;">새 선박 등록</h2>
+            <form id="add-ship-form">
+                <div class="form-group">
+                    <label>선명</label>
+                    <input type="text" id="name" class="form-control" required placeholder="예: 선박 1">
+                </div>
+                <div class="form-group">
+                    <label>톤수</label>
+                    <input type="text" id="tonnage" class="form-control" required placeholder="예: 2.5t">
+                </div>
+                <div class="form-group">
+                    <label>선종</label>
+                    <input type="text" id="type" class="form-control" required placeholder="예: 어선">
+                </div>
+                <div class="form-group">
+                    <label>어선번호</label>
+                    <input type="text" id="number" class="form-control" required placeholder="예: 경기 제12345호">
+                </div>
+                <div class="form-group">
+                    <label>연락처</label>
+                    <input type="text" id="tel" class="form-control" placeholder="예: 010-1234-5678">
+                </div>
+                <button type="submit" class="btn-submit">선박 등록하기</button>
+            </form>
+        </div>
+    </main>
+
+    <script src="../script.js"></script>
+    <script>
+        document.getElementById('add-ship-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const newShip = {
+                name: document.getElementById('name').value,
+                tonnage: document.getElementById('tonnage').value,
+                type: document.getElementById('type').value,
+                number: document.getElementById('number').value,
+                tel: document.getElementById('tel').value || "-",
+                tags: [],
+                history: []
+            };
+
+            const request = indexedDB.open("myDB");
+            request.onsuccess = (event) => {
+                const db = event.target.result;
+                const tx = db.transaction("ship", "readwrite");
+                const store = tx.objectStore("ship");
+                
+                // keyPath가 없으므로 두 번째 인자로 유니크한 키(번호 등)를 주거나 자동 생성되게 해야 함
+                // 여기서는 번호를 키로 사용하거나, getAll 후 push 하는 방식이 안전
+                const addRequest = store.add(newShip, Date.now().toString()); 
+                
+                addRequest.onsuccess = () => {
+                    alert("선박이 성공적으로 등록되었습니다.");
+                    location.href = "shipSearch.html";
+                };
+            };
+        });
+    </script>
+</body>
+</html>

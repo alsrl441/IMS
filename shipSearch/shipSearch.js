@@ -20,9 +20,20 @@ async function loadShipsFromDB() {
             }
             const tx = db.transaction("ship", "readonly");
             const store = tx.objectStore("ship");
-            const getReq = store.getAll();
-            getReq.onsuccess = () => resolve(getReq.result || []);
-            getReq.onerror = () => resolve([]);
+            
+            // 키와 함께 가져오기
+            const results = [];
+            store.openCursor().onsuccess = (event) => {
+                const cursor = event.target.result;
+                if (cursor) {
+                    const data = cursor.value;
+                    data._dbKey = cursor.key; // 임시 키 저장
+                    results.push(data);
+                    cursor.continue();
+                } else {
+                    resolve(results);
+                }
+            };
         };
         request.onupgradeneeded = (e) => {
             const db = e.target.result;
@@ -31,6 +42,87 @@ async function loadShipsFromDB() {
         request.onerror = () => resolve([]);
     });
 }
+
+async function updateShipInDB(key, updatedData) {
+    const dataToSave = { ...updatedData };
+    delete dataToSave._dbKey; // 메타데이터 제거
+
+    return new Promise((resolve) => {
+        const request = indexedDB.open("myDB");
+        request.onsuccess = (e) => {
+            const db = e.target.result;
+            const tx = db.transaction("ship", "readwrite");
+            const store = tx.objectStore("ship");
+            store.put(dataToSave, key);
+            tx.oncomplete = () => resolve(true);
+        };
+    });
+}
+
+// 태그 수정 기능
+async function editTags(shipIdx) {
+    const ship = shipData[shipIdx];
+    const newTagsStr = prompt("태그를 쉼표(,)로 구분하여 입력하세요:", ship.tags.join(", "));
+    if (newTagsStr === null) return;
+    
+    ship.tags = newTagsStr.split(",").map(t => t.trim()).filter(t => t !== "");
+    await updateShipInDB(ship._dbKey, ship);
+    renderShips();
+}
+
+// 히스토리(식별날짜) 추가 기능
+async function addHistory(shipIdx) {
+    const ship = shipData[shipIdx];
+    const date = prompt("식별 날짜 (YYYY-MM-DD):", new Date().toISOString().split('T')[0]);
+    if (!date) return;
+    
+    const newHistory = {
+        date: date,
+        firstTime: prompt("최초 식별 시간 (HH:MM):", "08:00") || "00:00",
+        firstPos: prompt("최초 식별 위치:", "인천항") || "-",
+        lastTime: prompt("최종 식별 시간 (HH:MM):", "18:00") || "00:00",
+        lastPos: prompt("최종 식별 위치:", "인천항") || "-",
+        crewCount: parseInt(prompt("탑승 인원:", "1")) || 0,
+        handover: prompt("인수인계 사항:", "특이사항 없음") || "-",
+        shipImage: "Images/no-image.jpg",
+        pathImage: "Images/no-image.jpg"
+    };
+
+    ship.history.push(newHistory);
+    // 날짜순 정렬
+    ship.history.sort((a, b) => b.date.localeCompare(a.date));
+    
+    await updateShipInDB(ship._dbKey, ship);
+    renderShips();
+    toggleCard(shipIdx); // 확장 상태 유지
+}
+
+// 히스토리 수정/삭제 기능
+async function editHistory(shipIdx, historyIdx) {
+    const ship = shipData[shipIdx];
+    const h = ship.history[historyIdx];
+    
+    const action = prompt("작업을 선택하세요: [1] 수정 [2] 삭제", "1");
+    if (action === "2") {
+        if (confirm(`${h.date} 기록을 삭제하시겠습니까?`)) {
+            ship.history.splice(historyIdx, 1);
+        } else return;
+    } else if (action === "1") {
+        h.date = prompt("날짜:", h.date) || h.date;
+        h.firstTime = prompt("최초 시간:", h.firstTime) || h.firstTime;
+        h.firstPos = prompt("최초 위치:", h.firstPos) || h.firstPos;
+        h.lastTime = prompt("최종 시간:", h.lastTime) || h.lastTime;
+        h.lastPos = prompt("최종 위치:", h.lastPos) || h.lastPos;
+        h.crewCount = parseInt(prompt("인원:", h.crewCount)) || h.crewCount;
+        h.handover = prompt("인수인계:", h.handover) || h.handover;
+    } else return;
+
+    await updateShipInDB(ship._dbKey, ship);
+    renderShips();
+    toggleCard(shipIdx);
+    if (ship.history.length > 0) showHistoryDetail(shipIdx, 0);
+}
+
 
 async function initShipSearch() {
     shipData = await loadShipsFromDB();
@@ -284,6 +376,9 @@ function showHistoryDetail(shipIdx, historyIdx) {
                 <label>인수인계</label>
                 <span>${h.handover || '데이터 없음'}</span>
             </div>
+            <div class="mt-auto">
+                <button class="btn btn-sm btn-outline-primary" onclick="editHistory(${shipIdx}, ${historyIdx})">히스토리 수정/삭제</button>
+            </div>
         </div>
     `;
 
@@ -380,13 +475,17 @@ function renderShips() {
                     <div class="ship-info-tags">
                         <div class="ship-tags">
                             ${ship.tags.map(t => `<span class="mini-tag">${t}</span>`).join('')}
+                            <button class="btn btn-sm btn-outline-secondary py-0" onclick="editTags(${shipIdx})" style="font-size: 0.7rem;">태그 수정</button>
                         </div>
                     </div>
 
                     <div class="ship-photo-slider">
                         <div class="slider-nav slider-prev" onclick="changeShipImage(${shipIdx}, -1)">&lt;</div>
                         <div class="slider-track" style="transform: translateX(-${currentImgIdx * 100}%);">
-                            ${ship.history.map(h => `<img src="${h.shipImage}" class="slider-img" alt="${ship.name}">`).join('')}
+                            ${ship.history.length > 0 ? 
+                                ship.history.map(h => `<img src="${h.shipImage}" class="slider-img" alt="${ship.name}">`).join('') :
+                                `<img src="Images/no-image.jpg" class="slider-img" alt="노이미지">`
+                            }
                         </div>
                         <div class="slider-nav slider-next" onclick="changeShipImage(${shipIdx}, 1)">&gt;</div>
                         <div class="slider-dots">
@@ -402,6 +501,7 @@ function renderShips() {
                                 ${h.date} (${h.firstTime})
                             </div>
                         `).join('')}
+                        <div class="history-date-item text-primary" onclick="addHistory(${shipIdx})" style="font-weight: 700;">+ 식별날짜 추가</div>
                     </div>
                     <div class="history-detail-view">
                         <!-- 히스토리 상세 정보가 여기에 렌더링됨 -->
