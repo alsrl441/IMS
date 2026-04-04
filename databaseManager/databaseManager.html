@@ -8,6 +8,16 @@
 </head>
 <body>
 
+<div id="password-overlay">
+    <div class="password-box">
+        <h3>DBM Access Locked</h3>
+        <p>시스템 보안을 위해 암호를 입력하세요.</p>
+        <input type="password" id="db-password" placeholder="Password" onkeydown="if(event.key==='Enter') verifyPassword()">
+        <button onclick="verifyPassword()" class="btn btn-primary">Unlock</button>
+        <div id="pw-error" class="log-error" style="margin-top: 10px; font-size: 0.8rem; display: none;">잘못된 암호입니다.</div>
+    </div>
+</div>
+
 <div class="wrapper" id="wrapper">
     <aside id="sidebar">
         <div class="sidebar-header">

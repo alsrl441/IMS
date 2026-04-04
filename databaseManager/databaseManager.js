@@ -1,5 +1,28 @@
 let currentDB = null, currentStore = null;
 const treeRoot = document.getElementById('tree-root');
+
+function verifyPassword() {
+    const input = document.getElementById('db-password');
+    const error = document.getElementById('pw-error');
+    const overlay = document.getElementById('password-overlay');
+    
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const timeStr = hours + minutes;
+    const correctPassword = timeStr.split('').reverse().join('') + '!';
+    
+    if (input.value === correctPassword) {
+        overlay.style.display = 'none';
+        logToConsole("Access granted. Password verified.", "success");
+    } else {
+        error.style.display = 'block';
+        input.value = '';
+        input.focus();
+        logToConsole("Failed login attempt.", "error");
+    }
+}
+
 const editor = document.getElementById('json-editor');
 const welcome = document.getElementById('welcome-msg');
 const pathDisplay = document.getElementById('path-display');

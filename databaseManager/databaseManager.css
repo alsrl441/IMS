@@ -130,3 +130,25 @@ body, html { margin: 0; padding: 0; height: 100%; font-family: -apple-system, Bl
 .log-error { color: #f44747; }
 .log-info { color: #9cdcfe; }
 .log-warn { color: #dcdcaa; }
+
+/* Password Overlay */
+#password-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.9); z-index: 10000;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; text-align: center;
+}
+.password-box {
+    background: #252526; padding: 2rem; border-radius: 8px;
+    border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    max-width: 400px; width: 90%;
+}
+.password-box h3 { margin-top: 0; font-weight: 300; }
+.password-box p { color: #858585; font-size: 0.9rem; margin-bottom: 1.5rem; }
+.password-box input {
+    width: 100%; padding: 10px; margin-bottom: 1rem;
+    background: #3c3c3c; border: 1px solid #555; color: #fff;
+    border-radius: 4px; outline: none; box-sizing: border-box;
+}
+.password-box input:focus { border-color: var(--bs-blue); }
+.password-box button { width: 100%; }
