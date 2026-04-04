@@ -40,7 +40,7 @@
 
 .monthly-table th, .monthly-table td {
     padding: 6px 2px;
-    font-size: 9px; /* 월간용 작은 폰트 */
+    font-size: 11px; /* 월간용 작은 폰트 */
 }
 
 .monthly-table .group-header {
