@@ -295,7 +295,14 @@ function showHistoryDetail(shipIdx, historyIdx) {
     const h = ship.history[historyIdx];
     const card = document.querySelector(`.ship-card[data-idx="${shipIdx}"]`);
     if (!card || !h) return;
+
+    // 다른 편집 상태(태그 등)가 있다면 취소
+    editingTagsShipIdx = null;
+
+    // 날짜 리스트 활성화 상태 변경
     card.querySelectorAll('.history-date-item').forEach((item, idx) => item.classList.toggle('active', idx === historyIdx));
+    
+    // 상세 정보 영역 복구 및 데이터 렌더링
     card.querySelector('.history-detail-view').innerHTML = `
         <div class="history-info-group fade-in">
             <div class="h-item"><label>최초 식별</label><span>${h.firstTime} (${h.firstPos})</span></div>
@@ -310,9 +317,18 @@ function showHistoryDetail(shipIdx, historyIdx) {
             </div>
         </div>
     `;
-    const pathImg = card.querySelector('.path-img');
-    pathImg.style.opacity = 0;
-    setTimeout(() => { pathImg.src = h.pathImage; pathImg.style.opacity = 1; }, 150);
+
+    // 항로 이미지 영역(path-box) 구조 복구 및 이미지 표시
+    const pathBox = card.querySelector('.history-path-box');
+    pathBox.innerHTML = `
+        <div class="path-img-container">
+            <img src="${h.pathImage}" class="path-img fade-in" alt="항로 도식" style="opacity: 0;">
+        </div>
+    `;
+    
+    // 부드러운 전환 효과
+    const pathImg = pathBox.querySelector('.path-img');
+    setTimeout(() => { pathImg.style.opacity = 1; }, 50);
 }
 
 function renderShips() {
