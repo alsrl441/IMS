@@ -15,12 +15,12 @@ const colors = [null, '#9b59b6', '#f1c40f', '#e67e22', '#2980b9', '#1abc9c', '#2
 
 // IndexedDB 초기화
 let db;
-const dbRequest = indexedDB.open("TetrisRankingDB", 1);
+const dbRequest = indexedDB.open("gameDB", 1);
 
 dbRequest.onupgradeneeded = function(event) {
     db = event.target.result;
-    if (!db.objectStoreNames.contains("rankings")) {
-        db.createObjectStore("rankings", { keyPath: "id", autoIncrement: true });
+    if (!db.objectStoreNames.contains("tetris")) {
+        db.createObjectStore("tetris", { keyPath: "id", autoIncrement: true });
     }
 };
 
@@ -31,8 +31,8 @@ dbRequest.onsuccess = function(event) {
 };
 
 function saveScore(name, score) {
-    const transaction = db.transaction(["rankings"], "readwrite");
-    const store = transaction.objectStore("rankings");
+    const transaction = db.transaction(["tetris"], "readwrite");
+    const store = transaction.objectStore("tetris");
     const date = new Date().toLocaleDateString();
     store.add({ name, score, date });
 
@@ -42,8 +42,8 @@ function saveScore(name, score) {
 }
 
 function renderRankings() {
-    const transaction = db.transaction(["rankings"], "readonly");
-    const store = transaction.objectStore("rankings");
+    const transaction = db.transaction(["tetris"], "readonly");
+    const store = transaction.objectStore("tetris");
     const request = store.getAll();
 
     request.onsuccess = function() {
@@ -74,8 +74,8 @@ function renderRankings() {
 
 async function checkTop3(score) {
     return new Promise((resolve) => {
-        const transaction = db.transaction(["rankings"], "readonly");
-        const store = transaction.objectStore("rankings");
+        const transaction = db.transaction(["tetris"], "readonly");
+        const store = transaction.objectStore("tetris");
         const request = store.getAll();
 
         request.onsuccess = function() {

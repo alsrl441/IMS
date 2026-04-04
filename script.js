@@ -10,7 +10,7 @@ function updateClock() {
     const minutes = String(now.getMinutes()).padStart(2, '0');
     const seconds = String(now.getSeconds()).padStart(2, '0');
     
-    const clockEl = document.getElementById('realtime-clock');
+    const clockEl = document.getElementById('clock');
     if (clockEl) {
         clockEl.innerText = `${year}-${month}-${date} (${day}) ${hours}:${minutes}:${seconds}`;
     }
