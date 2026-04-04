@@ -1,12 +1,10 @@
 let selectedTags = [];
 let currentPage = 1;
-const itemsPerPage = 4; // 한 페이지에 표시할 선박 수
+const itemsPerPage = 1; 
 let currentFocus = -1; 
-let shipData = []; // IndexedDB에서 로드할 데이터
-
-// 각 선박 카드별 현재 표시 중인 이미지 인덱스를 저장할 객체
-// { shipIndex: historyIndex }
+let shipData = []; 
 let shipSliderState = {};
+let editingTagsShipIdx = null;
 
 async function loadShipsFromDB() {
     return new Promise((resolve) => {
@@ -20,14 +18,12 @@ async function loadShipsFromDB() {
             }
             const tx = db.transaction("ship", "readonly");
             const store = tx.objectStore("ship");
-            
-            // 키와 함께 가져오기
             const results = [];
             store.openCursor().onsuccess = (event) => {
                 const cursor = event.target.result;
                 if (cursor) {
                     const data = cursor.value;
-                    data._dbKey = cursor.key; // 임시 키 저장
+                    data._dbKey = cursor.key;
                     results.push(data);
                     cursor.continue();
                 } else {
@@ -45,8 +41,7 @@ async function loadShipsFromDB() {
 
 async function updateShipInDB(key, updatedData) {
     const dataToSave = { ...updatedData };
-    delete dataToSave._dbKey; // 메타데이터 제거
-
+    delete dataToSave._dbKey;
     return new Promise((resolve) => {
         const request = indexedDB.open("myDB");
         request.onsuccess = (e) => {
@@ -59,18 +54,37 @@ async function updateShipInDB(key, updatedData) {
     });
 }
 
-// 태그 수정 기능
-async function editTags(shipIdx) {
+async function toggleTagEdit(shipIdx) {
+    editingTagsShipIdx = (editingTagsShipIdx === shipIdx) ? null : shipIdx;
+    renderShips();
+}
+
+async function addTagInline(event, shipIdx) {
+    if (event.key === 'Enter') {
+        const input = event.target;
+        const newTag = input.value.trim();
+        if (newTag) {
+            const ship = shipData[shipIdx];
+            if (!ship.tags.includes(newTag)) {
+                ship.tags.push(newTag);
+                await updateShipInDB(ship._dbKey, ship);
+                renderShips();
+                setTimeout(() => {
+                    const newInput = document.getElementById(`inline-tag-input-${shipIdx}`);
+                    if (newInput) newInput.focus();
+                }, 0);
+            }
+        }
+    }
+}
+
+async function deleteTagInline(shipIdx, tagIdx) {
     const ship = shipData[shipIdx];
-    const newTagsStr = prompt("태그를 쉼표(,)로 구분하여 입력하세요:", ship.tags.join(", "));
-    if (newTagsStr === null) return;
-    
-    ship.tags = newTagsStr.split(",").map(t => t.trim()).filter(t => t !== "");
+    ship.tags.splice(tagIdx, 1);
     await updateShipInDB(ship._dbKey, ship);
     renderShips();
 }
 
-// 히스토리 폼 렌더링 (추가/수정 통합)
 function renderHistoryForm(shipIdx, historyIdx = null) {
     const ship = shipData[shipIdx];
     const isEdit = historyIdx !== null;
@@ -87,7 +101,6 @@ function renderHistoryForm(shipIdx, historyIdx = null) {
     const detailView = card.querySelector('.history-detail-view');
     const pathBox = card.querySelector('.history-path-box');
 
-    // 1. 상세 정보 영역을 입력 폼으로 교체
     detailView.innerHTML = `
         <div class="history-edit-form fade-in">
             <div class="edit-group">
@@ -123,53 +136,40 @@ function renderHistoryForm(shipIdx, historyIdx = null) {
         </div>
     `;
 
-    // 2. 항로 이미지 영역을 이미지 업로드/경로 입력 영역으로 교체
     pathBox.innerHTML = `
         <div class="history-info-group w-100 fade-in">
             <div class="edit-group mb-3">
                 <label>선박 사진 (드래그/경로)</label>
                 <div class="drop-zone" id="drop-ship-img">
-                    <span>이미지를 여기에 드롭하거나 경로 입력</span>
-                    <input type="text" id="edit-ship-img" value="${h.shipImage}" placeholder="Images/ship1.jpg">
+                    <span>이미지를 드롭하거나 경로 입력</span>
+                    <input type="text" id="edit-ship-img" value="${h.shipImage}">
                 </div>
             </div>
             <div class="edit-group">
                 <label>항로 도식 (드래그/경로)</label>
                 <div class="drop-zone" id="drop-path-img">
-                    <span>이미지를 여기에 드롭하거나 경로 입력</span>
-                    <input type="text" id="edit-path-img" value="${h.pathImage}" placeholder="Images/path1.jpg">
+                    <span>이미지를 드롭하거나 경로 입력</span>
+                    <input type="text" id="edit-path-img" value="${h.pathImage}">
                 </div>
             </div>
         </div>
     `;
 
-    // 3. 드래그 & 드랍 이벤트 연결
-    [
-        {zoneId: 'drop-ship-img', inputId: 'edit-ship-img'},
-        {zoneId: 'drop-path-img', inputId: 'edit-path-img'}
-    ].forEach(setup => {
-        const zone = document.getElementById(setup.zoneId);
-        const input = document.getElementById(setup.inputId);
-        
+    ['drop-ship-img', 'drop-path-img'].forEach(id => {
+        const zone = document.getElementById(id);
+        const input = zone.querySelector('input');
         zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('drag-over'); });
         zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
         zone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            zone.classList.remove('drag-over');
-            const file = e.dataTransfer.files[0];
-            if (file) {
-                // 브라우저 보안 상 전체 경로를 알 수 없으므로, Images/파일명 형식으로 제안
-                input.value = `Images/${file.name}`;
-            }
+            e.preventDefault(); zone.classList.remove('drag-over');
+            if (e.dataTransfer.files[0]) input.value = `Images/${e.dataTransfer.files[0].name}`;
         });
     });
 }
 
-// 히스토리 저장 처리
 async function saveHistoryData(shipIdx, historyIdx) {
     const ship = shipData[shipIdx];
     const isEdit = historyIdx !== null;
-
     const newHistory = {
         date: document.getElementById('edit-date').value,
         crewCount: parseInt(document.getElementById('edit-crew').value) || 0,
@@ -181,392 +181,154 @@ async function saveHistoryData(shipIdx, historyIdx) {
         shipImage: document.getElementById('edit-ship-img').value,
         pathImage: document.getElementById('edit-path-img').value
     };
-
-    if (isEdit) {
-        ship.history[historyIdx] = newHistory;
-    } else {
-        ship.history.push(newHistory);
-    }
-    
-    // 날짜순 정렬
+    if (isEdit) ship.history[historyIdx] = newHistory;
+    else ship.history.push(newHistory);
     ship.history.sort((a, b) => b.date.localeCompare(a.date));
-    
     await updateShipInDB(ship._dbKey, ship);
     renderShips();
-    toggleCard(shipIdx); // 확장 상태 유지
-    showHistoryDetail(shipIdx, 0); // 첫 번째 히스토리(방금 저장한 것) 표시
+    toggleCard(shipIdx);
+    showHistoryDetail(shipIdx, 0);
 }
 
-// 히스토리(식별날짜) 추가 기능 (폼 호출로 변경)
 function addHistory(shipIdx) {
     renderHistoryForm(shipIdx);
 }
 
-// 히스토리 수정 기능 (폼 호출로 변경)
 function editHistory(shipIdx, historyIdx) {
-    const ship = shipData[shipIdx];
-    const h = ship.history[historyIdx];
-    
-    const action = prompt("작업을 선택하세요: [1] 수정 [2] 삭제", "1");
-    if (action === "2") {
-        if (confirm(`${h.date} 기록을 삭제하시겠습니까?`)) {
-            deleteHistory(shipIdx, historyIdx);
-        }
-    } else if (action === "1") {
-        renderHistoryForm(shipIdx, historyIdx);
-    }
+    renderHistoryForm(shipIdx, historyIdx);
 }
 
 async function deleteHistory(shipIdx, historyIdx) {
     const ship = shipData[shipIdx];
-    ship.history.splice(historyIdx, 1);
-    await updateShipInDB(ship._dbKey, ship);
-    renderShips();
-    toggleCard(shipIdx);
+    if (confirm(`${ship.history[historyIdx].date} 기록을 삭제하시겠습니까?`)) {
+        ship.history.splice(historyIdx, 1);
+        await updateShipInDB(ship._dbKey, ship);
+        renderShips();
+        toggleCard(shipIdx);
+    }
 }
-
-
 
 async function initShipSearch() {
     shipData = await loadShipsFromDB();
     const input = document.getElementById('tag-input');
     const autocompleteList = document.getElementById('autocomplete-list');
-
     if (shipData.length === 0) {
-        document.getElementById('ship-results').innerHTML = '<div class="text-center py-5 text-muted">등록된 선박 정보가 없습니다. (DBM에서 Import 필요)</div>';
+        document.getElementById('ship-results').innerHTML = '<div class="text-center py-5 text-muted">등록된 선박 정보가 없습니다. (선박 추가 필요)</div>';
         return;
     }
-
-    // 검색 가능한 모든 용어 수집
     const termsSet = new Set();
     shipData.forEach(ship => {
-        const fields = ['name', 'tonnage', 'type', 'number', 'tags'];
-        fields.forEach(field => {
-            const value = ship[field];
-            if (Array.isArray(value)) {
-                value.forEach(v => { if (v) termsSet.add(String(v).trim()); });
-            } else if (value) {
-                termsSet.add(String(value).trim());
-            }
+        ['name', 'tonnage', 'type', 'number', 'tags'].forEach(field => {
+            const val = ship[field];
+            if (Array.isArray(val)) val.forEach(v => { if (v) termsSet.add(String(v).trim()); });
+            else if (val) termsSet.add(String(val).trim());
         });
     });
-    const allSearchableTerms = Array.from(termsSet);
-
-    // 키보드 이벤트
-    window.addEventListener('keydown', function(e) {
-        if (document.activeElement !== input || input.value === "") {
-            const filteredShips = getFilteredAndSortedShips();
-            const totalPages = Math.ceil(filteredShips.length / itemsPerPage) || 1;
-
-            if (e.key === "ArrowLeft") {
-                if (currentPage > 1) {
-                    currentPage--;
-                    renderShips();
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                }
-            } else if (e.key === "ArrowRight") {
-                if (currentPage < totalPages) {
-                    currentPage++;
-                    renderShips();
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                }
-            }
-        }
-    });
+    const allTerms = Array.from(termsSet);
 
     input.addEventListener('input', function() {
         let val = this.value;
         autocompleteList.innerHTML = '';
         currentFocus = -1;
-        if (!val) {
-            autocompleteList.style.display = 'none';
-            return;
-        }
-
-        let searchTerm = val.toLowerCase();
-        let filtered = allSearchableTerms.filter(term => {
-            if (!term) return false;
-            const termStr = String(term).toLowerCase();
-            return termStr.includes(searchTerm) && !selectedTags.includes(term);
-        });
-
-        if (filtered.length > 0) {
-            autocompleteList.style.display = 'block';
-        } else {
-            autocompleteList.style.display = 'none';
-        }
-
-        filtered.forEach((term, index) => {
+        if (!val) { autocompleteList.style.display = 'none'; return; }
+        let filtered = allTerms.filter(t => String(t).toLowerCase().includes(val.toLowerCase()) && !selectedTags.includes(t));
+        autocompleteList.style.display = filtered.length > 0 ? 'block' : 'none';
+        filtered.forEach(t => {
             let div = document.createElement('div');
-            // 검색어와 일치하는 부분을 찾아 하이라이트 처리
-            const regex = new RegExp(`(${searchTerm})`, 'gi');
-            const highlightedTerm = term.replace(regex, '<span class="highlight">$1</span>');
-            div.innerHTML = highlightedTerm;
-            div.onclick = function() {
-                addTag(term);
-                input.value = '';
-                autocompleteList.innerHTML = '';
-                autocompleteList.style.display = 'none';
-            };
+            div.innerHTML = t.replace(new RegExp(`(${val})`, 'gi'), '<span class="highlight">$1</span>');
+            div.onclick = () => { addTag(t); input.value = ''; autocompleteList.innerHTML = ''; autocompleteList.style.display = 'none'; };
             autocompleteList.appendChild(div);
         });
     });
 
-    // 포커스 시 값이 있으면 다시 표시
-    input.addEventListener('focus', function() {
-        if (this.value && autocompleteList.children.length > 0) {
-            autocompleteList.style.display = 'block';
-        }
-    });
-
-    // 외부 클릭 시 닫기 (blur)
-    // 약간의 지연시간을 주어 목록 클릭이 먼저 발생하도록 함
-    input.addEventListener('blur', function() {
-        setTimeout(() => {
-            autocompleteList.style.display = 'none';
-        }, 200);
-    });
-
     input.addEventListener('keydown', function(e) {
         let x = autocompleteList.getElementsByTagName('div');
-        if (e.keyCode === 40) { // ↓
-            currentFocus++;
-            addActive(x);
-        } else if (e.keyCode === 38) { // ↑
-            currentFocus--;
-            addActive(x);
-        } else if (e.keyCode === 13 || e.keyCode === 9) { // Enter or Tab
-            if (currentFocus > -1) {
-                if (x) {
-                    e.preventDefault();
-                    x[currentFocus].click();
-                }
-            } else if (this.value) {
-                if (x[0]) {
-                    e.preventDefault();
-                    x[0].click();
-                }
-            }
+        if (e.keyCode === 40) { currentFocus++; addActive(x); }
+        else if (e.keyCode === 38) { currentFocus--; addActive(x); }
+        else if (e.keyCode === 13 || e.keyCode === 9) {
+            if (currentFocus > -1 && x[currentFocus]) { e.preventDefault(); x[currentFocus].click(); }
+            else if (this.value && x[0]) { e.preventDefault(); x[0].click(); }
         }
     });
 
     function addActive(x) {
-        if (!x) return false;
+        if (!x) return;
         for (let i = 0; i < x.length; i++) x[i].classList.remove("autocomplete-active");
         if (currentFocus >= x.length) currentFocus = 0;
         if (currentFocus < 0) currentFocus = (x.length - 1);
         x[currentFocus].classList.add("autocomplete-active");
-        x[currentFocus].scrollIntoView({ block: 'nearest' });
     }
 
     renderShips();
 }
 
-function getFilteredAndSortedShips() {
-    return shipData.filter(ship => 
-        selectedTags.every(tag => 
-            ship.name === tag || 
-            ship.tonnage === tag || 
-            ship.type === tag || 
-            ship.number === tag ||
-            ship.tags.includes(tag)
-        )
-    );
-}
-
-function addTag(tag) {
-    if (!selectedTags.includes(tag)) {
-        selectedTags.push(tag);
-        currentPage = 1;
-        renderSelectedTags();
-        renderShips();
-    }
-}
-
-function removeTag(tag) {
-    selectedTags = selectedTags.filter(t => t !== tag);
-    currentPage = 1;
-    renderSelectedTags();
-    renderShips();
-}
-
+function addTag(tag) { if (!selectedTags.includes(tag)) { selectedTags.push(tag); currentPage = 1; renderSelectedTags(); renderShips(); } }
+function removeTag(tag) { selectedTags = selectedTags.filter(t => t !== tag); currentPage = 1; renderSelectedTags(); renderShips(); }
 function renderSelectedTags() {
-    const container = document.getElementById('selected-tags');
-    container.innerHTML = selectedTags.map(tag => `
-        <span class="tag-badge">
-            ${tag}
-            <span class="remove-tag" onclick="removeTag('${tag}')">&times;</span>
-        </span>
+    document.getElementById('selected-tags').innerHTML = selectedTags.map(tag => `
+        <span class="tag-badge">${tag}<span class="remove-tag" onclick="removeTag('${tag}')">&times;</span></span>
     `).join('');
 }
 
-// 이미지 슬라이더 제어 함수 (슬라이드 방식)
 function changeShipImage(shipIdx, delta) {
     const ship = shipData[shipIdx];
     if (!ship || !ship.history.length) return;
-
-    let currentImgIdx = shipSliderState[shipIdx] || 0;
-    currentImgIdx = (currentImgIdx + delta + ship.history.length) % ship.history.length;
-    shipSliderState[shipIdx] = currentImgIdx;
-
+    let currentIdx = shipSliderState[shipIdx] || 0;
+    currentIdx = (currentIdx + delta + ship.history.length) % ship.history.length;
+    shipSliderState[shipIdx] = currentIdx;
     const card = document.querySelector(`.ship-card[data-idx="${shipIdx}"]`);
-    const trackEl = card.querySelector(`.slider-track`);
-    
-    if (trackEl) {
-        // 트랙을 가로로 밀어서 이미지 이동
-        trackEl.style.transform = `translateX(-${currentImgIdx * 100}%)`;
-    }
-
-    // 도트 업데이트
-    const dots = card.querySelectorAll('.dot');
-    dots.forEach((dot, idx) => {
-        if (idx === currentImgIdx) dot.classList.add('active');
-        else dot.classList.remove('active');
-    });
+    const track = card.querySelector('.slider-track');
+    if (track) track.style.transform = `translateX(-${currentIdx * 100}%)`;
+    card.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === currentIdx));
 }
 
-// 카드 확장/축소 토글
 function toggleCard(shipIdx) {
     const card = document.querySelector(`.ship-card[data-idx="${shipIdx}"]`);
-    if (!card) return;
-
     const isExpanded = card.classList.contains('is-expanded');
-    
-    // 다른 카드들은 닫기 (선택사항 - 한 번에 하나만 열리게 하려면 사용)
     document.querySelectorAll('.ship-card').forEach(c => c.classList.remove('is-expanded'));
-
-    if (!isExpanded) {
-        card.classList.add('is-expanded');
-        // 확장 시 첫 번째 히스토리를 자동으로 보여줌
-        showHistoryDetail(shipIdx, 0);
-    } else {
-        card.classList.remove('is-expanded');
-    }
+    if (!isExpanded) { card.classList.add('is-expanded'); showHistoryDetail(shipIdx, 0); }
+    else card.classList.remove('is-expanded');
 }
 
-// 히스토리 상세 내용 표시
 function showHistoryDetail(shipIdx, historyIdx) {
     const ship = shipData[shipIdx];
     const h = ship.history[historyIdx];
     const card = document.querySelector(`.ship-card[data-idx="${shipIdx}"]`);
     if (!card || !h) return;
-
-    // 날짜 리스트 활성화 상태 변경
-    card.querySelectorAll('.history-date-item').forEach((item, idx) => {
-        if (idx === historyIdx) item.classList.add('active');
-        else item.classList.remove('active');
-    });
-
-    // 상세 정보 텍스트 업데이트
-    const detailView = card.querySelector('.history-detail-view');
-    detailView.innerHTML = `
+    card.querySelectorAll('.history-date-item').forEach((item, idx) => item.classList.toggle('active', idx === historyIdx));
+    card.querySelector('.history-detail-view').innerHTML = `
         <div class="history-info-group fade-in">
-            <div class="h-item">
-                <label>최초 식별</label>
-                <span>${h.firstTime} (${h.firstPos})</span>
-            </div>
-            <div class="h-item">
-                <label>최종 식별</label>
-                <span>${h.lastTime} (${h.lastPos})</span>
-            </div>
-            <div class="h-item">
-                <label>탑승 인원</label>
-                <span>${h.crewCount}명</span>
-            </div>
+            <div class="h-item"><label>최초 식별</label><span>${h.firstTime} (${h.firstPos})</span></div>
+            <div class="h-item"><label>최종 식별</label><span>${h.lastTime} (${h.lastPos})</span></div>
+            <div class="h-item"><label>탑승 인원</label><span>${h.crewCount}명</span></div>
         </div>
         <div class="history-info-group fade-in">
-            <div class="h-item full-width">
-                <label>인수인계</label>
-                <span>${h.handover || '데이터 없음'}</span>
-            </div>
-            <div class="mt-auto">
-                <button class="btn btn-sm btn-outline-primary" onclick="editHistory(${shipIdx}, ${historyIdx})">히스토리 수정/삭제</button>
+            <div class="h-item full-width"><label>인수인계</label><span>${h.handover || '데이터 없음'}</span></div>
+            <div class="history-actions">
+                <button class="btn btn-sm btn-outline-primary" onclick="editHistory(${shipIdx}, ${historyIdx})">수정</button>
+                <button class="btn btn-sm btn-outline-danger btn-delete-history" onclick="deleteHistory(${shipIdx}, ${historyIdx})">삭제</button>
             </div>
         </div>
     `;
-
-    // 항로 이미지 업데이트
     const pathImg = card.querySelector('.path-img');
     pathImg.style.opacity = 0;
-    setTimeout(() => {
-        pathImg.src = h.pathImage; console.log(pathImg.src);
-        pathImg.style.opacity = 1;
-    }, 150);
-}
-
-function renderPagination(totalItems) {
-    const container = document.getElementById('pagination-container');
-    const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
-    container.innerHTML = '';
-
-    const createBtn = (text, page, isActive = false, isDisabled = false) => {
-        const btn = document.createElement('button');
-        btn.innerText = text;
-        btn.classList.add('page-btn');
-        if (isActive) btn.classList.add('active');
-        if (isDisabled) btn.disabled = true;
-        btn.onclick = () => {
-            currentPage = page;
-            renderShips();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        };
-        return btn;
-    };
-
-    // 페이지네이션 범위 계산 (최대 21개)
-    let startPage = currentPage - 10;
-    let endPage = currentPage + 10;
-
-    if (startPage < 1) {
-        endPage = Math.min(totalPages, endPage + (1 - startPage));
-        startPage = 1;
-    }
-
-    if (endPage > totalPages) {
-        startPage = Math.max(1, startPage - (endPage - totalPages));
-        endPage = totalPages;
-    }
-
-    container.appendChild(createBtn('<', Math.max(1, currentPage - 1), false, currentPage === 1));
-    for (let i = startPage; i <= endPage; i++) {
-        container.appendChild(createBtn(i, i, i === currentPage));
-    }
-    container.appendChild(createBtn('>', Math.min(totalPages, currentPage + 1), false, currentPage === totalPages));
+    setTimeout(() => { pathImg.src = h.pathImage; pathImg.style.opacity = 1; }, 150);
 }
 
 function renderShips() {
-    const resultsContainer = document.getElementById('ship-results');
-    const paginationContainer = document.getElementById('pagination-container');
-    
-    if (selectedTags.length === 0) {
-        resultsContainer.innerHTML = '';
-        paginationContainer.innerHTML = '';
-        return;
-    }
-
-    const filteredShips = getFilteredAndSortedShips();
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const pagedShips = filteredShips.slice(startIndex, startIndex + itemsPerPage);
-
-    if (filteredShips.length === 0) {
-        resultsContainer.innerHTML = `<div class="text-center py-5"><p class="text-secondary">검색 결과와 일치하는 선박을 찾을 수 없습니다... 😢</p></div>`;
-        paginationContainer.innerHTML = '';
-        return;
-    }
-
-    resultsContainer.innerHTML = pagedShips.map(ship => {
-        const shipIdx = shipData.findIndex(s => s.name === ship.name);
+    const results = document.getElementById('ship-results');
+    const filtered = shipData.filter(s => selectedTags.every(t => s.name === t || s.tonnage === t || s.type === t || s.number === t || s.tags.includes(t)));
+    if (selectedTags.length === 0) { results.innerHTML = ''; return; }
+    const paged = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+    if (filtered.length === 0) { results.innerHTML = '<div class="text-center py-5"><p class="text-secondary">검색 결과가 없습니다.</p></div>'; return; }
+    results.innerHTML = paged.map(ship => {
+        const shipIdx = shipData.findIndex(s => s._dbKey === ship._dbKey);
         const currentImgIdx = shipSliderState[shipIdx] || 0;
-        const mainPhoto = ship.history.length > 0 ? ship.history[currentImgIdx].shipImage : '../Images/no-image.jpg';
-
         return `
             <div class="ship-card" data-idx="${shipIdx}">
                 <div class="ship-card-main">
                     <div class="ship-info-primary">
-                        <div class="ship-name-row">
-                            <div class="expand-btn" onclick="toggleCard(${shipIdx})"><span>&#9013;</span></div>
-                            <h4>${ship.name}</h4>
-                        </div>
+                        <div class="ship-name-row"><div class="expand-btn" onclick="toggleCard(${shipIdx})"><span>&#9013;</span></div><h4>${ship.name}</h4></div>
                         <div class="ship-meta-group">
                             <p class="ship-detail"><strong>톤수</strong> ${ship.tonnage}</p>
                             <p class="ship-detail"><strong>선종</strong> ${ship.type}</p>
@@ -574,52 +336,34 @@ function renderShips() {
                             <p class="ship-detail"><strong>연락처</strong> ${ship.tel}</p>
                         </div>
                     </div>
-
                     <div class="ship-info-tags">
                         <div class="ship-tags">
-                            ${ship.tags.map(t => `<span class="mini-tag">${t}</span>`).join('')}
-                            <button class="btn btn-sm btn-outline-secondary py-0" onclick="editTags(${shipIdx})" style="font-size: 0.7rem;">태그 수정</button>
+                            ${ship.tags.map((t, tIdx) => `<span class="tag-badge ${editingTagsShipIdx === shipIdx ? 'edit-mode' : ''}">${t}<span class="tag-delete-btn" onclick="deleteTagInline(${shipIdx}, ${tIdx})">&times;</span></span>`).join('')}
+                            ${editingTagsShipIdx === shipIdx ? 
+                                `<input type="text" id="inline-tag-input-${shipIdx}" class="inline-tag-input" placeholder="엔터로 추가..." onkeydown="addTagInline(event, ${shipIdx})" autofocus>
+                                 <button class="btn btn-sm btn-primary py-0" onclick="toggleTagEdit(${shipIdx})" style="font-size: 0.7rem;">완료</button>` : 
+                                `<button class="btn btn-sm btn-outline-secondary py-0" onclick="toggleTagEdit(${shipIdx})" style="font-size: 0.7rem;">수정</button>`}
                         </div>
                     </div>
-
                     <div class="ship-photo-slider">
                         <div class="slider-nav slider-prev" onclick="changeShipImage(${shipIdx}, -1)">&lt;</div>
                         <div class="slider-track" style="transform: translateX(-${currentImgIdx * 100}%);">
-                            ${ship.history.length > 0 ? 
-                                ship.history.map(h => `<img src="${h.shipImage}" class="slider-img" alt="${ship.name}">`).join('') :
-                                `<img src="Images/no-image.jpg" class="slider-img" alt="노이미지">`
-                            }
+                            ${ship.history.length > 0 ? ship.history.map(h => `<img src="${h.shipImage}" class="slider-img">`).join('') : `<img src="Images/no-image.jpg" class="slider-img">`}
                         </div>
                         <div class="slider-nav slider-next" onclick="changeShipImage(${shipIdx}, 1)">&gt;</div>
-                        <div class="slider-dots">
-                            ${ship.history.map((_, hIdx) => `<div class="dot ${hIdx === currentImgIdx ? 'active' : ''}"></div>`).join('')}
-                        </div>
+                        <div class="slider-dots">${ship.history.map((_, i) => `<div class="dot ${i === currentIdx ? 'active' : ''}"></div>`).join('')}</div>
                     </div>
                 </div>
-
                 <div class="ship-card-expanded">
                     <div class="history-date-list">
-                        ${ship.history.map((h, hIdx) => `
-                            <div class="history-date-item" onclick="showHistoryDetail(${shipIdx}, ${hIdx})">
-                                ${h.date} (${h.firstTime})
-                            </div>
-                        `).join('')}
+                        ${ship.history.map((h, i) => `<div class="history-date-item" onclick="showHistoryDetail(${shipIdx}, ${i})">${h.date} (${h.firstTime})</div>`).join('')}
                         <div class="history-date-item text-primary" onclick="addHistory(${shipIdx})" style="font-weight: 700;">+ 식별날짜 추가</div>
                     </div>
-                    <div class="history-detail-view">
-                        <!-- 히스토리 상세 정보가 여기에 렌더링됨 -->
-                    </div>
-                    <div class="history-path-box">
-                        <div class="path-img-container">
-                            <img src="" class="path-img fade-in" alt="항로 도식">
-                        </div>
-                    </div>
+                    <div class="history-detail-view"></div>
+                    <div class="history-path-box"><div class="path-img-container"><img src="" class="path-img fade-in"></div></div>
                 </div>
-            </div>
-        `;
+            </div>`;
     }).join('');
-
-    renderPagination(filteredShips.length);
 }
 
 document.addEventListener('DOMContentLoaded', initShipSearch);
