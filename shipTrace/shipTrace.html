@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>선박 추적</title>
+    <title>선박 추적 - 실시간 기록지</title>
     <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="shipTrace.css">
 </head>
@@ -26,17 +26,21 @@
     <main class="container py-4">
         <div class="card shadow-sm">
             <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                <h5 class="card-title" style="margin:0; font-weight: bold;">선박 추적 기록지</h5>
+                <h5 class="card-title" style="margin:0; font-weight: bold;">선박 추적 실시간 기록지</h5>
                 <button class="btn-outline" onclick="resetForm()">초기화</button>
             </div>
             <div class="card-body">
                 <form id="trace-form">
-                    <!-- 문의 정보 섹션 복구 -->
+                    <!-- 1~2단계: 문의 정보 -->
                     <div class="form-section">
-                        <h6>1. 위치 및 문의 정보 (메모용)</h6>
+                        <h6>1. 문의 정보 (수화 및 기초 데이터)</h6>
                         <div class="form-row">
+                            <div class="form-group flex-1">
+                                <label>수화자 관등성명</label>
+                                <input type="text" id="telephonee" class="form-control-sm" placeholder="예: 중사 홍길동">
+                            </div>
                             <div class="form-group flex-2">
-                                <label>좌표 (6계단)</label>
+                                <label>문의 좌표 (6계단)</label>
                                 <input type="text" id="coord-input" placeholder="123 456" class="form-control-sm">
                                 <div id="full-coord" class="coord-display">52SBD ----- -----</div>
                             </div>
@@ -48,23 +52,22 @@
                                     <option>북동진</option><option>남동진</option><option>남서진</option><option>북서진</option>
                                 </datalist>
                             </div>
+                        </div>
+                        <div class="form-row mt-3">
                             <div class="form-group flex-2">
-                                <label>거리</label>
+                                <label>거리 (입력: NM/M → 저장: km)</label>
                                 <div class="dist-input-group">
-                                    <input type="number" id="dist-value" step="0.1" placeholder="값" class="form-control-sm" style="width: 60px;">
+                                    <input type="number" id="dist-value" step="0.1" placeholder="값" class="form-control-sm" style="width: 80px;">
                                     <select id="dist-unit" class="form-control-sm">
                                         <option value="NM">NM</option>
-                                        <option value="km">km</option>
                                         <option value="M">M</option>
+                                        <option value="km">km</option>
                                     </select>
                                     <div class="dist-multi-display">
-                                        <div id="dist-conv-1" class="dist-box">--</div>
-                                        <div id="dist-conv-2" class="dist-box">--</div>
+                                        <div id="dist-km-display" class="dist-box" title="DB에 저장될 km 값">-- km</div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="form-row mt-3">
                             <div class="form-group flex-1">
                                 <label>추적 번호</label>
                                 <div class="trace-num-group">
@@ -82,8 +85,65 @@
                         </div>
                     </div>
 
+                    <!-- 4단계: 식별 정보 -->
                     <div class="form-section">
-                        <h6>2. 선박 기본 정보</h6>
+                        <h6>2. 식별 정보 (카메라 포착 시)</h6>
+                        <div class="form-row">
+                            <div class="form-group flex-1">
+                                <label>최초 식별 시간</label>
+                                <div class="time-input-group">
+                                    <input type="time" id="first-time" class="form-control-sm">
+                                    <button type="button" class="btn-now" onclick="setCurrentTime('first-time')">현재</button>
+                                </div>
+                            </div>
+                            <div class="form-group flex-2">
+                                <label>최초 식별 위치 (상세)</label>
+                                <input type="text" id="first-pos" class="form-control-sm" placeholder="예: 격렬비열도 북방 2마일">
+                            </div>
+                            <div class="form-group flex-1">
+                                <label>최초 방위각/고각</label>
+                                <input type="text" id="first-az-el" class="form-control-sm" placeholder="예: 120 / -5">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 5~6단계: 추적 종료 -->
+                    <div class="form-section">
+                        <h6>3. 추적 종료</h6>
+                        <div class="form-row">
+                            <div class="form-group flex-1">
+                                <label>최종 종료 시간</label>
+                                <div class="time-input-group">
+                                    <input type="time" id="last-time" class="form-control-sm">
+                                    <button type="button" class="btn-now" onclick="setCurrentTime('last-time')">현재</button>
+                                </div>
+                            </div>
+                            <div class="form-group flex-2">
+                                <label>최종 종료 위치</label>
+                                <input type="text" id="last-pos" class="form-control-sm" placeholder="최종 위치">
+                            </div>
+                            <div class="form-group flex-1">
+                                <label>최종 방위각/고각</label>
+                                <input type="text" id="last-az-el" class="form-control-sm" placeholder="예: 150 / 0">
+                            </div>
+                        </div>
+                        <div class="form-row mt-3">
+                            <div class="form-group flex-1">
+                                <label>종료 사유/상태</label>
+                                <select id="end-status" class="form-control-sm">
+                                    <option value="소실">소실 (사각구역/원해)</option>
+                                    <option value="입항">입항</option>
+                                    <option value="정박">해상 정박</option>
+                                    <option value="정상 활동">정상 활동 (문의 종료)</option>
+                                    <option value="타 문의 전환">타 문의 전환 (긴급)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 7~8단계: 복기 및 최종 DB 등록 -->
+                    <div class="form-section" style="background-color: #f0f7ff; border: 1px solid #b8daff;">
+                        <h6>4. 복기 및 마무리 (영상 분석 후 작성)</h6>
                         <div class="form-row">
                             <div class="form-group flex-1">
                                 <label>선명</label>
@@ -100,98 +160,57 @@
                         </div>
                         <div class="form-row mt-3">
                             <div class="form-group flex-1">
-                                <label>어선 번호</label>
-                                <input type="text" id="vessel-num" class="form-control-sm" placeholder="어선 번호 입력">
-                            </div>
-                            <div class="form-group flex-1">
-                                <label>연락처</label>
-                                <input type="text" id="contact" class="form-control-sm" placeholder="연락처">
-                            </div>
-                            <div class="form-group flex-2">
-                                <label>기타/외형적 특이사항 (태그)</label>
-                                <input type="text" id="tags" class="form-control-sm" placeholder="쉼표로 구분 (예: 백색 선체, 레이더 장착)">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-section">
-                        <h6>3. 식별 기록</h6>
-                        <div class="form-row">
-                            <div class="form-group flex-1">
-                                <label>식별 날짜</label>
-                                <input type="date" id="id-date" class="form-control-sm">
-                            </div>
-                            <div class="form-group flex-1">
                                 <label>인원 수</label>
-                                <input type="text" id="crew-count" class="form-control-sm" placeholder="예: 2, 식별불가">
+                                <input type="text" id="crew-count" class="form-control-sm" placeholder="예: 3, 식별불가">
                             </div>
-                        </div>
-                        <div class="form-row mt-3">
                             <div class="form-group flex-1">
-                                <label>최초 식별 시간</label>
-                                <div class="time-input-group">
-                                    <input type="time" id="first-time" class="form-control-sm">
-                                    <button type="button" class="btn-now" onclick="setCurrentTime('first-time')">현재</button>
-                                </div>
+                                <label>어선법 위반 여부</label>
+                                <select id="violation" class="form-control-sm">
+                                    <option value="무">해당 없음 (무)</option>
+                                    <option value="위반">위반 식별</option>
+                                    <option value="확인불가">확인 불가</option>
+                                </select>
                             </div>
-                            <div class="form-group flex-2">
-                                <label>최초 식별 위치</label>
-                                <input type="text" id="first-pos" class="form-control-sm" placeholder="최초 위치">
-                            </div>
-                        </div>
-                        <div class="form-row mt-3">
                             <div class="form-group flex-1">
-                                <label>최종 식별 시간</label>
-                                <div class="time-input-group">
-                                    <input type="time" id="last-time" class="form-control-sm">
-                                    <button type="button" class="btn-now" onclick="setCurrentTime('last-time')">현재</button>
-                                </div>
-                            </div>
-                            <div class="form-group flex-2">
-                                <label>최종 식별 위치</label>
-                                <input type="text" id="last-pos" class="form-control-sm" placeholder="최종 위치">
+                                <label>근무자 관등성명</label>
+                                <input type="text" id="worker" class="form-control-sm" placeholder="예: 병장 이순신">
                             </div>
                         </div>
                         <div class="form-row mt-3">
                             <div class="form-group flex-2">
-                                <label>인수인계 내용</label>
+                                <label>인수인계 및 특이사항</label>
                                 <div class="handover-presets">
                                     <button type="button" class="btn-preset" onclick="setHandover('145R/S에서 인수받은 선박')">145R/S</button>
                                     <button type="button" class="btn-preset" onclick="setHandover('146R/S에서 인수받은 선박')">146R/S</button>
                                     <button type="button" class="btn-preset" onclick="setHandover('-')">직접식별(-)</button>
                                 </div>
-                                <textarea id="handover" rows="3" class="form-control-sm" style="width: 100%; height: auto;"></textarea>
-                            </div>
-                            <div class="form-group flex-1">
-                                <label>근무자 관등성명</label>
-                                <input type="text" id="worker" class="form-control-sm" placeholder="근무자">
-                                <label class="mt-2">수화자 관등성명</label>
-                                <input type="text" id="telephonee" class="form-control-sm" placeholder="수화자">
+                                <textarea id="handover" rows="2" class="form-control-sm" style="width: 100%; height: auto;"></textarea>
                             </div>
                         </div>
                     </div>
 
                     <div class="form-footer mt-4">
-                        <button type="button" class="btn-primary" onclick="saveTraceLog()" style="width: 200px;">추적 기록 저장</button>
+                        <button type="button" class="btn-primary" onclick="saveTraceLog()" style="width: 250px;">최종 추적 기록 저장 (DB 등록)</button>
                     </div>
                 </form>
             </div>
         </div>
 
+        <!-- 로그 테이블은 생략하거나 기존처럼 유지 -->
         <div class="card mt-4 shadow-sm" style="max-width: 100%; overflow-x: auto;">
             <div class="card-header bg-white">
-                <h5 class="card-title" style="margin:0; font-weight: bold;">최근 식별 기록 (종합)</h5>
+                <h5 class="card-title" style="margin:0; font-weight: bold;">최근 식별 및 추적 로그</h5>
             </div>
             <div class="card-body p-0">
                 <table class="table trace-table">
                     <thead>
                         <tr>
-                            <th>날짜</th>
+                            <th>날짜/시간</th>
                             <th>선명 (톤수/선종)</th>
-                            <th>최초 식별</th>
-                            <th>최종 식별</th>
-                            <th>인원</th>
-                            <th>인수인계</th>
+                            <th>문의 위치 (좌표/거리)</th>
+                            <th>최초 식별 (Az/El)</th>
+                            <th>최종 종료 (Az/El)</th>
+                            <th>상태/위반</th>
                             <th>근무자/수화자</th>
                         </tr>
                     </thead>

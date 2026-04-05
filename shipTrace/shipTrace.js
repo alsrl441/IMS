@@ -30,7 +30,7 @@ function initDB() {
 }
 initDB();
 
-// --- 위치 및 문의 정보 관련 로직 복구 ---
+// --- 위치 및 문의 정보 관련 로직 ---
 const coordInput = document.getElementById('coord-input');
 const fullCoordDisplay = document.getElementById('full-coord');
 
@@ -51,33 +51,29 @@ if (coordInput) coordInput.addEventListener('input', updateFullCoord);
 
 const distValue = document.getElementById('dist-value');
 const distUnit = document.getElementById('dist-unit');
-const distConv1 = document.getElementById('dist-conv-1');
-const distConv2 = document.getElementById('dist-conv-2');
+const distKmDisplay = document.getElementById('dist-km-display');
 
 function updateDistance() {
     let val = parseFloat(distValue.value);
     let unit = distUnit.value;
     if (isNaN(val)) {
-        distConv1.innerText = "--";
-        distConv2.innerText = "--";
+        distKmDisplay.innerText = "-- km";
         return;
     }
-    let km, nm, m;
-    // 단위 변환 로직 (기준에 맞춰 계산)
-    if (unit === 'km') { km = val; nm = val * 0.539957; m = val * 1000; }
-    else if (unit === 'NM') { nm = val; km = val * 1.852; m = val * 1852; }
-    else if (unit === 'M') { m = val; km = val / 1000; nm = val / 1852; }
+    let km;
+    if (unit === 'km') { km = val; }
+    else if (unit === 'NM') { km = val * 1.852; }
+    else if (unit === 'M') { km = val / 1000; }
 
-    if (unit === 'km') { distConv1.innerText = `${nm.toFixed(2)} NM`; distConv2.innerText = `${m.toFixed(0)} M`; }
-    else if (unit === 'NM') { distConv1.innerText = `${km.toFixed(2)} km`; distConv2.innerText = `${m.toFixed(0)} M`; }
-    else if (unit === 'M') { distConv1.innerText = `${nm.toFixed(3)} NM`; distConv2.innerText = `${km.toFixed(3)} km`; }
+    distKmDisplay.innerText = `${km.toFixed(3)} km`;
 }
 if (distValue) distValue.addEventListener('input', updateDistance);
 if (distUnit) distUnit.addEventListener('change', updateDistance);
 // ------------------------------------------
 
 // 초기 날짜 설정
-document.getElementById('id-date').value = new Date().toISOString().split('T')[0];
+const dateInput = document.getElementById('id-date');
+if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
 
 function setCurrentTime(targetId) {
     const now = new Date();
@@ -93,7 +89,7 @@ function setHandover(val) {
 function resetForm() {
     if (confirm("입력 중인 내용을 초기화할까요?")) {
         document.getElementById('trace-form').reset();
-        document.getElementById('id-date').value = new Date().toISOString().split('T')[0];
+        if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
         updateFullCoord();
         updateDistance();
     }
@@ -107,27 +103,46 @@ async function saveTraceLog() {
 
     const shipName = document.getElementById('ship-name').value.trim();
     if (!shipName) {
-        alert("선명을 입력해주세요.");
+        alert("선명을 입력해주세요. (분석 중이라면 가칭이라도 입력해야 합니다)");
         return;
     }
 
+    // 거리 km 값 추출
+    const distText = distKmDisplay.innerText.replace(' km', '');
+    const distanceKm = distText === "--" ? "-" : distText;
+
     const tonnage = document.getElementById('ship-tonnage').value || "-";
     const type = document.getElementById('ship-type').value || "-";
-    const vesselNum = document.getElementById('vessel-num').value || "-";
-    const contact = document.getElementById('contact').value || "-";
-    const tagString = document.getElementById('tags').value;
-    const tags = tagString ? tagString.split(',').map(t => t.trim()).filter(t => t) : [];
 
     const newHistory = {
         date: document.getElementById('id-date').value,
+        
+        // 문의 정보 (Step 1-2)
+        coord: fullCoordDisplay.innerText,
+        moveDir: document.getElementById('move-dir').value || "-",
+        distanceKm: distanceKm,
+        traceNum: (document.getElementById('radar-site').value + "-" + document.getElementById('trace-num').value) || "-",
+        departure: document.getElementById('departure').value || "-",
+        telephonee: document.getElementById('telephonee').value || "-",
+
+        // 식별 정보 (Step 4)
         firstTime: document.getElementById('first-time').value || "00:00",
         firstPos: document.getElementById('first-pos').value || "-",
+        firstAzEl: document.getElementById('first-az-el').value || "-",
+
+        // 종료 정보 (Step 6)
         lastTime: document.getElementById('last-time').value || "00:00",
         lastPos: document.getElementById('last-pos').value || "-",
+        lastAzEl: document.getElementById('last-az-el').value || "-",
+        status: document.getElementById('end-status').value,
+
+        // 복기 정보 (Step 7-8)
         crewCount: document.getElementById('crew-count').value || "식별불가",
+        violation: document.getElementById('violation').value,
         handover: document.getElementById('handover').value || "-",
         worker: document.getElementById('worker').value || "-",
-        telephonee: document.getElementById('telephonee').value || "-",
+        
+        // 이미지 및 메타데이터
         shipImage: "Images/no-image.jpg",
         pathImage: "Images/no-image.jpg",
         timestamp: new Date().getTime()
@@ -153,16 +168,11 @@ async function saveTraceLog() {
         }
 
         if (existingShip) {
-            existingShip.tonnage = tonnage !== "-" ? tonnage : existingShip.tonnage;
-            existingShip.type = type !== "-" ? type : existingShip.type;
-            existingShip.number = vesselNum !== "-" ? vesselNum : existingShip.number;
-            existingShip.tel = contact !== "-" ? contact : existingShip.tel;
+            // 정보 업데이트 (비어있지 않은 경우에만)
+            if (tonnage !== "-") existingShip.tonnage = tonnage;
+            if (type !== "-") existingShip.type = type;
             
-            if (!Array.isArray(existingShip.tags)) existingShip.tags = [];
-            tags.forEach(t => {
-                if (!existingShip.tags.includes(t)) existingShip.tags.push(t);
-            });
-
+            if (!Array.isArray(existingShip.history)) existingShip.history = [];
             existingShip.history.push(newHistory);
             store.put(existingShip, existingKey);
         } else {
@@ -170,9 +180,9 @@ async function saveTraceLog() {
                 name: shipName,
                 tonnage: tonnage,
                 type: type,
-                number: vesselNum,
-                tel: contact,
-                tags: tags,
+                number: "-", // 어선번호는 복기 시 알 수도 있으니 나중에 편집 가능
+                tel: "-",
+                tags: [],
                 history: [newHistory]
             };
             store.add(newShip, Date.now().toString());
@@ -180,10 +190,10 @@ async function saveTraceLog() {
     };
 
     tx.oncomplete = () => {
-        alert("기록이 성공적으로 저장되었습니다.");
+        alert("추적 기록이 성공적으로 DB에 등록되었습니다.");
         renderLogs();
         document.getElementById('trace-form').reset();
-        document.getElementById('id-date').value = new Date().toISOString().split('T')[0];
+        if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
         updateFullCoord();
         updateDistance();
     };
@@ -229,24 +239,36 @@ function renderLogs() {
 
         list.innerHTML = recentHistory.map(h => `
             <tr>
-                <td>${h.date}</td>
+                <td style="font-size: 0.75rem;">
+                    <strong>${h.date}</strong><br>
+                    ${h.firstTime} ~ ${h.lastTime}
+                </td>
                 <td style="text-align: left; padding-left: 15px;">
                     <div style="font-weight: bold; color: #0d6efd;">${h.shipName}</div>
                     <div style="font-size: 0.75rem; color: #666;">${h.shipTonnage} / ${h.shipType}</div>
                 </td>
-                <td>
-                    <div style="font-weight: bold;">${h.firstTime}</div>
-                    <div style="font-size: 0.75rem;">${h.firstPos}</div>
+                <td style="font-size: 0.75rem; color: #444;">
+                    <div style="color: #0d6efd; font-family: monospace;">${h.coord}</div>
+                    <div>방향: ${h.moveDir} / 거리: ${h.distanceKm}km</div>
+                    <div style="color: #666;">추적번호: ${h.traceNum}</div>
                 </td>
                 <td>
-                    <div style="font-weight: bold;">${h.lastTime}</div>
-                    <div style="font-size: 0.75rem;">${h.lastPos}</div>
+                    <div style="font-weight: bold;">${h.firstPos}</div>
+                    <div style="font-size: 0.75rem; color: #666;">Az/El: ${h.firstAzEl}</div>
                 </td>
-                <td>${isNaN(h.crewCount) ? h.crewCount : h.crewCount + '명'}</td>
-                <td style="text-align: left; font-size: 0.75rem; max-width: 200px;">${h.handover}</td>
+                <td>
+                    <div style="font-weight: bold;">${h.lastPos}</div>
+                    <div style="font-size: 0.75rem; color: #666;">Az/El: ${h.lastAzEl}</div>
+                </td>
+                <td>
+                    <span class="badge-status">${h.status}</span>
+                    <div style="font-size: 0.7rem; color: ${h.violation === '위반' ? '#dc3545' : '#198754'}; font-weight: bold;">
+                        어선법: ${h.violation}
+                    </div>
+                </td>
                 <td>
                     <div style="font-weight: bold;">${h.worker}</div>
-                    <div style="font-size: 0.75rem;">(수) ${h.telephonee}</div>
+                    <div style="font-size: 0.75rem; color: #666;">(문의) ${h.telephonee}</div>
                 </td>
             </tr>
         `).join('');
