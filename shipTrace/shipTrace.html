@@ -32,16 +32,23 @@
             <div class="card-body">
                 <form id="trace-form">
                     <div class="form-section">
-                        <!-- Line 1: 수화자, 문의 좌표 -->
+                        <!-- Line 1: 좌표, 추적번호 -->
                         <div class="form-row">
                             <div class="form-group flex-1">
-                                <label>수화자 관등성명</label>
-                                <input type="text" id="telephonee" class="form-control-sm" placeholder="-">
-                            </div>
-                            <div class="form-group flex-1">
-                                <label>문의 좌표</label>
+                                <label>좌표</label>
                                 <input type="text" id="coord-input" class="form-control-sm" placeholder="6계단">
                                 <div id="full-coord" class="coord-display">52SBD ----- -----</div>
+                            </div>
+                            <div class="form-group flex-1">
+                                <label>추적 번호</label>
+                                <div class="trace-num-group">
+                                    <select id="radar-station-select" class="form-control-sm">
+                                        <option value="-">-</option>
+                                        <option value="145">145</option>
+                                        <option value="146">146</option>
+                                    </select>
+                                    <input type="text" id="trace-num" placeholder="번호" class="form-control-sm">
+                                </div>
                             </div>
                         </div>
 
@@ -69,26 +76,19 @@
                             </div>
                         </div>
 
-                        <!-- Line 3: 추적 번호, 출항지 -->
+                        <!-- Line 3: 출항지, 수화자 -->
                         <div class="form-row mt-3">
-                            <div class="form-group flex-1">
-                                <label>추적 번호</label>
-                                <div class="trace-num-group">
-                                    <select id="radar-station-select" class="form-control-sm">
-                                        <option value="-">-</option>
-                                        <option value="145">145</option>
-                                        <option value="146">146</option>
-                                    </select>
-                                    <input type="text" id="trace-num" placeholder="번호" class="form-control-sm">
-                                </div>
-                            </div>
                             <div class="form-group flex-1">
                                 <label>출항지 <span class="required">*</span></label>
                                 <input type="text" id="departure" class="form-control-sm" required>
                             </div>
+                            <div class="form-group flex-1">
+                                <label>수화자 관등성명</label>
+                                <input type="text" id="telephonee" class="form-control-sm" placeholder="-">
+                            </div>
                         </div>
 
-                        <!-- Line 4: 최초 식별 시간, 방위각/고각, 위치 -->
+                        <!-- Line 4: 최초 식별 시간, 최종 식별 시간 -->
                         <div class="form-row mt-3">
                             <div class="form-group flex-1">
                                 <label>최초 식별 시간 <span class="required">*</span></label>
@@ -98,16 +98,39 @@
                                 </div>
                             </div>
                             <div class="form-group flex-1">
+                                <label>최종 식별 시간 <span class="required">*</span></label>
+                                <div class="time-input-group">
+                                    <input type="time" id="last-time" class="form-control-sm" required>
+                                    <button type="button" class="btn-now" onclick="setCurrentTime('last-time')">현재</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Line 5: 최초 식별 방위각 고각, 최종 식별 방위각 고각 -->
+                        <div class="form-row mt-3">
+                            <div class="form-group flex-1">
                                 <label>최초 식별 방위각 고각 <span class="required">*</span></label>
                                 <input type="text" id="first-az-el" class="form-control-sm" required>
                             </div>
                             <div class="form-group flex-1">
-                                <label>최초 식별 위치 <span class="required">*</span></label>
-                                <input type="text" id="first-pos" class="form-control-sm" required>
+                                <label>최종 식별 방위각 고각 <span class="required">*</span></label>
+                                <input type="text" id="last-az-el" class="form-control-sm" required>
                             </div>
                         </div>
 
-                        <!-- Line 5: 선명, 톤수, 선종 -->
+                        <!-- Line 6: 최초 식별 위치, 최종 식별 위치 -->
+                        <div class="form-row mt-3">
+                            <div class="form-group flex-1">
+                                <label>최초 식별 위치 <span class="required">*</span></label>
+                                <input type="text" id="first-pos" class="form-control-sm" required>
+                            </div>
+                            <div class="form-group flex-1">
+                                <label>최종 식별 위치 <span class="required">*</span></label>
+                                <input type="text" id="last-pos" class="form-control-sm" required>
+                            </div>
+                        </div>
+
+                        <!-- Line 7: 선명, 톤수 -->
                         <div class="form-row mt-3">
                             <div class="form-group flex-1">
                                 <label>선명</label>
@@ -117,19 +140,23 @@
                                 <label>톤수</label>
                                 <input type="text" id="ship-tonnage" class="form-control-sm" placeholder="식별불가">
                             </div>
+                        </div>
+
+                        <!-- Line 8: 선종, 인원 -->
+                        <div class="form-row mt-3">
                             <div class="form-group flex-1">
                                 <label>선종</label>
                                 <input type="text" id="ship-type" class="form-control-sm" placeholder="식별불가">
                             </div>
-                        </div>
-
-                        <!-- Line 6: 인원 수, 어선법 위반 여부, 근무자 -->
-                        <div class="form-row mt-3">
                             <div class="form-group flex-1">
                                 <label>인원 수</label>
                                 <input type="text" id="crew-count" class="form-control-sm" placeholder="식별불가">
                             </div>
-                            <div class="form-group flex-2">
+                        </div>
+
+                        <!-- Line 9: 어선법 위반 여부, 근무자 -->
+                        <div class="form-row mt-3">
+                            <div class="form-group flex-1">
                                 <label>어선법 위반 여부</label>
                                 <div class="d-flex align-items-center" style="gap: 10px;">
                                     <div class="violation-check-group">
@@ -145,41 +172,11 @@
                             </div>
                         </div>
 
-                        <!-- Line 7: 특이사항 -->
+                        <!-- Line 10: 특이사항 -->
                         <div class="form-row mt-3">
                             <div class="form-group flex-1">
                                 <label>특이사항</label>
                                 <input type="text" id="tags" class="form-control-sm" placeholder="">
-                            </div>
-                        </div>
-
-                        <!-- Line 8: 최종 식별 시간, 방위각/고각, 위치, 종료 사유 -->
-                        <div class="form-row mt-3">
-                            <div class="form-group flex-1">
-                                <label>최종 식별 시간 <span class="required">*</span></label>
-                                <div class="time-input-group">
-                                    <input type="time" id="last-time" class="form-control-sm" required>
-                                    <button type="button" class="btn-now" onclick="setCurrentTime('last-time')">현재</button>
-                                </div>
-                            </div>
-                            <div class="form-group flex-1">
-                                <label>최종 식별 방위각 고각 <span class="required">*</span></label>
-                                <input type="text" id="last-az-el" class="form-control-sm" required>
-                            </div>
-                            <div class="form-group flex-1">
-                                <label>최종 식별 위치 <span class="required">*</span></label>
-                                <input type="text" id="last-pos" class="form-control-sm" required>
-                            </div>
-                            <div class="form-group flex-1">
-                                <label>종료 사유 <span class="required">*</span></label>
-                                <select id="end-status" class="form-control-sm" required>
-                                    <option value="">-- 선택 --</option>
-                                    <option value="소실">소실 (사각구역/원해)</option>
-                                    <option value="입항">입항</option>
-                                    <option value="정박">해상 정박</option>
-                                    <option value="정상 활동">정상 활동 (문의 종료)</option>
-                                    <option value="타 문의 전환">타 문의 전환 (긴급)</option>
-                                </select>
                             </div>
                         </div>
                     </div>

@@ -146,7 +146,6 @@ async function saveTraceLog() {
         lastTime: document.getElementById('last-time')?.value || "00:00",
         lastPos: document.getElementById('last-pos')?.value || "-",
         lastAzEl: document.getElementById('last-az-el')?.value || "-",
-        status: document.getElementById('end-status')?.value || "소실",
 
         // 복기 정보
         crewCount: crewCount,
