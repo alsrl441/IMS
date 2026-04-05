@@ -45,7 +45,7 @@
                                 <div id="full-coord" class="coord-display">52SBD ----- -----</div>
                             </div>
                             <div class="form-group flex-1">
-                                <label>이동 방향</label>
+                                <label>이동 방향 (direction)</label>
                                 <input type="text" id="move-dir" list="dir-options" placeholder="입력/선택" class="form-control-sm">
                                 <datalist id="dir-options">
                                     <option>동진</option><option>서진</option><option>남진</option><option>북진</option>
@@ -55,7 +55,7 @@
                         </div>
                         <div class="form-row mt-3">
                             <div class="form-group flex-2">
-                                <label>거리 (입력: NM/M → 저장: km)</label>
+                                <label>거리 (distance, 입력: NM/M → 저장: km)</label>
                                 <div class="dist-input-group">
                                     <input type="number" id="dist-value" step="0.1" placeholder="값" class="form-control-sm" style="width: 80px;">
                                     <select id="dist-unit" class="form-control-sm">
@@ -69,9 +69,10 @@
                                 </div>
                             </div>
                             <div class="form-group flex-1">
-                                <label>추적 번호</label>
+                                <label>추적 번호 (traceNumber)</label>
                                 <div class="trace-num-group">
-                                    <select id="radar-site" class="form-control-sm">
+                                    <select id="radar-station-select" class="form-control-sm">
+                                        <option value="-">직접 식별(-)</option>
                                         <option value="145">145</option>
                                         <option value="146">146</option>
                                     </select>
@@ -79,7 +80,7 @@
                                 </div>
                             </div>
                             <div class="form-group flex-1">
-                                <label>최초 출항지</label>
+                                <label>최초 출항지 (firstOutport)</label>
                                 <input type="text" id="departure" placeholder="출항지" class="form-control-sm">
                             </div>
                         </div>
@@ -177,14 +178,9 @@
                             </div>
                         </div>
                         <div class="form-row mt-3">
-                            <div class="form-group flex-2">
-                                <label>인수인계 및 특이사항</label>
-                                <div class="handover-presets">
-                                    <button type="button" class="btn-preset" onclick="setHandover('145R/S에서 인수받은 선박')">145R/S</button>
-                                    <button type="button" class="btn-preset" onclick="setHandover('146R/S에서 인수받은 선박')">146R/S</button>
-                                    <button type="button" class="btn-preset" onclick="setHandover('-')">직접식별(-)</button>
-                                </div>
-                                <textarea id="handover" rows="2" class="form-control-sm" style="width: 100%; height: auto;"></textarea>
+                            <div class="form-group flex-1">
+                                <label>기타 특이사항 (태그용)</label>
+                                <input type="text" id="tags" class="form-control-sm" placeholder="쉼표로 구분 (예: 백색 선체, 레이더 장착)">
                             </div>
                         </div>
                     </div>
@@ -193,30 +189,6 @@
                         <button type="button" class="btn-primary" onclick="saveTraceLog()" style="width: 250px;">최종 추적 기록 저장 (DB 등록)</button>
                     </div>
                 </form>
-            </div>
-        </div>
-
-        <!-- 로그 테이블은 생략하거나 기존처럼 유지 -->
-        <div class="card mt-4 shadow-sm" style="max-width: 100%; overflow-x: auto;">
-            <div class="card-header bg-white">
-                <h5 class="card-title" style="margin:0; font-weight: bold;">최근 식별 및 추적 로그</h5>
-            </div>
-            <div class="card-body p-0">
-                <table class="table trace-table">
-                    <thead>
-                        <tr>
-                            <th>날짜/시간</th>
-                            <th>선명 (톤수/선종)</th>
-                            <th>문의 위치 (좌표/거리)</th>
-                            <th>최초 식별 (Az/El)</th>
-                            <th>최종 종료 (Az/El)</th>
-                            <th>상태/위반</th>
-                            <th>근무자/수화자</th>
-                        </tr>
-                    </thead>
-                    <tbody id="log-list">
-                    </tbody>
-                </table>
             </div>
         </div>
     </main>

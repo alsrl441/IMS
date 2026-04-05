@@ -90,9 +90,11 @@ function renderHistoryForm(shipIdx, historyIdx = null) {
     const isEdit = historyIdx !== null;
     const h = isEdit ? ship.history[historyIdx] : {
         date: new Date().toISOString().split('T')[0],
-        firstTime: "00:00", firstPos: "",
-        lastTime: "00:00", lastPos: "",
-        crewCount: 1, handover: "",
+        firstTime: "00:00", firstPos: "", firstAzEl: "-",
+        lastTime: "00:00", lastPos: "", lastAzEl: "-",
+        crewCount: "식별불가", 
+        raderStation: "-", traceNumber: "-", firstOutport: "-", direction: "-", distance: "-",
+        violation: "무",
         worker: "", telephonee: "",
         shipImage: "Images/no-image.jpg",
         pathImage: "Images/no-image.jpg"
@@ -106,15 +108,38 @@ function renderHistoryForm(shipIdx, historyIdx = null) {
         <div class="history-info-group fade-in">
             <div class="edit-group"><label>식별 날짜</label><input type="date" id="edit-date" value="${h.date}"></div>
             <div class="edit-group"><label>인원</label><input type="text" id="edit-crew" value="${h.crewCount}"></div>
-            <div class="edit-group"><label>최초 식별 시간</label><input type="time" id="edit-first-time" value="${h.firstTime}"></div>
-            <div class="edit-group"><label>최초 식별 위치</label><input type="text" id="edit-first-pos" value="${h.firstPos}"></div>
-            <div class="edit-group"><label>최종 식별 시간</label><input type="time" id="edit-last-time" value="${h.lastTime}"></div>
-            <div class="edit-group"><label>최종 식별 위치</label><input type="text" id="edit-last-pos" value="${h.lastPos}"></div>
+            <div class="edit-group"><label>최초 시간/위치/AzEl</label>
+                <input type="time" id="edit-first-time" value="${h.firstTime}" style="width: 80px;">
+                <input type="text" id="edit-first-pos" value="${h.firstPos}" placeholder="위치" style="flex:1;">
+                <input type="text" id="edit-first-azel" value="${h.firstAzEl || '-'}" placeholder="Az/El" style="width: 80px;">
+            </div>
+            <div class="edit-group"><label>최종 시간/위치/AzEl</label>
+                <input type="time" id="edit-last-time" value="${h.lastTime}" style="width: 80px;">
+                <input type="text" id="edit-last-pos" value="${h.lastPos}" placeholder="위치" style="flex:1;">
+                <input type="text" id="edit-last-azel" value="${h.lastAzEl || '-'}" placeholder="Az/El" style="width: 80px;">
+            </div>
+            <div class="edit-group"><label>어선법 위반</label>
+                <select id="edit-violation">
+                    <option value="무" ${h.violation === '무' ? 'selected' : ''}>무</option>
+                    <option value="위반" ${h.violation === '위반' ? 'selected' : ''}>위반</option>
+                    <option value="확인불가" ${h.violation === '확인불가' ? 'selected' : ''}>확인불가</option>
+                </select>
+            </div>
         </div>
         <div class="history-info-group fade-in">
-            <div class="edit-group" style="flex: 1;"><label>인수인계</label><textarea id="edit-handover" style="height: 100%; min-height: 200px;">${h.handover}</textarea></div>
-            <div class="edit-group"><label>근무자</label><input type="text" id="edit-worker" value="${h.worker || ''}"></div>
-            <div class="edit-group"><label>수화자</label><input type="text" id="edit-telephonee" value="${h.telephonee || ''}"></div>
+            <div class="edit-group"><label>문의 기지/추적번호</label>
+                <input type="text" id="edit-rader" value="${h.raderStation}" style="width: 80px;">
+                <input type="text" id="edit-tracenum" value="${h.traceNumber}" style="flex:1;">
+            </div>
+            <div class="edit-group"><label>출항지/방향/거리(km)</label>
+                <input type="text" id="edit-outport" value="${h.firstOutport}" style="flex:1;">
+                <input type="text" id="edit-direction" value="${h.direction}" style="width: 70px;">
+                <input type="text" id="edit-distance" value="${h.distance}" style="width: 70px;">
+            </div>
+            <div class="edit-group"><label>근무자/수화자</label>
+                <input type="text" id="edit-worker" value="${h.worker || ''}" style="flex:1;">
+                <input type="text" id="edit-telephonee" value="${h.telephonee || ''}" style="flex:1;">
+            </div>
             <div class="history-actions">
                 <button class="btn-custom btn-edit" onclick="showHistoryDetail(${shipIdx}, ${isEdit ? historyIdx : 0})">취소</button>
                 <button class="btn-custom btn-save" onclick="saveHistoryData(${shipIdx}, ${historyIdx})">${isEdit ? '저장' : '추가'}</button>
@@ -160,10 +185,17 @@ async function saveHistoryData(shipIdx, historyIdx) {
         date: document.getElementById('edit-date').value,
         firstTime: document.getElementById('edit-first-time').value,
         firstPos: document.getElementById('edit-first-pos').value,
+        firstAzEl: document.getElementById('edit-first-azel').value,
         lastTime: document.getElementById('edit-last-time').value,
         lastPos: document.getElementById('edit-last-pos').value,
+        lastAzEl: document.getElementById('edit-last-azel').value,
         crewCount: document.getElementById('edit-crew').value || "식별불가",
-        handover: document.getElementById('edit-handover').value,
+        violation: document.getElementById('edit-violation').value,
+        raderStation: document.getElementById('edit-rader').value,
+        traceNumber: document.getElementById('edit-tracenum').value,
+        firstOutport: document.getElementById('edit-outport').value,
+        direction: document.getElementById('edit-direction').value,
+        distance: document.getElementById('edit-distance').value,
         worker: document.getElementById('edit-worker').value,
         telephonee: document.getElementById('edit-telephonee').value,
         shipImage: document.getElementById('edit-ship-img').value,
@@ -199,9 +231,6 @@ async function deleteHistory(shipIdx, historyIdx) {
         
         sortShipData();
         renderShips();
-        
-        const newIdx = shipData.findIndex(s => s._dbKey === ship._dbKey);
-        if (newIdx !== -1) toggleCard(newIdx);
     }
 }
 
@@ -306,18 +335,18 @@ function showHistoryDetail(shipIdx, historyIdx) {
     card.querySelectorAll('.history-date-item').forEach((item, idx) => item.classList.toggle('active', idx === historyIdx));
     card.querySelector('.history-detail-view').innerHTML = `
         <div class="history-info-group fade-in">
-            <div class="h-item"><label>최초 식별</label><span>${h.firstTime} (${h.firstPos})</span></div>
-            <div class="h-item"><label>최종 식별</label><span>${h.lastTime} (${h.lastPos})</span></div>
-            <div class="h-item"><label>인원</label><span>${isNaN(h.crewCount) ? h.crewCount : h.crewCount + '명'}</span></div>
+            <div class="h-item"><label>최초 식별</label><span>${h.firstTime} (${h.firstPos}) / ${h.firstAzEl || '-'}</span></div>
+            <div class="h-item"><label>최종 종료</label><span>${h.lastTime} (${h.lastPos}) / ${h.lastAzEl || '-'}</span></div>
+            <div class="h-item"><label>인원/어선법</label><span>${isNaN(h.crewCount) ? h.crewCount : h.crewCount + '명'} / <strong>${h.violation || '무'}</strong></span></div>
             <div class="history-actions">
                 <button class="btn-custom btn-outline-primary" onclick="editHistory(${shipIdx}, ${historyIdx})">수정</button>
                 <button class="btn-custom btn-outline-danger" onclick="deleteHistory(${shipIdx}, ${historyIdx})">삭제</button>
             </div>
         </div>
         <div class="history-info-group fade-in">
-            <div class="h-item"><label>인수인계</label><span>${h.handover || ''}</span></div>
-            <div class="h-item"><label>근무자</label><span>${h.worker || ''}</span></div>
-            <div class="h-item"><label>수화자</label><span>${h.telephonee || ''}</span></div>
+            <div class="h-item"><label>문의 기지</label><span>${h.raderStation} (No. ${h.traceNumber})</span></div>
+            <div class="h-item"><label>출항/방향/거리</label><span>${h.firstOutport} / ${h.direction} / ${h.distance}km</span></div>
+            <div class="h-item"><label>근무자/수화자</label><span>${h.worker || ''} / (수) ${h.telephonee || ''}</span></div>
         </div>
     `;
     const pathBox = card.querySelector('.history-path-box');
