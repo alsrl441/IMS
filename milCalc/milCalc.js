@@ -147,7 +147,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             nextPromoDate = new Date(startFirstDay.getFullYear(), startFirstDay.getMonth() + promoMonthOffset, 1);
         }
 
-        document.getElementById('resName').innerText = remainTime > 0 ? `${rank} ${user.name}` : `병장 ${user.name}`;
+        document.getElementById('resName').innerText = remainTime > 0 ? `${rank} ${user.nickName}` : `병장 ${user.nickName}`;
         document.getElementById('resPercent').innerText = `${percent}%`;
         document.getElementById('progressBarFill').style.width = `${percent}%`;
         
