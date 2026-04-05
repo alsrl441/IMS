@@ -93,6 +93,7 @@ function renderHistoryForm(shipIdx, historyIdx = null) {
         firstTime: "08:00", firstPos: "",
         lastTime: "18:00", lastPos: "",
         crewCount: 1, handover: "특이사항 없음",
+        worker: "", telephonee: "",
         shipImage: "Images/no-image.jpg",
         pathImage: "Images/no-image.jpg"
     };
@@ -112,7 +113,9 @@ function renderHistoryForm(shipIdx, historyIdx = null) {
             <div class="edit-group"><label>최종 식별 위치</label><input type="text" id="edit-last-pos" value="${h.lastPos}"></div>
         </div>
         <div class="history-info-group fade-in">
-            <div class="edit-group" style="flex: 1;"><label>인수인계 사항</label><textarea id="edit-handover" style="height: 100%; min-height: 200px;">${h.handover}</textarea></div>
+            <div class="edit-group" style="flex: 1;"><label>인수인계</label><textarea id="edit-handover" style="height: 100%; min-height: 200px;">${h.handover}</textarea></div>
+            <div class="edit-group"><label>근무자</label><input type="text" id="edit-worker" value="${h.worker || ''}" placeholder="근무자 이름"></div>
+            <div class="edit-group"><label>수화자</label><input type="text" id="edit-telephonee" value="${h.telephonee || ''}" placeholder="수화자 이름"></div>
             <div class="history-actions">
                 <button class="btn-custom btn-edit" onclick="showHistoryDetail(${shipIdx}, ${isEdit ? historyIdx : 0})">취소</button>
                 <button class="btn-custom btn-save" onclick="saveHistoryData(${shipIdx}, ${historyIdx})">${isEdit ? '저장' : '추가'}</button>
@@ -156,6 +159,8 @@ async function saveHistoryData(shipIdx, historyIdx) {
     const isEdit = historyIdx !== null;
     const newHistory = {
         date: document.getElementById('edit-date').value,
+        worker: document.getElementById('edit-worker').value,
+        telephonee: document.getElementById('edit-telephonee').value,
         crewCount: parseInt(document.getElementById('edit-crew').value) || 0,
         firstTime: document.getElementById('edit-first-time').value,
         firstPos: document.getElementById('edit-first-pos').value,
@@ -314,7 +319,9 @@ function showHistoryDetail(shipIdx, historyIdx) {
             </div>
         </div>
         <div class="history-info-group fade-in">
-            <div class="h-item" style="height: 100%;"><label>인수인계 사항</label><span>${h.handover || '데이터 없음'}</span></div>
+            <div class="h-item" style="height: 100%;"><label>인수인계</label><span>${h.handover || ''}</span></div>
+            <div class="h-item"><label>근무자</label><span>${h.worker || ''}</span></div>
+            <div class="h-item"><label>수화자</label><span>${h.telephonee || ''}</span></div>
         </div>
     `;
     const pathBox = card.querySelector('.history-path-box');
