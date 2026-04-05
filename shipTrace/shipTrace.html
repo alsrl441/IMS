@@ -31,126 +31,117 @@
             </div>
             <div class="card-body">
                 <form id="trace-form">
-                    <!-- 단계 1: 접수 정보 -->
-                    <div class="form-section">
-                        <h6>1. 위치 및 문의 정보</h6>
-                        <div class="grid-container">
-                            <div class="form-group">
-                                <label>좌표 (예: 123 456)</label>
-                                <input type="text" id="coord-input" placeholder="123 456" class="form-control-sm">
-                                <div id="full-coord" class="coord-display">52SBD ----- -----</div>
-                            </div>
-                            <div class="form-group">
-                                <label>이동방향 (직접 입력/선택)</label>
-                                <input type="text" id="move-dir" list="dir-options" placeholder="방향 입력 또는 선택" class="form-control-sm">
-                                <datalist id="dir-options">
-                                    <option value="북진">북동진</option><option value="동진">남동진</option>
-                                    <option value="남진">남서진</option><option value="서진">북서진</option>
-                                    <option value="북동진">북동진</option><option value="남동진">남동진</option>
-                                    <option value="남서진">남서진</option><option value="북서진">북서진</option>
-                                    <option value="외해진출">외해진출</option><option value="내해진입">내해진입</option>
-                                </datalist>
-                            </div>
-                            <div class="form-group">
-                                <label>거리 입력 및 자동 변환</label>
-                                <div class="dist-input-group">
-                                    <input type="number" id="dist-value" step="0.1" placeholder="값" class="form-control-sm" style="flex: 1;">
-                                    <select id="dist-unit" class="form-control-sm">
-                                        <option value="M">M</option>
-                                        <option value="NM">NM</option>
-                                        <option value="km">km</option>
-                                    </select>
-                                </div>
-                                <div class="dist-multi-display">
-                                    <div id="dist-conv-1" class="dist-box">--</div>
-                                    <div id="dist-conv-2" class="dist-box">--</div>
-                                </div>
-                            </div>
-                            <div class="form-group force-new-row">
-                                <label>추적번호</label>
-                                <div class="trace-num-group">
-                                    <select id="radar-site" class="form-control-sm">
-                                        <option value="145">145</option>
-                                        <option value="146">146</option>
-                                    </select>
-                                    <input type="text" id="trace-num" placeholder="번호" class="form-control-sm">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label>최초 출항지</label>
-                                <input type="text" id="departure" placeholder="출항지" class="form-control-sm">
-                            </div>
-                            <div class="form-group">
-                                <label>문의자 관등성명</label>
-                                <input type="text" id="inquirer" placeholder="관등성명" class="form-control-sm">
-                            </div>
+                    <div class="unified-grid-container">
+                        <!-- 위치 및 문의 정보 -->
+                        <div class="form-group">
+                            <label>좌표 (예: 123 456)</label>
+                            <input type="text" id="coord-input" placeholder="123 456" class="form-control-sm">
+                            <div id="full-coord" class="coord-display">52SBD ----- -----</div>
                         </div>
-                    </div>
-
-                    <!-- 단계 2: 식별 정보 -->
-                    <div class="form-section mt-4">
-                        <h6>2. 감시장비 식별 정보</h6>
-                        <div class="grid-container">
-                            <div class="form-group">
-                                <label>식별 시간</label>
-                                <div class="time-input-group">
-                                    <input type="time" id="id-time" class="form-control-sm">
-                                    <button type="button" class="btn-now" onclick="setCurrentTime('id-time')">현재 시간</button>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label>방위각 고각 (예: 2345 123)</label>
-                                <input type="text" id="az-el-input" placeholder="2345 123" class="form-control-sm">
-                            </div>
-                            <div class="form-group">
-                                <label>식별자 관등성명</label>
-                                <input type="text" id="identifier" placeholder="상병 홍길동" class="form-control-sm">
-                            </div>
-                            <div class="form-group full-width">
-                                <label>선박 제원 (선명, 선종, 톤수, 기타 특이사항)</label>
-                                <textarea id="ship-specs" rows="10" class="form-control-sm" placeholder="무궁화호, 어선, 5톤 등"></textarea>
-                            </div>
+                        <div class="form-group">
+                            <label>이동방향 (직접 입력/선택)</label>
+                            <input type="text" id="move-dir" list="dir-options" placeholder="방향 입력 또는 선택" class="form-control-sm">
+                            <datalist id="dir-options">
+                                <option value="북진">북동진</option><option value="동진">남동진</option>
+                                <option value="남진">남서진</option><option value="서진">북서진</option>
+                                <option value="북동진">북동진</option><option value="남동진">남동진</option>
+                                <option value="남서진">남서진</option><option value="북서진">북서진</option>
+                                <option value="외해진출">외해진출</option><option value="내해진입">내해진입</option>
+                            </datalist>
                         </div>
-                    </div>
-
-                    <!-- 단계 3: 소실/종료 -->
-                    <div class="form-section mt-4">
-                        <h6>3. 상황 종료</h6>
-                        <div class="grid-container">
-                            <div class="form-group">
-                                <label>종료 시간</label>
-                                <div class="time-input-group">
-                                    <input type="time" id="end-time" class="form-control-sm">
-                                    <button type="button" class="btn-now" onclick="setCurrentTime('end-time')">현재 시간</button>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label>최종 방위/고각 (예: 2500 120)</label>
-                                <input type="text" id="end-az-el-input" placeholder="2500 120" class="form-control-sm">
-                            </div>
-                            <div class="form-group">
-                                <label>종료 사유</label>
-                                <select id="end-reason" class="form-control-sm">
-                                    <option value="추적 중">추적 중</option>
-                                    <option value="소실">소실</option>
-                                    <option value="입항">입항</option>
-                                    <option value="정박">정박</option>
-                                    <option value="정상 활동">정상 활동</option>
-                                    <option value="타 선박 문의">타 선박 문의</option>
+                        <div class="form-group">
+                            <label>거리 입력 및 자동 변환</label>
+                            <div class="dist-input-group">
+                                <input type="number" id="dist-value" step="0.1" placeholder="값" class="form-control-sm" style="flex: 1;">
+                                <select id="dist-unit" class="form-control-sm">
+                                    <option value="M">M</option>
+                                    <option value="NM">NM</option>
+                                    <option value="km">km</option>
                                 </select>
                             </div>
+                            <div class="dist-multi-display">
+                                <div id="dist-conv-1" class="dist-box">--</div>
+                                <div id="dist-conv-2" class="dist-box">--</div>
+                            </div>
+                        </div>
+
+                        <!-- 줄바꿈 및 문의/추적 정보 -->
+                        <div class="form-group force-new-row">
+                            <label>추적번호</label>
+                            <div class="trace-num-group">
+                                <select id="radar-site" class="form-control-sm">
+                                    <option value="145">145</option>
+                                    <option value="146">146</option>
+                                </select>
+                                <input type="text" id="trace-num" placeholder="번호" class="form-control-sm">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>최초 출항지</label>
+                            <input type="text" id="departure" placeholder="출항지" class="form-control-sm">
+                        </div>
+                        <div class="form-group">
+                            <label>문의자 관등성명</label>
+                            <input type="text" id="inquirer" placeholder="관등성명" class="form-control-sm">
+                        </div>
+
+                        <!-- 식별 정보 (자동으로 이어짐) -->
+                        <div class="form-group force-new-row">
+                            <label>식별 시간</label>
+                            <div class="time-input-group">
+                                <input type="time" id="id-time" class="form-control-sm">
+                                <button type="button" class="btn-now" onclick="setCurrentTime('id-time')">현재 시간</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>방위각 고각 (예: 2345 123)</label>
+                            <input type="text" id="az-el-input" placeholder="2345 123" class="form-control-sm">
+                        </div>
+                        <div class="form-group">
+                            <label>식별자 관등성명</label>
+                            <input type="text" id="identifier" placeholder="상병 홍길동" class="form-control-sm">
+                        </div>
+
+                        <!-- 종료 정보 -->
+                        <div class="form-group force-new-row">
+                            <label>종료 시간</label>
+                            <div class="time-input-group">
+                                <input type="time" id="end-time" class="form-control-sm">
+                                <button type="button" class="btn-now" onclick="setCurrentTime('end-time')">현재 시간</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>최종 방위/고각 (예: 2500 120)</label>
+                            <input type="text" id="end-az-el-input" placeholder="2500 120" class="form-control-sm">
+                        </div>
+                        <div class="form-group">
+                            <label>종료 사유</label>
+                            <select id="end-reason" class="form-control-sm">
+                                <option value="추적 중">추적 중</option>
+                                <option value="소실">소실</option>
+                                <option value="입항">입항</option>
+                                <option value="정박">정박</option>
+                                <option value="정상 활동">정상 활동</option>
+                                <option value="타 선박 문의">타 선박 문의</option>
+                            </select>
+                        </div>
+
+                        <!-- 선박 제원 (전체 너비) -->
+                        <div class="form-group full-width mt-2">
+                            <label>선박 제원 (선명, 선종, 톤수, 기타 특이사항)</label>
+                            <textarea id="ship-specs" rows="10" class="form-control-sm" placeholder="무궁화호, 어선, 5톤 등"></textarea>
                         </div>
                     </div>
 
-                    <div class="form-footer mt-4">
-                        <button type="button" class="btn-primary" onclick="saveTraceLog()" style="width: 200px;">로그 저장</button>
+                    <div class="form-footer mt-5">
+                        <button type="button" class="btn-primary" onclick="saveTraceLog()" style="width: 240px; height: 45px; font-size: 1.1rem;">로그 저장</button>
                     </div>
                 </form>
             </div>
         </div>
 
         <!-- 로그 목록 -->
-        <div class="card mt-4 shadow-sm" style="max-width: 100%; overflow-x: auto;">
+        <div class="card mt-5 shadow-sm" style="max-width: 100%; overflow-x: auto;">
             <div class="card-header bg-white">
                 <h5 class="card-title" style="margin:0; font-weight: bold;">추적 로그 현황</h5>
             </div>
