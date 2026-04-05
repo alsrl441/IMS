@@ -31,8 +31,59 @@
             </div>
             <div class="card-body">
                 <form id="trace-form">
+                    <!-- 문의 정보 섹션 복구 -->
                     <div class="form-section">
-                        <h6>1. 선박 기본 정보</h6>
+                        <h6>1. 위치 및 문의 정보 (메모용)</h6>
+                        <div class="form-row">
+                            <div class="form-group flex-2">
+                                <label>좌표 (6계단)</label>
+                                <input type="text" id="coord-input" placeholder="123 456" class="form-control-sm">
+                                <div id="full-coord" class="coord-display">52SBD ----- -----</div>
+                            </div>
+                            <div class="form-group flex-1">
+                                <label>이동 방향</label>
+                                <input type="text" id="move-dir" list="dir-options" placeholder="입력/선택" class="form-control-sm">
+                                <datalist id="dir-options">
+                                    <option>동진</option><option>서진</option><option>남진</option><option>북진</option>
+                                    <option>북동진</option><option>남동진</option><option>남서진</option><option>북서진</option>
+                                </datalist>
+                            </div>
+                            <div class="form-group flex-2">
+                                <label>거리</label>
+                                <div class="dist-input-group">
+                                    <input type="number" id="dist-value" step="0.1" placeholder="값" class="form-control-sm" style="width: 60px;">
+                                    <select id="dist-unit" class="form-control-sm">
+                                        <option value="NM">NM</option>
+                                        <option value="km">km</option>
+                                        <option value="M">M</option>
+                                    </select>
+                                    <div class="dist-multi-display">
+                                        <div id="dist-conv-1" class="dist-box">--</div>
+                                        <div id="dist-conv-2" class="dist-box">--</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row mt-3">
+                            <div class="form-group flex-1">
+                                <label>추적 번호</label>
+                                <div class="trace-num-group">
+                                    <select id="radar-site" class="form-control-sm">
+                                        <option value="145">145</option>
+                                        <option value="146">146</option>
+                                    </select>
+                                    <input type="text" id="trace-num" placeholder="번호" class="form-control-sm">
+                                </div>
+                            </div>
+                            <div class="form-group flex-1">
+                                <label>최초 출항지</label>
+                                <input type="text" id="departure" placeholder="출항지" class="form-control-sm">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h6>2. 선박 기본 정보</h6>
                         <div class="form-row">
                             <div class="form-group flex-1">
                                 <label>선명</label>
@@ -64,7 +115,7 @@
                     </div>
 
                     <div class="form-section">
-                        <h6>2. 식별 기록</h6>
+                        <h6>3. 식별 기록</h6>
                         <div class="form-row">
                             <div class="form-group flex-1">
                                 <label>식별 날짜</label>

@@ -7,7 +7,6 @@ function initDB() {
 
     request.onsuccess = (e) => {
         db = e.target.result;
-        // Ensure ship store exists
         if (!db.objectStoreNames.contains(STORE_NAME)) {
             const version = db.version;
             db.close();
@@ -31,6 +30,52 @@ function initDB() {
 }
 initDB();
 
+// --- 위치 및 문의 정보 관련 로직 복구 ---
+const coordInput = document.getElementById('coord-input');
+const fullCoordDisplay = document.getElementById('full-coord');
+
+function updateFullCoord() {
+    let val = coordInput.value.trim();
+    if (!val) {
+        fullCoordDisplay.innerText = "52SBD ----- -----";
+        return;
+    }
+    let parts = val.split(/[\s,]+/);
+    let x = parts[0] || "";
+    let y = parts[1] || "";
+    let fullX = x.padEnd(3, '0').slice(0, 3) + "00";
+    let fullY = y.padEnd(3, '0').slice(0, 3) + "00";
+    fullCoordDisplay.innerText = `52SBD ${fullX} ${fullY}`;
+}
+if (coordInput) coordInput.addEventListener('input', updateFullCoord);
+
+const distValue = document.getElementById('dist-value');
+const distUnit = document.getElementById('dist-unit');
+const distConv1 = document.getElementById('dist-conv-1');
+const distConv2 = document.getElementById('dist-conv-2');
+
+function updateDistance() {
+    let val = parseFloat(distValue.value);
+    let unit = distUnit.value;
+    if (isNaN(val)) {
+        distConv1.innerText = "--";
+        distConv2.innerText = "--";
+        return;
+    }
+    let km, nm, m;
+    // 단위 변환 로직 (기준에 맞춰 계산)
+    if (unit === 'km') { km = val; nm = val * 0.539957; m = val * 1000; }
+    else if (unit === 'NM') { nm = val; km = val * 1.852; m = val * 1852; }
+    else if (unit === 'M') { m = val; km = val / 1000; nm = val / 1852; }
+
+    if (unit === 'km') { distConv1.innerText = `${nm.toFixed(2)} NM`; distConv2.innerText = `${m.toFixed(0)} M`; }
+    else if (unit === 'NM') { distConv1.innerText = `${km.toFixed(2)} km`; distConv2.innerText = `${m.toFixed(0)} M`; }
+    else if (unit === 'M') { distConv1.innerText = `${nm.toFixed(3)} NM`; distConv2.innerText = `${km.toFixed(3)} km`; }
+}
+if (distValue) distValue.addEventListener('input', updateDistance);
+if (distUnit) distUnit.addEventListener('change', updateDistance);
+// ------------------------------------------
+
 // 초기 날짜 설정
 document.getElementById('id-date').value = new Date().toISOString().split('T')[0];
 
@@ -49,6 +94,8 @@ function resetForm() {
     if (confirm("입력 중인 내용을 초기화할까요?")) {
         document.getElementById('trace-form').reset();
         document.getElementById('id-date').value = new Date().toISOString().split('T')[0];
+        updateFullCoord();
+        updateDistance();
     }
 }
 
@@ -83,13 +130,12 @@ async function saveTraceLog() {
         telephonee: document.getElementById('telephonee').value || "-",
         shipImage: "Images/no-image.jpg",
         pathImage: "Images/no-image.jpg",
-        timestamp: new Date().getTime() // For sorting
+        timestamp: new Date().getTime()
     };
 
     const tx = db.transaction(STORE_NAME, "readwrite");
     const store = tx.objectStore(STORE_NAME);
     
-    // Find ship by name
     const request = store.openCursor();
     let existingShip = null;
     let existingKey = null;
@@ -107,13 +153,11 @@ async function saveTraceLog() {
         }
 
         if (existingShip) {
-            // Update existing ship
             existingShip.tonnage = tonnage !== "-" ? tonnage : existingShip.tonnage;
             existingShip.type = type !== "-" ? type : existingShip.type;
             existingShip.number = vesselNum !== "-" ? vesselNum : existingShip.number;
             existingShip.tel = contact !== "-" ? contact : existingShip.tel;
             
-            // Merge tags
             if (!Array.isArray(existingShip.tags)) existingShip.tags = [];
             tags.forEach(t => {
                 if (!existingShip.tags.includes(t)) existingShip.tags.push(t);
@@ -122,7 +166,6 @@ async function saveTraceLog() {
             existingShip.history.push(newHistory);
             store.put(existingShip, existingKey);
         } else {
-            // Create new ship
             const newShip = {
                 name: shipName,
                 tonnage: tonnage,
@@ -141,6 +184,8 @@ async function saveTraceLog() {
         renderLogs();
         document.getElementById('trace-form').reset();
         document.getElementById('id-date').value = new Date().toISOString().split('T')[0];
+        updateFullCoord();
+        updateDistance();
     };
 
     tx.onerror = (e) => {
@@ -173,10 +218,7 @@ function renderLogs() {
             }
         });
 
-        // Sort by timestamp or date/time
         allHistory.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-
-        // Take recent 20
         const recentHistory = allHistory.slice(0, 20);
         
         const list = document.getElementById('log-list');
