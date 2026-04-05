@@ -79,7 +79,7 @@ async function updateWorkSchedule() {
             const data = await getDaySchedule(dateStr);
             const displayDate = dateStr.substring(5);
             
-            if (!data) return `<div class="no-data">${displayDate} (${label}) 데이터가 없음</div>`;
+            if (!data) return `<div class="no-data">${displayDate} (${label}) 데이터 없음</div>`;
             
             const formatName = (name) => (name === "-" || !name ? "" : name);
 
@@ -88,7 +88,7 @@ async function updateWorkSchedule() {
                     <thead>
                         <tr class="table-light-bg">
                             <th colspan="4" class="table-date-header text-dark">
-                                ${displayDate} (${label})}
+                                ${displayDate} (${label})
                             </th>
                         </tr>
                         <tr class="table-white-bg">
