@@ -102,16 +102,8 @@ function renderHistoryForm(shipIdx, historyIdx = null) {
     const detailView = card.querySelector('.history-detail-view');
     const pathBox = card.querySelector('.history-path-box');
 
-    // 폼 렌더링 (좌측: 식별정보, 우측: 인수인계)
+    // 폼 렌더링 (좌측: 인수인계/근무자, 우측: 식별정보)
     detailView.innerHTML = `
-        <div class="history-info-group fade-in">
-            <div class="edit-group"><label>식별 날짜</label><input type="date" id="edit-date" value="${h.date}"></div>
-            <div class="edit-group"><label>탑승 인원</label><input type="number" id="edit-crew" value="${h.crewCount}"></div>
-            <div class="edit-group"><label>최초 식별 시간</label><input type="time" id="edit-first-time" value="${h.firstTime}"></div>
-            <div class="edit-group"><label>최초 식별 위치</label><input type="text" id="edit-first-pos" value="${h.firstPos}"></div>
-            <div class="edit-group"><label>최종 식별 시간</label><input type="time" id="edit-last-time" value="${h.lastTime}"></div>
-            <div class="edit-group"><label>최종 식별 위치</label><input type="text" id="edit-last-pos" value="${h.lastPos}"></div>
-        </div>
         <div class="history-info-group fade-in">
             <div class="edit-group" style="flex: 1;"><label>인수인계 사항</label><textarea id="edit-handover" style="height: 100%; min-height: 200px;">${h.handover}</textarea></div>
             <div class="edit-group"><label>근무자</label><input type="text" id="edit-worker" value="${h.worker || ''}" placeholder="근무자 이름"></div>
@@ -120,6 +112,14 @@ function renderHistoryForm(shipIdx, historyIdx = null) {
                 <button class="btn-custom btn-edit" onclick="showHistoryDetail(${shipIdx}, ${isEdit ? historyIdx : 0})">취소</button>
                 <button class="btn-custom btn-save" onclick="saveHistoryData(${shipIdx}, ${historyIdx})">${isEdit ? '저장' : '추가'}</button>
             </div>
+        </div>
+        <div class="history-info-group fade-in">
+            <div class="edit-group"><label>식별 날짜</label><input type="date" id="edit-date" value="${h.date}"></div>
+            <div class="edit-group"><label>탑승 인원</label><input type="number" id="edit-crew" value="${h.crewCount}"></div>
+            <div class="edit-group"><label>최초 식별 시간</label><input type="time" id="edit-first-time" value="${h.firstTime}"></div>
+            <div class="edit-group"><label>최초 식별 위치</label><input type="text" id="edit-first-pos" value="${h.firstPos}"></div>
+            <div class="edit-group"><label>최종 식별 시간</label><input type="time" id="edit-last-time" value="${h.lastTime}"></div>
+            <div class="edit-group"><label>최종 식별 위치</label><input type="text" id="edit-last-pos" value="${h.lastPos}"></div>
         </div>
     `;
 
@@ -310,18 +310,18 @@ function showHistoryDetail(shipIdx, historyIdx) {
     card.querySelectorAll('.history-date-item').forEach((item, idx) => item.classList.toggle('active', idx === historyIdx));
     card.querySelector('.history-detail-view').innerHTML = `
         <div class="history-info-group fade-in">
-            <div class="h-item"><label>최초 식별</label><span>${h.firstTime} (${h.firstPos})</span></div>
-            <div class="h-item"><label>최종 식별</label><span>${h.lastTime} (${h.lastPos})</span></div>
-            <div class="h-item"><label>탑승 인원</label><span>${h.crewCount}명</span></div>
+            <div class="h-item" style="height: 100%;"><label>인수인계 사항</label><span>${h.handover || '데이터 없음'}</span></div>
+            <div class="h-item"><label>근무자</label><span>${h.worker || '미입력'}</span></div>
+            <div class="h-item"><label>수화자</label><span>${h.telephonee || '미입력'}</span></div>
             <div class="history-actions">
                 <button class="btn-custom btn-outline-primary" onclick="editHistory(${shipIdx}, ${historyIdx})">수정</button>
                 <button class="btn-custom btn-outline-danger" onclick="deleteHistory(${shipIdx}, ${historyIdx})">삭제</button>
             </div>
         </div>
         <div class="history-info-group fade-in">
-            <div class="h-item" style="height: 100%;"><label>인수인계 사항</label><span>${h.handover || '데이터 없음'}</span></div>
-            <div class="h-item"><label>근무자</label><span>${h.worker || '미입력'}</span></div>
-            <div class="h-item"><label>수화자</label><span>${h.telephonee || '미입력'}</span></div>
+            <div class="h-item"><label>최초 식별</label><span>${h.firstTime} (${h.firstPos})</span></div>
+            <div class="h-item"><label>최종 식별</label><span>${h.lastTime} (${h.lastPos})</span></div>
+            <div class="h-item"><label>탑승 인원</label><span>${h.crewCount}명</span></div>
         </div>
     `;
     const pathBox = card.querySelector('.history-path-box');
