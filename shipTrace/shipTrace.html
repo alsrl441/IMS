@@ -36,13 +36,12 @@
             </div>
 
             <form id="trace-form" class="trace-form">
-                <!-- Group 1: 기초 추적 정보 -->
                 <div class="form-group-section">
-                    <h6 class="section-label">기초 추적 정보</h6>
+                    <h6 class="section-label">기초 정보</h6>
                     <div class="grid-layout">
                         <div class="input-field">
-                            <label>좌표</label>
-                            <input type="text" id="coord-input" size="7" placeholder="6계단 (예: 123 456)">
+                            <label>문의 좌표</label>
+                            <input type="text" id="coord-input" size="7" placeholder="좌표">
                         </div>
                         <div class="input-field">
                             <label>추적 번호</label>
@@ -57,7 +56,7 @@
                         </div>
                         <div class="input-field">
                             <label>이동방향 <span class="required">*</span></label>
-                            <input type="text" id="move-dir" list="dir-options" size="4" required placeholder="선택/입력">
+                            <input type="text" id="move-dir" list="dir-options" size="4" required placeholder="이동방향 선택/입력">
                             <datalist id="dir-options">
                                 <option>동진</option><option>서진</option><option>남진</option><option>북진</option>
                                 <option>북동진</option><option>남동진</option><option>남서진</option><option>북서진</option>
@@ -66,31 +65,29 @@
                         <div class="input-field">
                             <label>거리 <span class="required">*</span></label>
                             <div class="input-group">
-                                <input type="number" id="dist-value" step="0.1" style="width: 60px;" required>
+                                <input type="number" id="dist-value" step="0.1" style="width: 60px;" required placeholder="거리">
                                 <select id="dist-unit">
                                     <option value="NM">NM</option>
                                     <option value="M">M</option>
                                     <option value="km">km</option>
                                 </select>
-                                <span id="dist-km-display" class="km-badge">-- km</span>
+                                <span id="dist-km-display" class="km-badge">   km</span>
                             </div>
                         </div>
                         <div class="input-field">
                             <label>출항지 <span class="required">*</span></label>
-                            <input type="text" id="departure" size="12" required placeholder="최초 출항지">
+                            <input type="text" id="departure" size="12" required placeholder="출항지">
                         </div>
                         <div class="input-field">
-                            <label>수화자 관등성명</label>
-                            <input type="text" id="telephonee" size="8" placeholder="관등성명">
+                            <label>수화자</label>
+                            <input type="text" id="telephonee" size="8" placeholder="수화자 관등성명">
                         </div>
                     </div>
                 </div>
 
-                <!-- Group 2: 식별 기록 (최초/최종) -->
                 <div class="form-group-section highlight">
-                    <h6 class="section-label">식별 기록</h6>
+                    <h6 class="section-label">식별 정보</h6>
                     <div class="grid-layout cols-2">
-                        <!-- 최초 -->
                         <div class="time-record-box">
                             <div class="box-header">최초 식별</div>
                             <div class="box-content">
@@ -102,16 +99,15 @@
                                     </div>
                                 </div>
                                 <div class="inner-row">
-                                    <label>방위/고각 <span class="required">*</span></label>
-                                    <input type="text" id="first-az-el" size="10" required placeholder="예: 120 / -5">
+                                    <label>방위각 고각 <span class="required">*</span></label>
+                                    <input type="text" id="first-az-el" size="10" required placeholder="0000 00">
                                 </div>
                                 <div class="inner-row">
                                     <label>위치 <span class="required">*</span></label>
-                                    <input type="text" id="first-pos" size="20" required placeholder="상세 위치 정보">
+                                    <input type="text" id="first-pos" size="20" required placeholder="식별 위치">
                                 </div>
                             </div>
                         </div>
-                        <!-- 최종 -->
                         <div class="time-record-box">
                             <div class="box-header">최종 식별</div>
                             <div class="box-content">
@@ -123,64 +119,62 @@
                                     </div>
                                 </div>
                                 <div class="inner-row">
-                                    <label>방위/고각 <span class="required">*</span></label>
-                                    <input type="text" id="last-az-el" size="10" required placeholder="예: 150 / 0">
+                                    <label>방위각 고각 <span class="required">*</span></label>
+                                    <input type="text" id="last-az-el" size="10" required placeholder="0000 00">
                                 </div>
                                 <div class="inner-row">
                                     <label>위치 <span class="required">*</span></label>
-                                    <input type="text" id="last-pos" size="20" required placeholder="최종 소실 위치">
+                                    <input type="text" id="last-pos" size="20" required placeholder="소실 위치">
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Group 3: 선박 상세 정보 -->
                 <div class="form-group-section">
-                    <h6 class="section-label">선박 상세 제원</h6>
+                    <h6 class="section-label">선박 제원</h6>
                     <div class="grid-layout">
                         <div class="input-field">
                             <label>선명</label>
-                            <input type="text" id="ship-name" size="15" placeholder="식별불가">
+                            <input type="text" id="ship-name" size="15">
                         </div>
                         <div class="input-field">
                             <label>톤수</label>
-                            <input type="text" id="ship-tonnage" size="5" placeholder="식별불가">
+                            <input type="text" id="ship-tonnage" size="5">
                         </div>
                         <div class="input-field">
                             <label>선종</label>
-                            <input type="text" id="ship-type" size="12" placeholder="식별불가">
+                            <input type="text" id="ship-type" size="12">
                         </div>
                         <div class="input-field">
                             <label>인원</label>
-                            <input type="text" id="crew-count" size="5" placeholder="식별불가">
+                            <input type="text" id="crew-count" size="5">
                         </div>
                         <div class="input-field span-2">
                             <label>어선법 위반 여부</label>
                             <div class="violation-wrapper">
                                 <select id="violation-select" onchange="toggleViolationDetail()">
-                                    <option value="X" selected>X (미위반)</option>
-                                    <option value="O">O (위반 식별)</option>
+                                    <option value="X" selected>X</option>
+                                    <option value="O">O</option>
                                 </select>
-                                <input type="text" id="violation-detail" size="25" placeholder="위반 세부 내용 입력" disabled>
+                                <input type="text" id="violation-detail" size="25" placeholder="위반 내용" disabled>
                             </div>
                         </div>
                         <div class="input-field">
-                            <label>근무자 관등성명 <span class="required">*</span></label>
-                            <input type="text" id="worker" size="10" required placeholder="작성자">
+                            <label>근무자 <span class="required">*</span></label>
+                            <input type="text" id="worker" size="10" required placeholder="근무자 관등성명">
                         </div>
                     </div>
                 </div>
 
-                <!-- Group 4: 특이사항 -->
                 <div class="form-group-section">
-                    <h6 class="section-label">기타 특이사항</h6>
-                    <textarea id="tags" rows="8" placeholder="영상 분석 내용, 선체 특징, 특이 거동 등을 상세히 기록하세요."></textarea>
+                    <h6 class="section-label">태그</h6>
+                    <textarea id="tags" rows="6" placeholder="기타/외형적 특이사항"></textarea>
                 </div>
 
                 <div class="form-actions">
                     <button type="button" class="btn-submit" onclick="saveTraceLog()">
-                        <span class="icon">💾</span> 기록 저장 및 DB 등록
+                        <span class="icon">💾</span>저장
                     </button>
                 </div>
             </form>
