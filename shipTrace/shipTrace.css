@@ -1,14 +1,14 @@
 .form-section {
     border: 1px solid #dee2e6;
-    padding: 20px;
+    padding: 15px;
     border-radius: 8px;
     background-color: #fff;
-    margin-bottom: 25px; /* 섹션 간 간격 */
+    margin-bottom: 20px;
 }
 
 .form-section h6 {
     margin-top: 0;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     color: #0d6efd;
     font-weight: 700;
     border-bottom: 2px solid #0d6efd;
@@ -16,26 +16,22 @@
     font-size: 0.9rem;
 }
 
-.grid-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 40px; /* 섹션 내부 입력 폼 간 간격 대폭 확대 */
+/* 행(Row) 기반 레이아웃 */
+.form-row {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
 }
 
 .form-group {
     display: flex;
     flex-direction: column;
-    gap: 8px; /* 라벨과 입력창 사이 간격 */
+    gap: 6px;
 }
 
-.form-group.full-width {
-    grid-column: 1 / -1;
-}
-
-/* 줄바꿈 강제용 클래스 */
-.force-new-row {
-    grid-column-start: 1;
-}
+.flex-1 { flex: 1; min-width: 150px; }
+.flex-2 { flex: 2; min-width: 200px; }
+.full-width { width: 100%; }
 
 .form-group label {
     font-size: 0.75rem;
@@ -43,52 +39,46 @@
     color: #555;
 }
 
-/* 입력 폼 스타일 (다시 콤팩트하게) */
+/* 입력 폼 스타일 */
 .form-control-sm, .dist-box, .coord-display {
     padding: 4px 8px;
     border: 1px solid #ced4da;
     border-radius: 4px;
     font-size: 0.85rem;
     font-family: inherit;
-    height: 32px; /* 콤팩트한 높이 */
+    height: 32px;
     display: flex;
     align-items: center;
     box-sizing: border-box;
     transition: all 0.2s;
 }
 
-.form-control-sm:focus {
-    border-color: #0d6efd;
-    outline: none;
-}
-
-/* 결과창 전용 스타일 (입력창과 디자인 통일) */
-.dist-box, .coord-display {
-    background-color: #f8f9fa;
-    justify-content: center;
-    font-weight: 700;
-}
-
-.coord-display {
-    color: #0d6efd;
-    width: 100%;
-    margin-top: 4px;
+.dist-input-group {
+    display: flex;
+    gap: 6px;
+    align-items: center;
 }
 
 .dist-multi-display {
     display: flex;
-    gap: 10px;
-    margin-top: 4px;
+    gap: 6px;
 }
 
-.dist-box {
-    flex: 1;
+.dist-box, .coord-display {
+    background-color: #f8f9fa;
+    justify-content: center;
+    font-weight: 700;
     color: #212529;
 }
 
-.coord-input-group, .trace-num-group, .time-input-group, .dist-input-group {
+.coord-display {
+    color: #0d6efd;
+    margin-top: 4px;
+}
+
+.trace-num-group, .time-input-group {
     display: flex;
-    gap: 8px;
+    gap: 6px;
 }
 
 .btn-now {
@@ -98,12 +88,10 @@
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     white-space: nowrap;
     height: 32px;
 }
-
-.btn-now:hover { background: #5a6268; }
 
 .btn-primary {
     background-color: #0d6efd;
@@ -113,10 +101,7 @@
     border-radius: 6px;
     font-weight: bold;
     cursor: pointer;
-    font-size: 0.95rem;
 }
-
-.btn-primary:hover { background-color: #0b5ed7; }
 
 .trace-table {
     width: 100%;
@@ -129,7 +114,6 @@
     padding: 10px 5px;
     border-bottom: 2px solid #dee2e6;
     text-align: center;
-    white-space: nowrap;
     color: #333;
     font-weight: 700;
 }
@@ -143,23 +127,21 @@
 
 .badge-status {
     font-size: 0.7rem;
-    padding: 1px 5px;
+    padding: 2px 5px;
     border-radius: 4px;
     background: #e9ecef;
     color: #495057;
     font-weight: bold;
     display: inline-block;
-    margin-top: 5px;
 }
 
 textarea.form-control-sm {
     height: auto;
-    line-height: 1.5;
 }
 
 @media (max-width: 600px) {
-    .grid-container {
-        grid-template-columns: 1fr;
-        gap: 20px;
+    .form-row {
+        flex-direction: column;
+        gap: 15px;
     }
 }

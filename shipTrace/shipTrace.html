@@ -25,48 +25,50 @@
 
     <main class="container py-4">
         <div class="card shadow-sm">
-            <div class="card-header bg-white d-flex justify-content-between align-items-center" style="padding: 15px;">
-                <h5 class="card-title" style="margin:0; font-weight: bold; color: #333;">선박 추적 기록지</h5>
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="card-title" style="margin:0; font-weight: bold;">선박 추적 기록지</h5>
                 <button class="btn-outline" onclick="resetForm()">새로고침</button>
             </div>
             <div class="card-body">
                 <form id="trace-form">
-                    <!-- 섹션 1: 위치 및 문의 정보 -->
+                    <!-- 1. 접수 정보 -->
                     <div class="form-section">
-                        <h6>1. 위치 및 문의 정보</h6>
-                        <div class="grid-container">
-                            <div class="form-group">
+                        <h6>1. 접수 및 위치 정보</h6>
+                        <div class="form-row">
+                            <div class="form-group flex-2">
                                 <label>좌표 (예: 123 456)</label>
                                 <input type="text" id="coord-input" placeholder="123 456" class="form-control-sm">
                                 <div id="full-coord" class="coord-display">52SBD ----- -----</div>
                             </div>
-                            <div class="form-group">
-                                <label>이동방향 (직접 입력/선택)</label>
-                                <input type="text" id="move-dir" list="dir-options" placeholder="방향 입력 또는 선택" class="form-control-sm">
+                            <div class="form-group flex-1">
+                                <label>이동방향</label>
+                                <input type="text" id="move-dir" list="dir-options" placeholder="입력/선택" class="form-control-sm">
                                 <datalist id="dir-options">
-                                    <option value="북진">북진</option><option value="동진">동진</option>
-                                    <option value="남진">남진</option><option value="서진">서진</option>
+                                    <option value="북진">북동진</option><option value="동진">남동진</option>
+                                    <option value="남진">남서진</option><option value="서진">북서진</option>
                                     <option value="북동진">북동진</option><option value="남동진">남동진</option>
                                     <option value="남서진">남서진</option><option value="북서진">북서진</option>
                                     <option value="외해진출">외해진출</option><option value="내해진입">내해진입</option>
                                 </datalist>
                             </div>
-                            <div class="form-group">
-                                <label>거리 입력 및 자동 변환</label>
+                            <div class="form-group flex-2">
+                                <label>거리 입력 및 변환</label>
                                 <div class="dist-input-group">
-                                    <input type="number" id="dist-value" step="0.1" placeholder="값" class="form-control-sm" style="flex: 1;">
+                                    <input type="number" id="dist-value" step="0.1" placeholder="값" class="form-control-sm" style="width: 60px;">
                                     <select id="dist-unit" class="form-control-sm">
                                         <option value="M">M</option>
                                         <option value="NM">NM</option>
                                         <option value="km">km</option>
                                     </select>
-                                </div>
-                                <div class="dist-multi-display">
-                                    <div id="dist-conv-1" class="dist-box">--</div>
-                                    <div id="dist-conv-2" class="dist-box">--</div>
+                                    <div class="dist-multi-display">
+                                        <div id="dist-conv-1" class="dist-box">--</div>
+                                        <div id="dist-conv-2" class="dist-box">--</div>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="form-group force-new-row">
+                        </div>
+                        <div class="form-row mt-3">
+                            <div class="form-group flex-1">
                                 <label>추적번호</label>
                                 <div class="trace-num-group">
                                     <select id="radar-site" class="form-control-sm">
@@ -76,62 +78,71 @@
                                     <input type="text" id="trace-num" placeholder="번호" class="form-control-sm">
                                 </div>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group flex-1">
                                 <label>최초 출항지</label>
                                 <input type="text" id="departure" placeholder="출항지" class="form-control-sm">
                             </div>
-                            <div class="form-group">
+                            <div class="form-group flex-1">
                                 <label>문의자 관등성명</label>
                                 <input type="text" id="inquirer" placeholder="관등성명" class="form-control-sm">
                             </div>
                         </div>
                     </div>
 
-                    <!-- 섹션 2: 감시장비 식별 정보 -->
+                    <!-- 2. 식별 정보 -->
                     <div class="form-section">
                         <h6>2. 감시장비 식별 정보</h6>
-                        <div class="grid-container">
-                            <div class="form-group">
+                        <div class="form-row">
+                            <div class="form-group flex-1">
                                 <label>식별 시간</label>
                                 <div class="time-input-group">
                                     <input type="time" id="id-time" class="form-control-sm">
                                     <button type="button" class="btn-now" onclick="setCurrentTime('id-time')">현재 시간</button>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label>방위각 고각 (예: 2345 123)</label>
+                            <div class="form-group flex-1">
+                                <label>방위각 고각 (2345 123)</label>
                                 <input type="text" id="az-el-input" placeholder="2345 123" class="form-control-sm">
                             </div>
-                            <div class="form-group">
-                                <label>식별자 관등성명</label>
-                                <input type="text" id="identifier" placeholder="상병 홍길동" class="form-control-sm">
+                            <div class="form-group flex-1">
+                                <label>식별 위치 (명칭)</label>
+                                <input type="text" id="id-location" placeholder="00섬 인근 등" class="form-control-sm">
                             </div>
-                            <div class="form-group full-width">
+                            <div class="form-group flex-1">
+                                <label>식별자 관등성명</label>
+                                <input type="text" id="identifier" placeholder="관등성명" class="form-control-sm">
+                            </div>
+                        </div>
+                        <div class="form-row mt-3">
+                            <div class="form-group flex-1">
                                 <label>선박 제원 (선명, 선종, 톤수, 기타 특이사항)</label>
                                 <textarea id="ship-specs" rows="10" class="form-control-sm" placeholder="무궁화호, 어선, 5톤 등"></textarea>
                             </div>
                         </div>
                     </div>
 
-                    <!-- 섹션 3: 상황 종료 -->
+                    <!-- 3. 상황 종료 -->
                     <div class="form-section">
                         <h6>3. 상황 종료</h6>
-                        <div class="grid-container">
-                            <div class="form-group">
+                        <div class="form-row">
+                            <div class="form-group flex-1">
                                 <label>종료 시간</label>
                                 <div class="time-input-group">
                                     <input type="time" id="end-time" class="form-control-sm">
                                     <button type="button" class="btn-now" onclick="setCurrentTime('end-time')">현재 시간</button>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label>최종 방위/고각 (예: 2500 120)</label>
+                            <div class="form-group flex-1">
+                                <label>최종 방위/고각 (2500 120)</label>
                                 <input type="text" id="end-az-el-input" placeholder="2500 120" class="form-control-sm">
                             </div>
-                            <div class="form-group">
+                            <div class="form-group flex-1">
+                                <label>최종 위치 (명칭)</label>
+                                <input type="text" id="end-location" placeholder="00항 입항 등" class="form-control-sm">
+                            </div>
+                            <div class="form-group flex-1">
                                 <label>종료 사유</label>
                                 <select id="end-reason" class="form-control-sm">
-                                    <option value="추적 중">추적 중</option>
                                     <option value="소실">소실</option>
                                     <option value="입항">입항</option>
                                     <option value="정박">정박</option>
@@ -159,9 +170,9 @@
                     <thead>
                         <tr>
                             <th>식별 시간</th>
-                            <th>식별 위치(방위/고각)</th>
+                            <th>식별 위치<br>(방위/고각)</th>
                             <th>최종 시간</th>
-                            <th>최종 위치(방위/고각)</th>
+                            <th>최종 위치<br>(방위/고각)</th>
                             <th>좌표</th>
                             <th>제원/상태</th>
                             <th>식별자</th>

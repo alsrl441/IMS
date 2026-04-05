@@ -36,16 +36,9 @@ function updateDistance() {
     else if (unit === 'NM') { nm = val; km = val * 1.852; m = val * 1.15078; }
     else if (unit === 'M') { m = val; km = val * 1.60934; nm = val * 0.868976; }
 
-    if (unit === 'km') {
-        distConv1.innerText = `${nm.toFixed(2)} NM`;
-        distConv2.innerText = `${m.toFixed(2)} M`;
-    } else if (unit === 'NM') {
-        distConv1.innerText = `${km.toFixed(2)} km`;
-        distConv2.innerText = `${m.toFixed(2)} M`;
-    } else if (unit === 'M') {
-        distConv1.innerText = `${nm.toFixed(2)} NM`;
-        distConv2.innerText = `${km.toFixed(2)} km`;
-    }
+    if (unit === 'km') { distConv1.innerText = `${nm.toFixed(2)} NM`; distConv2.innerText = `${m.toFixed(2)} M`; }
+    else if (unit === 'NM') { distConv1.innerText = `${km.toFixed(2)} km`; distConv2.innerText = `${m.toFixed(2)} M`; }
+    else if (unit === 'M') { distConv1.innerText = `${nm.toFixed(2)} NM`; distConv2.innerText = `${km.toFixed(2)} km`; }
 }
 distValue.addEventListener('input', updateDistance);
 distUnit.addEventListener('change', updateDistance);
@@ -74,13 +67,15 @@ function saveTraceLog() {
     const log = {
         idTime: document.getElementById('id-time').value || "-",
         idPos: document.getElementById('az-el-input').value || "-",
+        idLoc: document.getElementById('id-location').value || "",
         endTime: document.getElementById('end-time').value || "-",
         endPos: document.getElementById('end-az-el-input').value || "-",
+        endLoc: document.getElementById('end-location').value || "",
         coord: fullCoordDisplay.innerText,
         specs: document.getElementById('ship-specs').value || "정보 없음",
-        status: document.getElementById('end-reason').value || "-",
+        status: document.getElementById('end-reason').value,
         identifier: document.getElementById('identifier').value || "-",
-        inquirer: document.getElementById('inquirer').value || "X"
+        inquirer: document.getElementById('inquirer').value || "직접 식별"
     };
 
     traceLogs.unshift(log);
@@ -98,9 +93,9 @@ function renderLogs() {
     list.innerHTML = traceLogs.map(log => `
         <tr>
             <td style="font-weight: bold;">${log.idTime}</td>
-            <td>${log.idPos}</td>
+            <td>${log.idPos}${log.idLoc ? '<br>(' + log.idLoc + ')' : ''}</td>
             <td style="font-weight: bold;">${log.endTime}</td>
-            <td>${log.endPos}</td>
+            <td>${log.endPos}${log.endLoc ? '<br>(' + log.endLoc + ')' : ''}</td>
             <td style="font-family: var(--font-mono); font-size: 0.85rem; color: #0d6efd;">${log.coord}</td>
             <td style="text-align: left; min-width: 200px; white-space: pre-wrap;">${log.specs}\n<span class="badge-status">[${log.status}]</span></td>
             <td>${log.identifier}</td>
