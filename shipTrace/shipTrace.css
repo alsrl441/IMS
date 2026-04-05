@@ -1,15 +1,31 @@
-/* 통합 그리드 컨테이너 */
-.unified-grid-container {
+.form-section {
+    border: 1px solid #dee2e6;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #fff;
+    margin-bottom: 25px; /* 섹션 간 간격 */
+}
+
+.form-section h6 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #0d6efd;
+    font-weight: 700;
+    border-bottom: 2px solid #0d6efd;
+    display: inline-block;
+    font-size: 0.9rem;
+}
+
+.grid-container {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 50px; /* 간격을 50px로 더 확대 */
-    padding: 15px;
+    gap: 40px; /* 섹션 내부 입력 폼 간 간격 대폭 확대 */
 }
 
 .form-group {
     display: flex;
     flex-direction: column;
-    gap: 6px; /* 라벨과 입력창 사이 간격은 작게 유지 */
+    gap: 8px; /* 라벨과 입력창 사이 간격 */
 }
 
 .form-group.full-width {
@@ -27,14 +43,14 @@
     color: #555;
 }
 
-/* 입력 폼 스타일 (크기를 다시 작게 조절) */
+/* 입력 폼 스타일 (다시 콤팩트하게) */
 .form-control-sm, .dist-box, .coord-display {
     padding: 4px 8px;
     border: 1px solid #ced4da;
     border-radius: 4px;
     font-size: 0.85rem;
     font-family: inherit;
-    height: 32px; /* 높이를 다시 콤팩트하게 줄임 */
+    height: 32px; /* 콤팩트한 높이 */
     display: flex;
     align-items: center;
     box-sizing: border-box;
@@ -46,7 +62,7 @@
     outline: none;
 }
 
-/* 결과창 전용 스타일 */
+/* 결과창 전용 스타일 (입력창과 디자인 통일) */
 .dist-box, .coord-display {
     background-color: #f8f9fa;
     justify-content: center;
@@ -56,11 +72,13 @@
 .coord-display {
     color: #0d6efd;
     width: 100%;
+    margin-top: 4px;
 }
 
 .dist-multi-display {
     display: flex;
-    gap: 8px;
+    gap: 10px;
+    margin-top: 4px;
 }
 
 .dist-box {
@@ -70,7 +88,7 @@
 
 .coord-input-group, .trace-num-group, .time-input-group, .dist-input-group {
     display: flex;
-    gap: 6px;
+    gap: 8px;
 }
 
 .btn-now {
@@ -80,7 +98,7 @@
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     white-space: nowrap;
     height: 32px;
 }
@@ -99,12 +117,6 @@
 }
 
 .btn-primary:hover { background-color: #0b5ed7; }
-
-.form-footer {
-    display: flex;
-    justify-content: center;
-    padding-bottom: 20px;
-}
 
 .trace-table {
     width: 100%;
@@ -137,6 +149,7 @@
     color: #495057;
     font-weight: bold;
     display: inline-block;
+    margin-top: 5px;
 }
 
 textarea.form-control-sm {
@@ -145,8 +158,8 @@ textarea.form-control-sm {
 }
 
 @media (max-width: 600px) {
-    .unified-grid-container {
+    .grid-container {
         grid-template-columns: 1fr;
-        gap: 30px;
+        gap: 20px;
     }
 }
