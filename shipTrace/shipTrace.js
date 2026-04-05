@@ -1,36 +1,32 @@
 const DB_NAME = 'myDB';
 const STORE_NAME = 'traceLog';
-let db;
-
 function initDB() {
-    // 1. 우선 버전 없이 열어서 현재 상태 확인
     const request = indexedDB.open(DB_NAME);
 
     request.onsuccess = (e) => {
         db = e.target.result;
         const currentVersion = db.version;
 
-        // 2. 만약 스토어가 없으면 버전을 1 올려서 다시 열어야 함
+        // 스토어가 없거나, 혹시 잘못 생성되었을 가능성을 대비해 버전을 올려서 다시 열기
         if (!db.objectStoreNames.contains(STORE_NAME)) {
-            db.close(); // 기존 연결 닫기
+            db.close();
             const upgradeRequest = indexedDB.open(DB_NAME, currentVersion + 1);
-            
+
             upgradeRequest.onupgradeneeded = (e) => {
                 db = e.target.result;
+                // 혹시 이미 있으면 삭제하고 다시 만듬 (깨끗하게!)
+                if (db.objectStoreNames.contains(STORE_NAME)) {
+                    db.deleteObjectStore(STORE_NAME);
+                }
                 db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
-                console.log(`[IndexedDB] 스토어 생성됨 (v${currentVersion + 1})`);
+                console.log(`[IndexedDB] 스토어 '${STORE_NAME}'가 버전 ${currentVersion + 1}에서 재생성됨`);
             };
-            
+
             upgradeRequest.onsuccess = (e) => {
                 db = e.target.result;
                 renderLogs();
             };
-            
-            upgradeRequest.onerror = (e) => {
-                console.error("[IndexedDB] 업그레이드 실패:", e.target.error);
-            };
         } else {
-            // 이미 스토어가 있으면 바로 로그 출력
             renderLogs();
         }
     };
@@ -39,7 +35,6 @@ function initDB() {
         console.error("[IndexedDB] 초기 연결 실패:", e.target.error);
     };
 }
-
 initDB();
 
 const coordInput = document.getElementById('coord-input');
