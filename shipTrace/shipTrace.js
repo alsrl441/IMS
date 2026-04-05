@@ -1,29 +1,23 @@
 const DB_NAME = 'myDB';
-const STORE_NAME = 'traceLog';
+const STORE_NAME = 'ship';
+let db;
+
 function initDB() {
     const request = indexedDB.open(DB_NAME);
 
     request.onsuccess = (e) => {
         db = e.target.result;
-        const currentVersion = db.version;
-
-        // 스토어가 없거나, 혹시 잘못 생성되었을 가능성을 대비해 버전을 올려서 다시 열기
+        // Ensure ship store exists
         if (!db.objectStoreNames.contains(STORE_NAME)) {
+            const version = db.version;
             db.close();
-            const upgradeRequest = indexedDB.open(DB_NAME, currentVersion + 1);
-
-            upgradeRequest.onupgradeneeded = (e) => {
-                db = e.target.result;
-                // 혹시 이미 있으면 삭제하고 다시 만듬 (깨끗하게!)
-                if (db.objectStoreNames.contains(STORE_NAME)) {
-                    db.deleteObjectStore(STORE_NAME);
-                }
-                db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
-                console.log(`[IndexedDB] 스토어 '${STORE_NAME}'가 버전 ${currentVersion + 1}에서 재생성됨`);
+            const upgradeRequest = indexedDB.open(DB_NAME, version + 1);
+            upgradeRequest.onupgradeneeded = (ev) => {
+                const upgradeDb = ev.target.result;
+                upgradeDb.createObjectStore(STORE_NAME);
             };
-
-            upgradeRequest.onsuccess = (e) => {
-                db = e.target.result;
+            upgradeRequest.onsuccess = (ev) => {
+                db = ev.target.result;
                 renderLogs();
             };
         } else {
@@ -37,48 +31,8 @@ function initDB() {
 }
 initDB();
 
-const coordInput = document.getElementById('coord-input');
-const fullCoordDisplay = document.getElementById('full-coord');
-
-function updateFullCoord() {
-    let val = coordInput.value.trim();
-    if (!val) {
-        fullCoordDisplay.innerText = "52SBD ----- -----";
-        return;
-    }
-    let parts = val.split(/[\s,]+/);
-    let x = parts[0] || "";
-    let y = parts[1] || "";
-    let fullX = x.padEnd(3, '0').slice(0, 3) + "00";
-    let fullY = y.padEnd(3, '0').slice(0, 3) + "00";
-    fullCoordDisplay.innerText = `52SBD ${fullX} ${fullY}`;
-}
-coordInput.addEventListener('input', updateFullCoord);
-
-const distValue = document.getElementById('dist-value');
-const distUnit = document.getElementById('dist-unit');
-const distConv1 = document.getElementById('dist-conv-1');
-const distConv2 = document.getElementById('dist-conv-2');
-
-function updateDistance() {
-    let val = parseFloat(distValue.value);
-    let unit = distUnit.value;
-    if (isNaN(val)) {
-        distConv1.innerText = "--";
-        distConv2.innerText = "--";
-        return;
-    }
-    let km, nm, m;
-    if (unit === 'km') { km = val; nm = val * 0.539957; m = val * 0.621371; }
-    else if (unit === 'NM') { nm = val; km = val * 1.852; m = val * 1.15078; }
-    else if (unit === 'M') { m = val; km = val * 1.60934; nm = val * 0.868976; }
-
-    if (unit === 'km') { distConv1.innerText = `${nm.toFixed(2)} NM`; distConv2.innerText = `${m.toFixed(2)} M`; }
-    else if (unit === 'NM') { distConv1.innerText = `${km.toFixed(2)} km`; distConv2.innerText = `${m.toFixed(2)} M`; }
-    else if (unit === 'M') { distConv1.innerText = `${nm.toFixed(2)} NM`; distConv2.innerText = `${km.toFixed(2)} km`; }
-}
-distValue.addEventListener('input', updateDistance);
-distUnit.addEventListener('change', updateDistance);
+// 초기 날짜 설정
+document.getElementById('id-date').value = new Date().toISOString().split('T')[0];
 
 function setCurrentTime(targetId) {
     const now = new Date();
@@ -87,80 +41,171 @@ function setCurrentTime(targetId) {
     document.getElementById(targetId).value = `${hours}:${minutes}`;
 }
 
+function setHandover(val) {
+    document.getElementById('handover').value = val;
+}
+
 function resetForm() {
     if (confirm("입력 중인 내용을 초기화할까요?")) {
         document.getElementById('trace-form').reset();
-        updateFullCoord();
-        updateDistance();
+        document.getElementById('id-date').value = new Date().toISOString().split('T')[0];
     }
 }
 
-function saveTraceLog() {
+async function saveTraceLog() {
     if (!db) {
-        alert("데이터베이스가 아직 준비되지 않았습니다. 잠시 후 다시 시도해 주세요.");
+        alert("데이터베이스가 아직 준비되지 않았습니다.");
         return;
     }
 
-    const log = {
-        idTime: document.getElementById('id-time').value || "-",
-        idPos: document.getElementById('az-el-input').value || "-",
-        idLoc: document.getElementById('id-location').value || "",
-        endTime: document.getElementById('end-time').value || "-",
-        endPos: document.getElementById('end-az-el-input').value || "-",
-        endLoc: document.getElementById('end-location').value || "",
-        coord: fullCoordDisplay.innerText,
-        specs: document.getElementById('ship-specs').value || "정보 없음",
-        status: document.getElementById('end-reason').value,
-        identifier: document.getElementById('identifier').value || "-",
-        inquirer: document.getElementById('inquirer').value || "직접 식별",
-        timestamp: new Date().getTime()
+    const shipName = document.getElementById('ship-name').value.trim();
+    if (!shipName) {
+        alert("선명을 입력해주세요.");
+        return;
+    }
+
+    const tonnage = document.getElementById('ship-tonnage').value || "-";
+    const type = document.getElementById('ship-type').value || "-";
+    const vesselNum = document.getElementById('vessel-num').value || "-";
+    const contact = document.getElementById('contact').value || "-";
+    const tagString = document.getElementById('tags').value;
+    const tags = tagString ? tagString.split(',').map(t => t.trim()).filter(t => t) : [];
+
+    const newHistory = {
+        date: document.getElementById('id-date').value,
+        firstTime: document.getElementById('first-time').value || "00:00",
+        firstPos: document.getElementById('first-pos').value || "-",
+        lastTime: document.getElementById('last-time').value || "00:00",
+        lastPos: document.getElementById('last-pos').value || "-",
+        crewCount: document.getElementById('crew-count').value || "식별불가",
+        handover: document.getElementById('handover').value || "-",
+        worker: document.getElementById('worker').value || "-",
+        telephonee: document.getElementById('telephonee').value || "-",
+        shipImage: "Images/no-image.jpg",
+        pathImage: "Images/no-image.jpg",
+        timestamp: new Date().getTime() // For sorting
     };
 
-    const transaction = db.transaction([STORE_NAME], 'readwrite');
-    const store = transaction.objectStore(STORE_NAME);
-    const request = store.add(log);
+    const tx = db.transaction(STORE_NAME, "readwrite");
+    const store = tx.objectStore(STORE_NAME);
+    
+    // Find ship by name
+    const request = store.openCursor();
+    let existingShip = null;
+    let existingKey = null;
 
-    request.onsuccess = () => {
+    request.onsuccess = (e) => {
+        const cursor = e.target.result;
+        if (cursor) {
+            if (cursor.value.name === shipName) {
+                existingShip = cursor.value;
+                existingKey = cursor.key;
+            } else {
+                cursor.continue();
+                return;
+            }
+        }
+
+        if (existingShip) {
+            // Update existing ship
+            existingShip.tonnage = tonnage !== "-" ? tonnage : existingShip.tonnage;
+            existingShip.type = type !== "-" ? type : existingShip.type;
+            existingShip.number = vesselNum !== "-" ? vesselNum : existingShip.number;
+            existingShip.tel = contact !== "-" ? contact : existingShip.tel;
+            
+            // Merge tags
+            if (!Array.isArray(existingShip.tags)) existingShip.tags = [];
+            tags.forEach(t => {
+                if (!existingShip.tags.includes(t)) existingShip.tags.push(t);
+            });
+
+            existingShip.history.push(newHistory);
+            store.put(existingShip, existingKey);
+        } else {
+            // Create new ship
+            const newShip = {
+                name: shipName,
+                tonnage: tonnage,
+                type: type,
+                number: vesselNum,
+                tel: contact,
+                tags: tags,
+                history: [newHistory]
+            };
+            store.add(newShip, Date.now().toString());
+        }
+    };
+
+    tx.oncomplete = () => {
+        alert("기록이 성공적으로 저장되었습니다.");
         renderLogs();
-        alert("로그가 성공적으로 저장되었습니다.");
         document.getElementById('trace-form').reset();
-        updateFullCoord();
-        updateDistance();
+        document.getElementById('id-date').value = new Date().toISOString().split('T')[0];
     };
 
-    request.onerror = (e) => {
+    tx.onerror = (e) => {
         console.error("저장 실패:", e.target.error);
-        alert("로그 저장 중 오류가 발생했습니다.");
+        alert("저장 중 오류가 발생했습니다.");
     };
 }
 
 function renderLogs() {
     if (!db) return;
 
-    const transaction = db.transaction([STORE_NAME], 'readonly');
-    const store = transaction.objectStore(STORE_NAME);
+    const tx = db.transaction(STORE_NAME, "readonly");
+    const store = tx.objectStore(STORE_NAME);
     const request = store.getAll();
 
     request.onsuccess = () => {
-        const allLogs = request.result;
-        const recentLogs = allLogs.sort((a, b) => b.timestamp - a.timestamp).slice(0, 10);
+        const allShips = request.result;
+        let allHistory = [];
+
+        allShips.forEach(ship => {
+            if (ship.history && Array.isArray(ship.history)) {
+                ship.history.forEach(h => {
+                    allHistory.push({
+                        ...h,
+                        shipName: ship.name,
+                        shipTonnage: ship.tonnage,
+                        shipType: ship.type
+                    });
+                });
+            }
+        });
+
+        // Sort by timestamp or date/time
+        allHistory.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+        // Take recent 20
+        const recentHistory = allHistory.slice(0, 20);
         
         const list = document.getElementById('log-list');
-        if (recentLogs.length === 0) {
-            list.innerHTML = '<tr><td colspan="8" class="text-muted py-4">저장된 로그가 없습니다.</td></tr>';
+        if (recentHistory.length === 0) {
+            list.innerHTML = '<tr><td colspan="7" class="text-muted py-4">저장된 기록이 없습니다.</td></tr>';
             return;
         }
 
-        list.innerHTML = recentLogs.map(log => `
+        list.innerHTML = recentHistory.map(h => `
             <tr>
-                <td style="font-weight: bold;">${log.idTime}</td>
-                <td>${log.idPos}${log.idLoc ? '<br>(' + log.idLoc + ')' : ''}</td>
-                <td style="font-weight: bold;">${log.endTime}</td>
-                <td>${log.endPos}${log.endLoc ? '<br>(' + log.endLoc + ')' : ''}</td>
-                <td style="font-family: var(--font-mono); font-size: 0.85rem; color: #0d6efd;">${log.coord}</td>
-                <td style="text-align: left; min-width: 200px; white-space: pre-wrap;">${log.specs}\n<span class="badge-status">${log.status}(으)로 인해 추적 종료</span></td>
-                <td>${log.identifier}</td>
-                <td>${log.inquirer}</td>
+                <td>${h.date}</td>
+                <td style="text-align: left; padding-left: 15px;">
+                    <div style="font-weight: bold; color: #0d6efd;">${h.shipName}</div>
+                    <div style="font-size: 0.75rem; color: #666;">${h.shipTonnage} / ${h.shipType}</div>
+                </td>
+                <td>
+                    <div style="font-weight: bold;">${h.firstTime}</div>
+                    <div style="font-size: 0.75rem;">${h.firstPos}</div>
+                </td>
+                <td>
+                    <div style="font-weight: bold;">${h.lastTime}</div>
+                    <div style="font-size: 0.75rem;">${h.lastPos}</div>
+                </td>
+                <td>${isNaN(h.crewCount) ? h.crewCount : h.crewCount + '명'}</td>
+                <td style="text-align: left; font-size: 0.75rem; max-width: 200px;">${h.handover}</td>
+                <td>
+                    <div style="font-weight: bold;">${h.worker}</div>
+                    <div style="font-size: 0.75rem;">(수) ${h.telephonee}</div>
+                </td>
             </tr>
         `).join('');
     };

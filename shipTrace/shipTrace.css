@@ -79,7 +79,7 @@
     gap: 6px;
 }
 
-.btn-now {
+.btn-now, .btn-preset {
     padding: 0 10px;
     background: #6c757d;
     color: white;
@@ -89,6 +89,24 @@
     font-size: 0.7rem;
     white-space: nowrap;
     height: 32px;
+    transition: background 0.2s;
+}
+
+.btn-preset {
+    background: #f8f9fa;
+    color: #495057;
+    border: 1px solid #ced4da;
+    margin-right: 5px;
+    height: 28px;
+}
+
+.btn-preset:hover {
+    background: #e9ecef;
+}
+
+.handover-presets {
+    display: flex;
+    margin-bottom: 5px;
 }
 
 .btn-primary {

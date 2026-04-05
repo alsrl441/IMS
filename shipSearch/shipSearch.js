@@ -105,7 +105,7 @@ function renderHistoryForm(shipIdx, historyIdx = null) {
     detailView.innerHTML = `
         <div class="history-info-group fade-in">
             <div class="edit-group"><label>식별 날짜</label><input type="date" id="edit-date" value="${h.date}"></div>
-            <div class="edit-group"><label>인원</label><input type="number" id="edit-crew" value="${h.crewCount}"></div>
+            <div class="edit-group"><label>인원</label><input type="text" id="edit-crew" value="${h.crewCount}"></div>
             <div class="edit-group"><label>최초 식별 시간</label><input type="time" id="edit-first-time" value="${h.firstTime}"></div>
             <div class="edit-group"><label>최초 식별 위치</label><input type="text" id="edit-first-pos" value="${h.firstPos}"></div>
             <div class="edit-group"><label>최종 식별 시간</label><input type="time" id="edit-last-time" value="${h.lastTime}"></div>
@@ -162,12 +162,13 @@ async function saveHistoryData(shipIdx, historyIdx) {
         firstPos: document.getElementById('edit-first-pos').value,
         lastTime: document.getElementById('edit-last-time').value,
         lastPos: document.getElementById('edit-last-pos').value,
-        crewCount: parseInt(document.getElementById('edit-crew').value) || 0,
+        crewCount: document.getElementById('edit-crew').value || "식별불가",
         handover: document.getElementById('edit-handover').value,
         worker: document.getElementById('edit-worker').value,
         telephonee: document.getElementById('edit-telephonee').value,
         shipImage: document.getElementById('edit-ship-img').value,
-        pathImage: document.getElementById('edit-path-img').value
+        pathImage: document.getElementById('edit-path-img').value,
+        timestamp: new Date().getTime()
     };
     if (isEdit) ship.history[historyIdx] = newHistory;
     else ship.history.push(newHistory);
@@ -307,7 +308,7 @@ function showHistoryDetail(shipIdx, historyIdx) {
         <div class="history-info-group fade-in">
             <div class="h-item"><label>최초 식별</label><span>${h.firstTime} (${h.firstPos})</span></div>
             <div class="h-item"><label>최종 식별</label><span>${h.lastTime} (${h.lastPos})</span></div>
-            <div class="h-item"><label>인원</label><span>${h.crewCount}명</span></div>
+            <div class="h-item"><label>인원</label><span>${isNaN(h.crewCount) ? h.crewCount : h.crewCount + '명'}</span></div>
             <div class="history-actions">
                 <button class="btn-custom btn-outline-primary" onclick="editHistory(${shipIdx}, ${historyIdx})">수정</button>
                 <button class="btn-custom btn-outline-danger" onclick="deleteHistory(${shipIdx}, ${historyIdx})">삭제</button>
