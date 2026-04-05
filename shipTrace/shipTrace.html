@@ -34,12 +34,12 @@
                     <div class="form-section">
                         <!-- Line 1: 좌표, 추적번호 -->
                         <div class="form-row">
-                            <div class="form-group flex-1">
+                            <div class="form-group">
                                 <label>좌표</label>
-                                <input type="text" id="coord-input" class="form-control-sm" placeholder="6계단">
-                                <div id="full-coord" class="coord-display">52SBD ----- -----</div>
+                                <input type="text" id="coord-input" size="7" class="form-control-sm" placeholder="6계단">
+                                <div id="full-coord" class="coord-display" style="width: 15ch;">52SBD ----- -----</div>
                             </div>
-                            <div class="form-group flex-1">
+                            <div class="form-group">
                                 <label>추적 번호</label>
                                 <div class="trace-num-group">
                                     <select id="radar-station-select" class="form-control-sm">
@@ -47,60 +47,60 @@
                                         <option value="145">145</option>
                                         <option value="146">146</option>
                                     </select>
-                                    <input type="text" id="trace-num" placeholder="번호" class="form-control-sm">
+                                    <input type="text" id="trace-num" size="3" placeholder="번호" class="form-control-sm">
                                 </div>
                             </div>
                         </div>
 
                         <!-- Line 2: 이동방향, 거리 -->
                         <div class="form-row mt-3">
-                            <div class="form-group flex-1">
+                            <div class="form-group">
                                 <label>이동방향 <span class="required">*</span></label>
-                                <input type="text" id="move-dir" list="dir-options" class="form-control-sm" required>
+                                <input type="text" id="move-dir" size="3" list="dir-options" class="form-control-sm" required>
                                 <datalist id="dir-options">
                                     <option>동진</option><option>서진</option><option>남진</option><option>북진</option>
                                     <option>북동진</option><option>남동진</option><option>남서진</option><option>북서진</option>
                                 </datalist>
                             </div>
-                            <div class="form-group flex-1">
+                            <div class="form-group">
                                 <label>거리 <span class="required">*</span></label>
                                 <div class="dist-input-group">
-                                    <input type="number" id="dist-value" step="0.1" class="form-control-sm" required style="width: 100px;">
+                                    <input type="number" id="dist-value" step="0.1" style="width: 5ch;" class="form-control-sm" required>
                                     <select id="dist-unit" class="form-control-sm">
                                         <option value="NM">NM</option>
                                         <option value="M">M</option>
                                         <option value="km">km</option>
                                     </select>
-                                    <div id="dist-km-display" class="dist-box ml-2">-- km</div>
+                                    <div id="dist-km-display" class="dist-box" style="width: 7ch; margin-left: 8px;">-- km</div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Line 3: 출항지, 수화자 -->
                         <div class="form-row mt-3">
-                            <div class="form-group flex-1">
+                            <div class="form-group">
                                 <label>출항지 <span class="required">*</span></label>
-                                <input type="text" id="departure" class="form-control-sm" required>
+                                <input type="text" id="departure" size="10" class="form-control-sm" required>
                             </div>
-                            <div class="form-group flex-1">
+                            <div class="form-group">
                                 <label>수화자 관등성명</label>
-                                <input type="text" id="telephonee" class="form-control-sm" placeholder="-">
+                                <input type="text" id="telephonee" size="7" class="form-control-sm" placeholder="-">
                             </div>
                         </div>
 
                         <!-- Line 4: 최초 식별 시간, 최종 식별 시간 -->
                         <div class="form-row mt-3">
-                            <div class="form-group flex-1">
+                            <div class="form-group">
                                 <label>최초 식별 시간 <span class="required">*</span></label>
                                 <div class="time-input-group">
-                                    <input type="time" id="first-time" class="form-control-sm" required>
+                                    <input type="time" id="first-time" style="width: 10ch;" class="form-control-sm" required>
                                     <button type="button" class="btn-now" onclick="setCurrentTime('first-time')">현재</button>
                                 </div>
                             </div>
-                            <div class="form-group flex-1">
+                            <div class="form-group">
                                 <label>최종 식별 시간 <span class="required">*</span></label>
                                 <div class="time-input-group">
-                                    <input type="time" id="last-time" class="form-control-sm" required>
+                                    <input type="time" id="last-time" style="width: 10ch;" class="form-control-sm" required>
                                     <button type="button" class="btn-now" onclick="setCurrentTime('last-time')">현재</button>
                                 </div>
                             </div>
@@ -108,75 +108,75 @@
 
                         <!-- Line 5: 최초 식별 방위각 고각, 최종 식별 방위각 고각 -->
                         <div class="form-row mt-3">
-                            <div class="form-group flex-1">
+                            <div class="form-group">
                                 <label>최초 식별 방위각 고각 <span class="required">*</span></label>
-                                <input type="text" id="first-az-el" class="form-control-sm" required>
+                                <input type="text" id="first-az-el" size="8" class="form-control-sm" required>
                             </div>
-                            <div class="form-group flex-1">
+                            <div class="form-group">
                                 <label>최종 식별 방위각 고각 <span class="required">*</span></label>
-                                <input type="text" id="last-az-el" class="form-control-sm" required>
+                                <input type="text" id="last-az-el" size="8" class="form-control-sm" required>
                             </div>
                         </div>
 
                         <!-- Line 6: 최초 식별 위치, 최종 식별 위치 -->
                         <div class="form-row mt-3">
-                            <div class="form-group flex-1">
+                            <div class="form-group">
                                 <label>최초 식별 위치 <span class="required">*</span></label>
-                                <input type="text" id="first-pos" class="form-control-sm" required>
+                                <input type="text" id="first-pos" size="15" class="form-control-sm" required>
                             </div>
-                            <div class="form-group flex-1">
+                            <div class="form-group">
                                 <label>최종 식별 위치 <span class="required">*</span></label>
-                                <input type="text" id="last-pos" class="form-control-sm" required>
+                                <input type="text" id="last-pos" size="15" class="form-control-sm" required>
                             </div>
                         </div>
 
                         <!-- Line 7: 선명, 톤수 -->
                         <div class="form-row mt-3">
-                            <div class="form-group flex-1">
+                            <div class="form-group">
                                 <label>선명</label>
-                                <input type="text" id="ship-name" class="form-control-sm" placeholder="식별불가">
+                                <input type="text" id="ship-name" size="15" class="form-control-sm" placeholder="식별불가">
                             </div>
-                            <div class="form-group flex-1">
+                            <div class="form-group">
                                 <label>톤수</label>
-                                <input type="text" id="ship-tonnage" class="form-control-sm" placeholder="식별불가">
+                                <input type="text" id="ship-tonnage" size="3" class="form-control-sm" placeholder="식별불가">
                             </div>
                         </div>
 
                         <!-- Line 8: 선종, 인원 -->
                         <div class="form-row mt-3">
-                            <div class="form-group flex-1">
+                            <div class="form-group">
                                 <label>선종</label>
-                                <input type="text" id="ship-type" class="form-control-sm" placeholder="식별불가">
+                                <input type="text" id="ship-type" size="10" class="form-control-sm" placeholder="식별불가">
                             </div>
-                            <div class="form-group flex-1">
+                            <div class="form-group">
                                 <label>인원 수</label>
-                                <input type="text" id="crew-count" class="form-control-sm" placeholder="식별불가">
+                                <input type="text" id="crew-count" size="3" class="form-control-sm" placeholder="식별불가">
                             </div>
                         </div>
 
                         <!-- Line 9: 어선법 위반 여부, 근무자 -->
                         <div class="form-row mt-3">
-                            <div class="form-group flex-1">
+                            <div class="form-group">
                                 <label>어선법 위반 여부</label>
                                 <div class="d-flex align-items-center" style="gap: 10px;">
                                     <div class="violation-check-group">
                                         <input type="checkbox" id="violation-check" onchange="toggleViolationDetail()">
                                         <label for="violation-check">O</label>
                                     </div>
-                                    <input type="text" id="violation-detail" class="form-control-sm" placeholder="위반 내용" disabled style="flex: 1;">
+                                    <input type="text" id="violation-detail" size="20" class="form-control-sm" placeholder="위반 내용" disabled>
                                 </div>
                             </div>
-                            <div class="form-group flex-1">
+                            <div class="form-group">
                                 <label>근무자 관등성명 <span class="required">*</span></label>
-                                <input type="text" id="worker" class="form-control-sm" required>
+                                <input type="text" id="worker" size="7" class="form-control-sm" required>
                             </div>
                         </div>
 
                         <!-- Line 10: 특이사항 -->
                         <div class="form-row mt-3">
-                            <div class="form-group flex-1">
+                            <div class="form-group" style="width: 100%;">
                                 <label>특이사항</label>
-                                <input type="text" id="tags" class="form-control-sm" placeholder="">
+                                <textarea id="tags" rows="10" class="form-control-sm" placeholder=""></textarea>
                             </div>
                         </div>
                     </div>

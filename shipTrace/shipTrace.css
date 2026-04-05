@@ -1,51 +1,75 @@
+.card-body {
+    padding: 30px;
+    background-color: #fcfcfc;
+}
+
+#trace-form {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
 .form-section {
-    border: 1px solid #dee2e6;
-    padding: 20px;
-    border-radius: 8px;
-    background-color: #fff;
-    margin-bottom: 20px;
+    border: none;
+    padding: 0;
+    background-color: transparent;
+    margin-bottom: 0;
 }
 
 .form-row {
     display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
+    gap: 60px; /* 열 간격 확장 */
+    margin-bottom: 25px; /* 행 간격 확장 */
     align-items: flex-start;
+}
+
+.dist-input-group, .trace-num-group, .time-input-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
 }
 
 .form-group {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-}
-
-.flex-1 { flex: 1; min-width: 150px; }
-.flex-2 { flex: 2; min-width: 250px; }
-.full-width { width: 100%; }
-
-.form-group label {
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: #444;
-}
-
-.required {
-    color: #dc3545;
-    margin-left: 2px;
+    gap: 8px;
 }
 
 .form-control-sm, .dist-box, .coord-display {
-    padding: 6px 10px;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
     font-size: 0.9rem;
-    font-family: inherit;
-    height: 36px;
+    height: 38px;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+    /* width: 100% 제거 (HTML size 속성 허용) */
+}
+
+/* 특이사항 textarea 높이만 유지 */
+textarea.form-control-sm {
+    height: auto !important;
+    min-height: 200px;
+    line-height: 1.5;
+    resize: none;
+    width: 100%; /* 특이사항은 꽉 채우기 */
+}
+
+.coord-display {
+    background-color: #f0f7ff;
+    color: #0d6efd;
+    border-color: #cfe2ff;
+    margin-top: 5px;
+}
+
+.violation-check-group {
     display: flex;
     align-items: center;
-    box-sizing: border-box;
-    transition: all 0.2s;
-    width: 100%;
+    gap: 8px;
+    padding: 0 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    height: 38px;
+    background: #fff;
 }
 
 .violation-check-group {
