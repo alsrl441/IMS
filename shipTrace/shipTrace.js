@@ -109,34 +109,34 @@ async function saveTraceLog() {
     const tags = tagString ? tagString.split(',').map(t => t.trim()).filter(t => t) : [];
 
     const newHistory = {
-        date: document.getElementById('id-date').value,
+        date: document.getElementById('id-date')?.value || new Date().toISOString().split('T')[0],
         
         // --- 세부 5가지 필드 ---
-        raderStation: document.getElementById('radar-station-select').value,
-        traceNumber: document.getElementById('trace-num').value || "-",
-        firstOutport: document.getElementById('departure').value || "-",
-        direction: document.getElementById('move-dir').value || "-",
+        raderStation: document.getElementById('radar-station-select')?.value || "-",
+        traceNumber: document.getElementById('trace-num')?.value || "-",
+        firstOutport: document.getElementById('departure')?.value || "-",
+        direction: document.getElementById('move-dir')?.value || "-",
         distance: distanceKmValue,
         // -----------------------
 
-        coord: fullCoordDisplay.innerText,
-        telephonee: document.getElementById('telephonee').value || "-",
+        coord: fullCoordDisplay?.innerText || "-",
+        telephonee: document.getElementById('telephonee')?.value || "-",
 
         // 식별 정보
-        firstTime: document.getElementById('first-time').value || "00:00",
-        firstPos: document.getElementById('first-pos').value || "-",
-        firstAzEl: document.getElementById('first-az-el').value || "-",
+        firstTime: document.getElementById('first-time')?.value || "00:00",
+        firstPos: document.getElementById('first-pos')?.value || "-",
+        firstAzEl: document.getElementById('first-az-el')?.value || "-",
 
         // 종료 정보
-        lastTime: document.getElementById('last-time').value || "00:00",
-        lastPos: document.getElementById('last-pos').value || "-",
-        lastAzEl: document.getElementById('last-az-el').value || "-",
-        status: document.getElementById('end-status').value,
+        lastTime: document.getElementById('last-time')?.value || "00:00",
+        lastPos: document.getElementById('last-pos')?.value || "-",
+        lastAzEl: document.getElementById('last-az-el')?.value || "-",
+        status: document.getElementById('end-status')?.value || "소실",
 
         // 복기 정보
-        crewCount: document.getElementById('crew-count').value || "식별불가",
-        violation: document.getElementById('violation').value,
-        worker: document.getElementById('worker').value || "-",
+        crewCount: document.getElementById('crew-count')?.value || "식별불가",
+        violation: document.getElementById('violation')?.value || "무",
+        worker: document.getElementById('worker')?.value || "-",
         
         shipImage: "Images/no-image.jpg",
         pathImage: "Images/no-image.jpg",
