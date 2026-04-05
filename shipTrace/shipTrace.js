@@ -91,8 +91,8 @@ function saveTraceLog() {
         coord: fullCoordDisplay.innerText,
         specs: document.getElementById('ship-specs').value || "정보 없음",
         status: document.getElementById('end-reason').value,
-        identifier: document.getElementById('identifier').value || "-",
-        inquirer: document.getElementById('inquirer').value || "직접 식별",
+        worker: document.getElementById('identifier').value || "-",
+        telephonee: document.getElementById('inquirer').value || "직접 식별",
         timestamp: new Date().getTime()
     };
 
@@ -135,6 +135,10 @@ function renderLogs() {
                 <td style="text-align: left; min-width: 200px; white-space: pre-wrap;">${log.specs}\n<span class="badge-status">${log.status}(으)로 인해 추적 종료</span></td>
                 <td>${log.identifier}</td>
                 <td>${log.inquirer}</td>
+            </tr>
+        `).join('');
+    };
+}
             </tr>
         `).join('');
     };
