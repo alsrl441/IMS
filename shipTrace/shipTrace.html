@@ -97,7 +97,7 @@
                                 <div class="inner-row">
                                     <label>시간 <span class="required">*</span></label>
                                     <div class="input-group">
-                                        <input type="time" id="first-time" required>
+                                        <input type="text" id="first-time" size="5" maxlength="5" placeholder="00:00" required>
                                         <button type="button" class="btn-now" onclick="setCurrentTime('first-time')">NOW</button>
                                     </div>
                                 </div>
@@ -118,7 +118,7 @@
                                 <div class="inner-row">
                                     <label>시간 <span class="required">*</span></label>
                                     <div class="input-group">
-                                        <input type="time" id="last-time" required>
+                                        <input type="text" id="last-time" size="5" maxlength="5" placeholder="00:00" required>
                                         <button type="button" class="btn-now" onclick="setCurrentTime('last-time')">NOW</button>
                                     </div>
                                 </div>
@@ -158,11 +158,10 @@
                         <div class="input-field span-2">
                             <label>어선법 위반 여부</label>
                             <div class="violation-wrapper">
-                                <label class="switch">
-                                    <input type="checkbox" id="violation-check" onchange="toggleViolationDetail()">
-                                    <span class="slider round"></span>
-                                </label>
-                                <span class="switch-label">위반 식별(O)</span>
+                                <select id="violation-select" onchange="toggleViolationDetail()">
+                                    <option value="X" selected>X (미위반)</option>
+                                    <option value="O">O (위반 식별)</option>
+                                </select>
                                 <input type="text" id="violation-detail" size="25" placeholder="위반 세부 내용 입력" disabled>
                             </div>
                         </div>

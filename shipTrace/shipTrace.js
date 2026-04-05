@@ -31,7 +31,24 @@ initDB();
 const distValue = document.getElementById('dist-value');
 const distUnit = document.getElementById('dist-unit');
 const distKmDisplay = document.getElementById('dist-km-display');
+const radarStationSelect = document.getElementById('radar-station-select');
+const traceNumInput = document.getElementById('trace-num');
 
+// 추적 번호 입력창 활성/비활성 제어
+function toggleTraceNum() {
+    if (radarStationSelect.value === "-") {
+        traceNumInput.disabled = true;
+        traceNumInput.value = "";
+    } else {
+        traceNumInput.disabled = false;
+    }
+}
+if (radarStationSelect) {
+    radarStationSelect.addEventListener('change', toggleTraceNum);
+    toggleTraceNum(); // 초기 상태 설정
+}
+
+// 거리 계산 로직 (1마일 = 1.609km, 소수점 둘째자리 반올림)
 function updateDistance() {
     let val = parseFloat(distValue.value);
     let unit = distUnit.value;
@@ -41,10 +58,10 @@ function updateDistance() {
     }
     let km;
     if (unit === 'km') { km = val; }
-    else if (unit === 'NM') { km = val * 1.852; }
-    else if (unit === 'M') { km = val / 1000; }
+    else if (unit === 'NM') { km = val * 1.852; } // 해리(Nautical Mile)
+    else if (unit === 'M') { km = val * 1.609; }  // 마일(Mile)
 
-    distKmDisplay.innerText = `${km.toFixed(3)} km`;
+    distKmDisplay.innerText = `${km.toFixed(2)} km`;
 }
 if (distValue) distValue.addEventListener('input', updateDistance);
 if (distUnit) distUnit.addEventListener('change', updateDistance);
@@ -59,17 +76,19 @@ function setCurrentTime(targetId) {
     document.getElementById(targetId).value = `${hours}:${minutes}`;
 }
 
+// 어선법 위반 여부 토글
 function toggleViolationDetail() {
-    const isChecked = document.getElementById('violation-check').checked;
+    const violationValue = document.getElementById('violation-select').value;
     const detailInput = document.getElementById('violation-detail');
-    detailInput.disabled = !isChecked;
-    if (!isChecked) detailInput.value = "";
+    detailInput.disabled = (violationValue === "X");
+    if (violationValue === "X") detailInput.value = "";
 }
 
 function resetForm() {
     if (confirm("입력 중인 내용을 초기화할까요?")) {
         document.getElementById('trace-form').reset();
         toggleViolationDetail();
+        toggleTraceNum();
         updateDistance();
     }
 }
@@ -95,21 +114,21 @@ async function saveTraceLog() {
     const crewCount = document.getElementById('crew-count').value.trim() || "식별불가";
     
     // 위반 여부 처리
-    const isViolation = document.getElementById('violation-check').checked;
+    const violationStatus = document.getElementById('violation-select').value;
     const violationDetail = document.getElementById('violation-detail').value.trim();
-    const violationStatus = isViolation ? `O (${violationDetail || "내용없음"})` : "X";
+    const fullViolationText = (violationStatus === "O") ? `O (${violationDetail || "내용없음"})` : "X";
 
     const distText = distKmDisplay.innerText.replace(' km', '');
     const distanceKmValue = distText === "--" ? "-" : distText;
 
     const tagString = document.getElementById('tags').value;
-    const tags = tagString ? tagString.split(',').map(t => t.trim()).filter(t => t) : [];
+    const tags = tagString ? tagString.split('\n').map(t => t.trim()).filter(t => t) : [];
 
     const newHistory = {
         date: identificationDate,
         
-        raderStation: document.getElementById('radar-station-select')?.value || "-",
-        traceNumber: document.getElementById('trace-num')?.value.trim() || "-",
+        raderStation: radarStationSelect?.value || "-",
+        traceNumber: traceNumInput?.value.trim() || "-",
         firstOutport: document.getElementById('departure')?.value || "-",
         direction: document.getElementById('move-dir')?.value || "-",
         distance: distanceKmValue,
@@ -117,19 +136,16 @@ async function saveTraceLog() {
         coord: document.getElementById('coord-input')?.value.trim() || "-",
         telephonee: telephonee,
 
-        // 식별 정보
         firstTime: document.getElementById('first-time')?.value || "00:00",
         firstPos: document.getElementById('first-pos')?.value || "-",
         firstAzEl: document.getElementById('first-az-el')?.value || "-",
 
-        // 종료 정보
         lastTime: document.getElementById('last-time')?.value || "00:00",
         lastPos: document.getElementById('last-pos')?.value || "-",
         lastAzEl: document.getElementById('last-az-el')?.value || "-",
 
-        // 복기 정보
         crewCount: crewCount,
-        violation: violationStatus,
+        violation: fullViolationText,
         worker: document.getElementById('worker')?.value || "-",
         
         shipImage: "Images/no-image.jpg",
@@ -186,6 +202,7 @@ async function saveTraceLog() {
         alert("추적 기록이 성공적으로 DB에 등록되었습니다.");
         document.getElementById('trace-form').reset();
         toggleViolationDetail();
+        toggleTraceNum();
         updateDistance();
     };
 
