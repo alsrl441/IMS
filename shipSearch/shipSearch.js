@@ -320,9 +320,9 @@ function showHistoryDetail(shipIdx, historyIdx) {
             </div>
         </div>
         <div class="history-info-group fade-in">
+            <div class="h-item" style="flex: 1;"><label>인수인계 사항</label><span>${h.handover || '데이터 없음'}</span></div>
             <div class="h-item"><label>근무자</label><span>${h.worker || '미입력'}</span></div>
             <div class="h-item"><label>수화자</label><span>${h.telephonee || '미입력'}</span></div>
-            <div class="h-item" style="flex: 1;"><label>인수인계 사항</label><span>${h.handover || '데이터 없음'}</span></div>
         </div>
     `;
     const pathBox = card.querySelector('.history-path-box');
