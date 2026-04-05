@@ -90,9 +90,9 @@ function renderHistoryForm(shipIdx, historyIdx = null) {
     const isEdit = historyIdx !== null;
     const h = isEdit ? ship.history[historyIdx] : {
         date: new Date().toISOString().split('T')[0],
-        firstTime: "08:00", firstPos: "",
-        lastTime: "18:00", lastPos: "",
-        crewCount: 1, handover: "특이사항 없음",
+        firstTime: "00:00", firstPos: "",
+        lastTime: "00:00", lastPos: "",
+        crewCount: 1, handover: "특이사항 ",
         worker: "", telephonee: "",
         shipImage: "Images/no-image.jpg",
         pathImage: "Images/no-image.jpg"
@@ -102,20 +102,19 @@ function renderHistoryForm(shipIdx, historyIdx = null) {
     const detailView = card.querySelector('.history-detail-view');
     const pathBox = card.querySelector('.history-path-box');
 
-    // 폼 렌더링 (좌측: 식별정보, 우측: 인수인계/근무자)
     detailView.innerHTML = `
         <div class="history-info-group fade-in">
             <div class="edit-group"><label>식별 날짜</label><input type="date" id="edit-date" value="${h.date}"></div>
-            <div class="edit-group"><label>탑승 인원</label><input type="number" id="edit-crew" value="${h.crewCount}"></div>
+            <div class="edit-group"><label>인원</label><input type="number" id="edit-crew" value="${h.crewCount}"></div>
             <div class="edit-group"><label>최초 식별 시간</label><input type="time" id="edit-first-time" value="${h.firstTime}"></div>
             <div class="edit-group"><label>최초 식별 위치</label><input type="text" id="edit-first-pos" value="${h.firstPos}"></div>
             <div class="edit-group"><label>최종 식별 시간</label><input type="time" id="edit-last-time" value="${h.lastTime}"></div>
             <div class="edit-group"><label>최종 식별 위치</label><input type="text" id="edit-last-pos" value="${h.lastPos}"></div>
         </div>
         <div class="history-info-group fade-in">
-            <div class="edit-group" style="flex: 1;"><label>인수인계 사항</label><textarea id="edit-handover" style="height: 100%; min-height: 200px;">${h.handover}</textarea></div>
-            <div class="edit-group"><label>근무자</label><input type="text" id="edit-worker" value="${h.worker || ''}" placeholder="근무자 이름"></div>
-            <div class="edit-group"><label>수화자</label><input type="text" id="edit-telephonee" value="${h.telephonee || ''}" placeholder="수화자 이름"></div>
+            <div class="edit-group" style="flex: 1;"><label>인수인계</label><textarea id="edit-handover" style="height: 100%; min-height: 200px;">${h.handover}</textarea></div>
+            <div class="edit-group"><label>근무자</label><input type="text" id="edit-worker" value="${h.worker || ''}"></div>
+            <div class="edit-group"><label>수화자</label><input type="text" id="edit-telephonee" value="${h.telephonee || ''}"></div>
             <div class="history-actions">
                 <button class="btn-custom btn-edit" onclick="showHistoryDetail(${shipIdx}, ${isEdit ? historyIdx : 0})">취소</button>
                 <button class="btn-custom btn-save" onclick="saveHistoryData(${shipIdx}, ${historyIdx})">${isEdit ? '저장' : '추가'}</button>
@@ -175,11 +174,9 @@ async function saveHistoryData(shipIdx, historyIdx) {
     ship.history.sort((a, b) => b.date.localeCompare(a.date));
     await updateShipInDB(ship._dbKey, ship);
     
-    // 리스트 전체 정렬 후 렌더링
     sortShipData();
     renderShips();
     
-    // 정렬 후 shipIdx가 바뀌었을 수 있으므로 _dbKey로 다시 찾아서 열어줌
     const newIdx = shipData.findIndex(s => s._dbKey === ship._dbKey);
     toggleCard(newIdx);
     showHistoryDetail(newIdx, 0);
@@ -199,11 +196,9 @@ async function deleteHistory(shipIdx, historyIdx) {
         ship.history.splice(historyIdx, 1);
         await updateShipInDB(ship._dbKey, ship);
         
-        // 리스트 전체 정렬 후 렌더링
         sortShipData();
         renderShips();
         
-        // 정렬 후 shipIdx가 바뀌었을 수 있으므로 _dbKey로 다시 찾음
         const newIdx = shipData.findIndex(s => s._dbKey === ship._dbKey);
         if (newIdx !== -1) toggleCard(newIdx);
     }
@@ -224,7 +219,7 @@ async function initShipSearch() {
     const input = document.getElementById('tag-input');
     const autocompleteList = document.getElementById('autocomplete-list');
     if (shipData.length === 0) {
-        document.getElementById('ship-results').innerHTML = '<div class="text-center py-5 text-muted">등록된 선박 정보가 없습니다. (선박 추가 필요)</div>';
+        document.getElementById('ship-results').innerHTML = '<div class="text-center py-5 text-muted">등록된 선박 정보가 없습니다.</div>';
         return;
     }
     const termsSet = new Set();
@@ -312,7 +307,7 @@ function showHistoryDetail(shipIdx, historyIdx) {
         <div class="history-info-group fade-in">
             <div class="h-item"><label>최초 식별</label><span>${h.firstTime} (${h.firstPos})</span></div>
             <div class="h-item"><label>최종 식별</label><span>${h.lastTime} (${h.lastPos})</span></div>
-            <div class="h-item"><label>탑승 인원</label><span>${h.crewCount}명</span></div>
+            <div class="h-item"><label>인원</label><span>${h.crewCount}명</span></div>
             <div class="history-actions">
                 <button class="btn-custom btn-outline-primary" onclick="editHistory(${shipIdx}, ${historyIdx})">수정</button>
                 <button class="btn-custom btn-outline-danger" onclick="deleteHistory(${shipIdx}, ${historyIdx})">삭제</button>
@@ -334,7 +329,6 @@ function renderShips() {
     const results = document.getElementById('ship-results');
     const paginationContainer = document.getElementById('pagination-container');
     
-    // 필터링 로직: 선택된 태그가 없으면 전체 표시, 있으면 AND 조건으로 필터링
     const filtered = shipData.filter(s => {
         if (selectedTags.length === 0) return true;
         return selectedTags.every(t => 
@@ -375,7 +369,7 @@ function renderShips() {
                         <div class="ship-tags">
                             ${(ship.tags || []).map((t, tIdx) => `<span class="tag-badge ${editingTagsShipIdx === shipIdx ? 'edit-mode' : ''}">${t}<span class="tag-delete-btn" onclick="event.stopPropagation(); deleteTagInline(${shipIdx}, ${tIdx})">&times;</span></span>`).join('')}
                             ${editingTagsShipIdx === shipIdx ? 
-                                `<input type="text" id="inline-tag-input-${shipIdx}" class="inline-tag-input" placeholder="엔터로 추가..." onkeydown="addTagInline(event, ${shipIdx})" autofocus>
+                                `<input type="text" id="inline-tag-input-${shipIdx}" class="inline-tag-input" onkeydown="addTagInline(event, ${shipIdx})" autofocus>
                                  <button class="btn-custom btn-save py-0" onclick="toggleTagEdit(${shipIdx})" style="font-size: 0.7rem;">완료</button>` : 
                                 `<button class="btn-custom btn-edit py-0" onclick="toggleTagEdit(${shipIdx})" style="font-size: 0.7rem;">수정</button>`}
                         </div>
@@ -392,7 +386,7 @@ function renderShips() {
                 <div class="ship-card-expanded">
                     <div class="history-date-list">
                         ${(ship.history || []).map((h, i) => `<div class="history-date-item" onclick="showHistoryDetail(${shipIdx}, ${i})">${h.date} (${h.firstTime})</div>`).join('')}
-                        <div class="history-date-item text-primary" onclick="addHistory(${shipIdx})" style="font-weight: 700;">+ 식별날짜 추가</div>
+                        <div class="history-date-item text-primary" onclick="addHistory(${shipIdx})" style="font-weight: 700;">+ 추가</div>
                     </div>
                     <div class="history-detail-view"></div>
                     <div class="history-path-box"><div class="path-img-container"><img src="" class="path-img fade-in"></div></div>
@@ -400,11 +394,9 @@ function renderShips() {
             </div>`;
     }).join('');
 
-    // 페이지네이션 렌더링 호출 추가
     renderPagination(totalItems);
 }
 
-// 누락된 renderPagination 함수 복구
 function renderPagination(totalItems) {
     const container = document.getElementById('pagination-container');
     if (!container) return;
