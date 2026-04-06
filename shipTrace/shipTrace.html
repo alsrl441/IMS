@@ -36,7 +36,7 @@
 
             <form id="trace-form" class="trace-form">
                 <div class="form-group-section">
-                    <h6 class="section-label">기초 정보</h6>
+                    <h6 class="section-label">문의 정보</h6>
                     <div class="grid-layout">
                         <div class="input-field">
                             <label>문의 좌표</label>
@@ -54,17 +54,17 @@
                             </div>
                         </div>
                         <div class="input-field">
-                            <label>이동방향 <span class="required">*</span></label>
-                            <input type="text" id="move-dir" list="dir-options" size="3" required placeholder="이동방향 선택/입력">
+                            <label>이동방향</label>
+                            <input type="text" id="move-dir" list="dir-options" size="3" placeholder="이동방향 선택/입력">
                             <datalist id="dir-options">
                                 <option>동진</option><option>서진</option><option>남진</option><option>북진</option>
                                 <option>북동진</option><option>남동진</option><option>남서진</option><option>북서진</option>
                             </datalist>
                         </div>
                         <div class="input-field">
-                            <label>거리 <span class="required">*</span></label>
+                            <label>거리</label>
                             <div class="input-group">
-                                <input type="number" id="dist-value" step="0.1" style="width: 80px;" required placeholder="거리">
+                                <input type="number" id="dist-value" step="0.1" style="width: 80px;" placeholder="거리">
                                 <select id="dist-unit">
                                     <option value="NM">NM</option>
                                     <option value="M">M</option>
@@ -74,8 +74,8 @@
                             </div>
                         </div>
                         <div class="input-field">
-                            <label>출항지 <span class="required">*</span></label>
-                            <input type="text" id="departure" size="12" required placeholder="출항지">
+                            <label>출항지</label>
+                            <input type="text" id="departure" size="12" placeholder="출항지">
                         </div>
                         <div class="input-field">
                             <label>수화자</label>
