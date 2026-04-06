@@ -116,23 +116,13 @@ async function saveTraceLog() {
 
     const mode = document.querySelector('input[name="trace-mode"]:checked').value;
     
-    // 필수 입력 체크 (공통)
-    const camera = document.getElementById('camera-num').value;
-    const worker = document.getElementById('worker').value.trim();
-    if (!camera) { alert("식별 카메라를 선택해주세요."); return; }
-    if (!worker) { alert("근무자 관등성명을 입력해주세요."); return; }
-
-    // 필수 입력 체크 (문의 시 추가)
-    if (mode === 'inquiry') {
-        const telephonee = document.getElementById('telephonee').value.trim();
-        if (!telephonee) { alert("수화자 관등성명을 입력해주세요."); return; }
-    }
-
     // 데이터 수집 (공통)
+    const camera = document.getElementById('camera-num').value;
     const shipName = document.getElementById('ship-name').value.trim() || "식별불가";
     const tonnage = document.getElementById('ship-tonnage').value.trim() || "식별불가";
     const shipType = document.getElementById('ship-type').value.trim() || "식별불가";
     const crewCount = document.getElementById('crew-count').value.trim() || "식별불가";
+    const worker = document.getElementById('worker').value.trim() || "미입력";
     
     const violationStatus = document.getElementById('violation-select').value;
     const violationDetail = document.getElementById('violation-detail').value.trim();
@@ -142,6 +132,14 @@ async function saveTraceLog() {
     const tags = tagString ? tagString.split('\n').map(t => t.trim()).filter(t => t) : [];
 
     const identificationDate = new Date().toISOString().split('T')[0];
+
+    // 이동 경로 자동 생성
+    const firstPos = document.getElementById('first-pos').value.trim() || "(최초 위치 미입력)";
+    const moveDirCommon = document.getElementById('move-dir-common').value.trim() || "(이동 방향 미입력)";
+    const lastPos = document.getElementById('last-pos').value.trim() || "(최종 위치 미입력)";
+    const terminationReason = document.getElementById('termination-reason').value;
+    
+    const autoMovementPath = `${firstPos}에서 ${moveDirCommon}하여 ${lastPos}에서 ${terminationReason}`;
 
     // 데이터 객체 생성
     const newHistory = {
@@ -158,18 +156,20 @@ async function saveTraceLog() {
         worker: worker,
         firstTime: document.getElementById('first-time').value || "-",
         firstAzEl: document.getElementById('first-az-el').value || "-",
-        firstPos: document.getElementById('first-pos').value || "-",
+        firstPos: firstPos,
         lastTime: document.getElementById('last-time').value || "-",
         lastAzEl: document.getElementById('last-az-el').value || "-",
-        lastPos: document.getElementById('last-pos').value || "-",
-        movementPath: document.getElementById('movement-path').value || "-",
+        lastPos: lastPos,
+        moveDirOverall: moveDirCommon,
+        terminationReason: terminationReason,
+        movementPath: autoMovementPath,
         violation: fullViolationText,
         
         // 문의 식별 시에만 저장되는 정보
         coord: mode === 'inquiry' ? document.getElementById('coord-input').value.trim() : "-",
         raderStation: mode === 'inquiry' ? document.getElementById('radar-station-select').value : "-",
         traceNumber: mode === 'inquiry' ? document.getElementById('trace-num').value.trim() : "-",
-        direction: mode === 'inquiry' ? document.getElementById('current-move-dir').value : "-",
+        directionAtInquiry: mode === 'inquiry' ? document.getElementById('current-move-dir').value : "-",
         distance: mode === 'inquiry' ? distKmDisplay.innerText.replace(' km', '') : "-",
         firstOutport: mode === 'inquiry' ? document.getElementById('departure').value : "-",
         telephonee: mode === 'inquiry' ? document.getElementById('telephonee').value.trim() : "-",
@@ -223,7 +223,7 @@ async function saveTraceLog() {
     };
 
     tx.oncomplete = () => {
-        alert("추적 기록이 성공적으로 DB에 등록되었습니다.");
+        alert("추적 기록이 성공적으로 DB에 등록되었습니다.\n\n생성된 경로: " + autoMovementPath);
         document.getElementById('trace-form').reset();
         toggleTraceMode();
         toggleViolationDetail();

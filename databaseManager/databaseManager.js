@@ -36,6 +36,10 @@ window.addEventListener('drop', (e) => { e.preventDefault(); wrapper.classList.r
 async function refreshTree() {
     treeRoot.innerHTML = '';
     try {
+        if (!indexedDB.databases) {
+            logToConsole("Your browser does not support indexedDB.databases(). Manual refresh required.", "warn");
+            return;
+        }
         const dbs = await indexedDB.databases();
         dbs.forEach(db => treeRoot.appendChild(createItemUI(db.name, 'db')));
         logToConsole(`Tree refreshed. Found ${dbs.length} databases.`, 'info');
@@ -59,11 +63,13 @@ function createItemUI(text, type) {
     if (type === 'db') {
         const addBtn = document.createElement('button');
         addBtn.className = 'btn-sm-outline'; addBtn.textContent = '+';
+        addBtn.title = "Create new store";
         addBtn.onclick = (e) => { e.stopPropagation(); createNewStore(text); };
         actions.appendChild(addBtn);
     }
     const delBtn = document.createElement('button');
     delBtn.className = 'btn-sm-outline btn-del-sm'; delBtn.textContent = 'DEL';
+    delBtn.title = `Delete ${type}`;
     delBtn.onclick = (e) => { e.stopPropagation(); deleteTarget(text, type); };
     
     actions.appendChild(delBtn);
@@ -87,12 +93,23 @@ async function toggleDB(dbName, wrap) {
         const container = document.createElement('div');
         container.className = 'indent';
         const stores = Array.from(db.objectStoreNames);
-        stores.forEach(sName => container.appendChild(createItemUI(sName, 'store')));
+        if (stores.length === 0) {
+            const empty = document.createElement('div');
+            empty.className = 'tree-item';
+            empty.style.paddingLeft = '20px';
+            empty.style.fontSize = '0.75rem';
+            empty.style.color = '#999';
+            empty.textContent = "(No stores)";
+            container.appendChild(empty);
+        } else {
+            stores.sort().forEach(sName => container.appendChild(createItemUI(sName, 'store')));
+        }
         wrap.appendChild(container); 
         db.close();
         logToConsole(`DB [${dbName}] opened. Stores found: ${stores.length}`, 'success');
     };
     req.onerror = (e) => logToConsole(`Error opening DB [${dbName}]: ${e.target.error}`, 'error');
+    req.onblocked = () => logToConsole(`Opening DB [${dbName}] is blocked. Please close other tabs.`, 'warn');
 }
 
 async function openStore(dbName, storeName) {
@@ -100,25 +117,36 @@ async function openStore(dbName, storeName) {
     pathDisplay.textContent = `PATH: ${dbName} > ${storeName}`;
     welcome.style.display = 'none'; editor.style.display = 'block';
     logToConsole(`Loading store [${storeName}] from DB [${dbName}]...`, 'info');
+    
     const req = indexedDB.open(dbName);
     req.onsuccess = (e) => {
         const db = e.target.result;
         try {
+            if (!db.objectStoreNames.contains(storeName)) {
+                throw new Error(`Store [${storeName}] not found in database.`);
+            }
             const tx = db.transaction(storeName, 'readonly');
             const data = {};
-            tx.objectStore(storeName).openCursor().onsuccess = (ev) => {
+            const store = tx.objectStore(storeName);
+            
+            store.openCursor().onsuccess = (ev) => {
                 const c = ev.target.result;
-                if (c) { data[c.key] = c.value; c.continue(); }
-                else { 
+                if (c) { 
+                    data[c.key] = c.value; 
+                    c.continue(); 
+                } else { 
                     editor.value = JSON.stringify(data, null, 4); 
                     db.close(); 
                     const count = Object.keys(data).length;
                     logToConsole(`Store [${storeName}] loaded. Records: ${count}`, 'success');
                 }
             };
-            tx.onerror = (err) => logToConsole(`Transaction error loading store: ${err.target.error}`, 'error');
+            tx.onerror = (err) => {
+                logToConsole(`Transaction error loading store: ${err.target.error}`, 'error');
+                db.close();
+            };
         } catch (err) {
-            logToConsole(`Error creating transaction: ${err.message}`, 'error');
+            logToConsole(`Error opening store: ${err.message}`, 'error');
             db.close();
         }
     };
@@ -140,15 +168,21 @@ async function handleFile(file) {
                 if (match) content = match[0];
             }
             let data;
-            try { data = JSON.parse(content); } catch { data = new Function(`return ${content}`)(); }
+            try { 
+                data = JSON.parse(content); 
+            } catch { 
+                data = new Function(`return ${content}`)(); 
+            }
 
             logToConsole(`File parsed successfully. Type: ${Array.isArray(data) ? 'Array' : 'Object'}`, 'info');
+            
             const req = indexedDB.open(targetDB);
             req.onsuccess = (ev) => {
                 const db = ev.target.result;
                 if (!db.objectStoreNames.contains(targetStore)) {
-                    logToConsole(`Store [${targetStore}] doesn't exist. Creating...`, 'warn');
-                    const newVer = db.version + 1; db.close();
+                    logToConsole(`Store [${targetStore}] doesn't exist. Creating via upgrade...`, 'warn');
+                    const newVer = db.version + 1; 
+                    db.close();
                     const upReq = indexedDB.open(targetDB, newVer);
                     upReq.onupgradeneeded = (ue) => ue.target.result.createObjectStore(targetStore);
                     upReq.onsuccess = (ue) => { 
@@ -156,6 +190,7 @@ async function handleFile(file) {
                         logToConsole(`Store [${targetStore}] created. Proceeding with import.`, 'success');
                         executeImport(targetDB, targetStore, data); 
                     };
+                    upReq.onerror = (ue) => logToConsole(`Upgrade failed: ${ue.target.error}`, 'error');
                 } else { 
                     db.close(); 
                     executeImport(targetDB, targetStore, data); 
@@ -174,20 +209,34 @@ function executeImport(dbName, storeName, data) {
     const req = indexedDB.open(dbName);
     req.onsuccess = (ev) => {
         const db = ev.target.result;
-        const tx = db.transaction(storeName, 'readwrite');
-        const store = tx.objectStore(storeName);
-        store.clear().onsuccess = () => {
-            if (Array.isArray(data)) data.forEach((item, i) => store.put(item, item.id || item.key || i.toString()));
-            else Object.keys(data).forEach(k => store.put(data[k], k));
-        };
-        tx.oncomplete = () => { 
-            db.close(); 
-            refreshTree(); 
-            openStore(dbName, storeName); 
-            showStatus("IMPORTED"); 
-            logToConsole(`Import to [${dbName}.${storeName}] completed successfully.`, 'success');
-        };
-        tx.onerror = (err) => logToConsole(`Import transaction error: ${err.target.error}`, 'error');
+        try {
+            const tx = db.transaction(storeName, 'readwrite');
+            const store = tx.objectStore(storeName);
+            store.clear().onsuccess = () => {
+                if (Array.isArray(data)) {
+                    data.forEach((item, i) => {
+                        const key = (item && (item.id || item.key)) || i.toString();
+                        store.put(item, key);
+                    });
+                } else {
+                    Object.keys(data).forEach(k => store.put(data[k], k));
+                }
+            };
+            tx.oncomplete = () => { 
+                db.close(); 
+                refreshTree(); 
+                openStore(dbName, storeName); 
+                showStatus("IMPORTED"); 
+                logToConsole(`Import to [${dbName}.${storeName}] completed successfully.`, 'success');
+            };
+            tx.onerror = (err) => {
+                logToConsole(`Import transaction error: ${err.target.error}`, 'error');
+                db.close();
+            };
+        } catch (err) {
+            logToConsole(`Import execution error: ${err.message}`, 'error');
+            db.close();
+        }
     };
 }
 
@@ -198,6 +247,8 @@ async function processExport() {
     req.onsuccess = (e) => {
         const db = e.target.result;
         const stores = Array.from(db.objectStoreNames); db.close();
+        if (stores.length === 0) return alert("No stores in this database.");
+        
         const tStore = prompt(`SELECT STORE (${stores.join(', ')}):`, currentStore || stores[0]);
         if (!tStore || !stores.includes(tStore)) return;
         const fName = prompt("FILE NAME:", tStore); if (!fName) return;
@@ -221,14 +272,20 @@ async function processExport() {
                     logToConsole(`Export of [${tStore}] completed as ${fName}.json`, 'success');
                 }
             };
-            tx.onerror = (err) => logToConsole(`Export transaction error: ${err.target.error}`, 'error');
+            tx.onerror = (err) => {
+                logToConsole(`Export transaction error: ${err.target.error}`, 'error');
+                edb.close();
+            };
         };
-        exReq.onerror = (ev) => logToConsole(`DB Open error during export: ${ev.target.error}`, 'error');
     };
 }
 
 async function saveData() {
-    if (!currentDB || !currentStore) return;
+    if (!currentDB || !currentStore) {
+        alert("Please select a store first.");
+        return;
+    }
+    
     logToConsole(`Saving changes to [${currentDB}.${currentStore}]...`, 'info');
     let newData;
     try {
@@ -250,34 +307,39 @@ async function saveData() {
         };
         req.onsuccess = (e) => {
             const db = e.target.result;
-            const tx = db.transaction(currentStore, 'readwrite');
-            const store = tx.objectStore(currentStore);
-            
-            store.clear().onsuccess = () => {
-                if (Array.isArray(newData)) {
-                    newData.forEach((item, i) => {
-                        const key = (item && (item.id || item.key)) || i.toString();
-                        store.put(item, key);
-                    });
-                } else {
-                    Object.keys(newData).forEach(k => store.put(newData[k], k));
-                }
-            };
-            
-            tx.oncomplete = () => { 
-                showStatus("SAVED"); 
-                db.close(); 
-                logToConsole(`Changes to [${currentDB}.${currentStore}] saved successfully.`, 'success');
-            };
-            tx.onerror = (err) => { 
-                logToConsole(`Save transaction error: ${err.target.error}`, 'error');
-                alert("SAVE TRANSACTION ERROR: " + err.target.error); 
-                db.close(); 
-            };
+            try {
+                const tx = db.transaction(currentStore, 'readwrite');
+                const store = tx.objectStore(currentStore);
+                
+                store.clear().onsuccess = () => {
+                    if (Array.isArray(newData)) {
+                        newData.forEach((item, i) => {
+                            const key = (item && (item.id || item.key)) || i.toString();
+                            store.put(item, key);
+                        });
+                    } else {
+                        Object.keys(newData).forEach(k => store.put(newData[k], k));
+                    }
+                };
+                
+                tx.oncomplete = () => { 
+                    showStatus("SAVED"); 
+                    db.close(); 
+                    logToConsole(`Changes to [${currentDB}.${currentStore}] saved successfully.`, 'success');
+                };
+                tx.onerror = (err) => { 
+                    logToConsole(`Save transaction error: ${err.target.error}`, 'error');
+                    alert("SAVE TRANSACTION ERROR: " + err.target.error); 
+                    db.close(); 
+                };
+            } catch (err) {
+                logToConsole(`Error during save transaction: ${err.message}`, 'error');
+                db.close();
+            }
         };
     } catch (e) { 
         logToConsole(`Parsing error during save: ${e.message}`, 'error');
-        alert("PARSING ERROR: " + e.message + "\n\n문법을 확인해주세요. (큰따옴표 사용 권장, 마지막 쉼표 제거 등)"); 
+        alert("PARSING ERROR: " + e.message + "\n\nJSON 문법을 확인해주세요. (큰따옴표 권장, 마지막 쉼표 제거 등)"); 
     }
 }
 
@@ -310,6 +372,7 @@ async function createNewStore(dbName) {
                 logToConsole(`Store [${s}] created successfully in DB [${dbName}].`, 'success');
             };
             ur.onerror = (e) => logToConsole(`Error creating store [${s}]: ${e.target.error}`, 'error');
+            ur.onblocked = () => logToConsole("Upgrade blocked. Close other tabs.", "warn");
         };
         r.onerror = (e) => logToConsole(`Error opening DB [${dbName}] for store creation: ${e.target.error}`, 'error');
     }
@@ -325,6 +388,7 @@ async function deleteTarget(name, type) {
             logToConsole(`DB [${name}] deleted.`, 'success');
         };
         req.onerror = (e) => logToConsole(`Error deleting DB [${name}]: ${e.target.error}`, 'error');
+        req.onblocked = () => logToConsole(`Deletion of [${name}] is blocked.`, 'warn');
     } else {
         const r = indexedDB.open(currentDB);
         r.onsuccess = (e) => {
@@ -337,7 +401,6 @@ async function deleteTarget(name, type) {
             };
             ur.onerror = (e) => logToConsole(`Error deleting store [${name}]: ${e.target.error}`, 'error');
         };
-        r.onerror = (e) => logToConsole(`Error opening DB [${currentDB}] for store deletion: ${e.target.error}`, 'error');
     }
 }
 
@@ -348,6 +411,7 @@ function showStatus(msg) {
 
 const consoleLog = document.getElementById('console-log');
 function logToConsole(msg, type = 'info') {
+    if (!consoleLog) return;
     const entry = document.createElement('div');
     entry.className = `log-entry log-${type}`;
     entry.innerHTML = `<span class="log-time">></span> <span class="log-msg">${msg}</span>`;
@@ -360,5 +424,5 @@ function clearConsole() {
     logToConsole("Console cleared.", "info");
 }
 
-logToConsole("DBM Explorer v3.9 initialized.", "success");
+logToConsole("DBM Explorer v4.0 initialized.", "success");
 refreshTree();
