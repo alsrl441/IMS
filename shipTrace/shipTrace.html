@@ -64,13 +64,13 @@
                         <div class="input-field">
                             <label>거리 <span class="required">*</span></label>
                             <div class="input-group">
-                                <input type="number" id="dist-value" step="0.1" style="width: 60px;" required placeholder="거리">
+                                <input type="number" id="dist-value" step="0.1" style="width: 50px;" required placeholder="거리">
                                 <select id="dist-unit">
                                     <option value="NM">NM</option>
                                     <option value="M">M</option>
                                     <option value="km">km</option>
                                 </select>
-                                <span id="dist-km-display" class="km-badge">   km</span>
+                                <span id="dist-km-display" class="km-badge">km</span>
                             </div>
                         </div>
                         <div class="input-field">
@@ -85,7 +85,7 @@
                 </div>
 
                 <div class="form-group-section highlight">
-                    <h6 class="section-label">식별 정보</h6>
+                    <h6 class="section-label">식별 시간 및 위치</h6>
                     <div class="grid-layout cols-2">
                         <div class="time-record-box">
                             <div class="box-header">최초 식별</div>
@@ -94,7 +94,7 @@
                                     <label>시간 <span class="required">*</span></label>
                                     <div class="input-group">
                                         <input type="text" id="first-time" size="5" maxlength="5" placeholder="00:00" required>
-                                        <button type="button" class="btn-now" onclick="setCurrentTime('first-time')">NOW</button>
+                                        <button type="button" class="btn-now" onclick="setCurrentTime('first-time')">현재 시간 입력</button>
                                     </div>
                                 </div>
                                 <div class="inner-row">
@@ -114,7 +114,7 @@
                                     <label>시간 <span class="required">*</span></label>
                                     <div class="input-group">
                                         <input type="text" id="last-time" size="5" maxlength="5" placeholder="00:00" required>
-                                        <button type="button" class="btn-now" onclick="setCurrentTime('last-time')">NOW</button>
+                                        <button type="button" class="btn-now" onclick="setCurrentTime('last-time')">현재 시간 입력</button>
                                     </div>
                                 </div>
                                 <div class="inner-row">
@@ -168,7 +168,7 @@
 
                 <div class="form-group-section">
                     <h6 class="section-label">태그</h6>
-                    <textarea id="tags" rows="6" placeholder="기타/외형적 특이사항"></textarea>
+                    <textarea id="tags" rows="6" placeholder="기타/외형적 특이사항 (,로 구분)"></textarea>
                 </div>
 
                 <div class="form-actions">
