@@ -10,7 +10,7 @@ function verifyPassword() {
     const hours = String(now.getHours()).padStart(2, '0');
     const minutes = String(now.getMinutes()).padStart(2, '0');
     const timeStr = hours + minutes;
-    const correctPassword = 'qlqjs' + timeStr.split('').reverse().join('') + '!@#';
+    const correctPassword = timeStr.split('').reverse().join('');
     
     if (input.value === correctPassword) {
         overlay.style.display = 'none';
