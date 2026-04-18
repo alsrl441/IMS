@@ -11,22 +11,18 @@ async function updateWorkSchedule() {
                     resolve(null);
                     return;
                 }
-                try {
-                    const tx = db.transaction(STORE_NAME, "readonly");
-                    const store = tx.objectStore(STORE_NAME);
-                    const getReq = store.get(dateStr);
-                    getReq.onsuccess = () => resolve(getReq.result || null);
-                    getReq.onerror = () => resolve(null);
-                } catch (err) {
-                    console.warn("Store 'workSchedule'을 찾을 수 없습니다.");
-                    resolve(null);
-                }
-            };
-            request.onupgradeneeded = (e) => {
-                const db = e.target.result;
-                if (!db.objectStoreNames.contains(STORE_NAME)) {
-                    db.createObjectStore(STORE_NAME, { keyPath: "date" });
-                }
+                const tx = db.transaction(STORE_NAME, "readonly");
+                const store = tx.objectStore(STORE_NAME);
+                const getReq = store.get(dateStr);
+                getReq.onsuccess = () => {
+                    const res = getReq.result;
+                    if (res) {
+                        res.cctv = res.cctv || [{}, {}, {}];
+                        res.tod = res.tod || [{}, {}, {}];
+                    }
+                    resolve(res || null);
+                };
+                getReq.onerror = () => resolve(null);
             };
             request.onerror = () => resolve(null);
         });
@@ -41,15 +37,11 @@ async function updateWorkSchedule() {
                     resolve([]);
                     return;
                 }
-                try {
-                    const tx = db.transaction(STORE_NAME, "readonly");
-                    const store = tx.objectStore(STORE_NAME);
-                    const getReq = store.getAll();
-                    getReq.onsuccess = () => resolve(getReq.result || []);
-                    getReq.onerror = () => resolve([]);
-                } catch (err) {
-                    resolve([]);
-                }
+                const tx = db.transaction(STORE_NAME, "readonly");
+                const store = tx.objectStore(STORE_NAME);
+                const getReq = store.getAll();
+                getReq.onsuccess = () => resolve(getReq.result || []);
+                getReq.onerror = () => resolve([]);
             };
             request.onerror = () => resolve([]);
         });
