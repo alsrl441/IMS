@@ -1,32 +1,35 @@
 async function updateWorkSchedule() {
     const DB_NAME = "IMS_database";
     const STORE_NAME = "workSchedule";
+function getDaySchedule(dateStr) {
+    return new Promise((resolve) => {
+        const request = indexedDB.open(DB_NAME); 
+        request.onsuccess = (e) => {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains(STORE_NAME)) {
+                resolve(null);
+                return;
+            }
+            const tx = db.transaction(STORE_NAME, "readonly");
+            const store = tx.objectStore(STORE_NAME);
 
-    function getDaySchedule(dateStr) {
-        return new Promise((resolve) => {
-            const request = indexedDB.open(DB_NAME); 
-            request.onsuccess = (e) => {
-                const db = e.target.result;
-                if (!db.objectStoreNames.contains(STORE_NAME)) {
-                    resolve(null);
-                    return;
+            // keyPath가 없어도 작동하도록 getAll로 가져와서 찾기
+            const getReq = store.getAll();
+            getReq.onsuccess = () => {
+                const allData = getReq.result || [];
+                const res = allData.find(item => item.date === dateStr);
+                if (res) {
+                    res.cctv = res.cctv || [{}, {}, {}];
+                    res.tod = res.tod || [{}, {}, {}];
                 }
-                const tx = db.transaction(STORE_NAME, "readonly");
-                const store = tx.objectStore(STORE_NAME);
-                const getReq = store.get(dateStr);
-                getReq.onsuccess = () => {
-                    const res = getReq.result;
-                    if (res) {
-                        res.cctv = res.cctv || [{}, {}, {}];
-                        res.tod = res.tod || [{}, {}, {}];
-                    }
-                    resolve(res || null);
-                };
-                getReq.onerror = () => resolve(null);
+                resolve(res || null);
             };
-            request.onerror = () => resolve(null);
-        });
-    }
+            getReq.onerror = () => resolve(null);
+        };
+        request.onerror = () => resolve(null);
+    });
+}
+
 
     function getAllSchedules() {
         return new Promise((resolve) => {
