@@ -215,11 +215,22 @@ function executeImport(dbName, storeName, data) {
             store.clear().onsuccess = () => {
                 if (Array.isArray(data)) {
                     data.forEach((item, i) => {
-                        const key = (item && (item.id || item.key)) || i.toString();
-                        store.put(item, key);
+                        // keyPath가 설정된 경우(in-line key) put(item)만 사용해야 함
+                        if (store.keyPath) {
+                            store.put(item);
+                        } else {
+                            const key = (item && (item.id || item.key)) || i.toString();
+                            store.put(item, key);
+                        }
                     });
                 } else {
-                    Object.keys(data).forEach(k => store.put(data[k], k));
+                    Object.keys(data).forEach(k => {
+                        if (store.keyPath) {
+                            store.put(data[k]);
+                        } else {
+                            store.put(data[k], k);
+                        }
+                    });
                 }
             };
             tx.oncomplete = () => { 
@@ -314,11 +325,21 @@ async function saveData() {
                 store.clear().onsuccess = () => {
                     if (Array.isArray(newData)) {
                         newData.forEach((item, i) => {
-                            const key = (item && (item.id || item.key)) || i.toString();
-                            store.put(item, key);
+                            if (store.keyPath) {
+                                store.put(item);
+                            } else {
+                                const key = (item && (item.id || item.key)) || i.toString();
+                                store.put(item, key);
+                            }
                         });
                     } else {
-                        Object.keys(newData).forEach(k => store.put(newData[k], k));
+                        Object.keys(newData).forEach(k => {
+                            if (store.keyPath) {
+                                store.put(newData[k]);
+                            } else {
+                                store.put(newData[k], k);
+                            }
+                        });
                     }
                 };
                 
