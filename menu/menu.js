@@ -11,8 +11,6 @@ async function updateMenu() {
         return new Promise((resolve) => {
             const request = indexedDB.open(DB_NAME);
             
-            // Note: If version upgrade is needed to set keyPath, 
-            // the user might need to clear site data or use databaseManager.
             request.onupgradeneeded = (e) => {
                 const db = e.target.result;
                 if (!db.objectStoreNames.contains(STORE_NAME)) {
@@ -23,7 +21,6 @@ async function updateMenu() {
             request.onsuccess = (e) => {
                 const db = e.target.result;
                 if (!db.objectStoreNames.contains(STORE_NAME)) {
-                    // This case handles if the DB was already open with old schema
                     resolve(null);
                     return;
                 }
@@ -84,7 +81,7 @@ async function updateMenu() {
             menuDisplayEl.innerText = menuData[mealKey] || "식단 정보가 없습니다.";
         } else {
             mealTypeEl.innerText = "정보 없음";
-            menuDisplayEl.innerText = "해당 날짜의 식단 데이터가 DB에 없습니다.";
+            menuDisplayEl.innerText = "식단 정보가 없습니다.";
         }
 
         if (searchDateInput) searchDateInput.value = targetDateStr;
@@ -101,8 +98,8 @@ async function updateMenu() {
         menuDisplayEl.innerText = menuData?.[mealKey] || "식단 정보가 없습니다.";
     }
 
-    if (document.getElementById('meal-type')) {
-        document.getElementById('meal-type').addEventListener('click', () => {
+    if (mealTypeEl) {
+        mealTypeEl.addEventListener('click', () => {
             const ui = document.getElementById('menu-search-ui');
             if (ui) ui.classList.toggle('hidden');
         });
@@ -111,7 +108,7 @@ async function updateMenu() {
     if (searchDateInput) searchDateInput.addEventListener('change', searchMenu);
     if (searchMealSelect) searchMealSelect.addEventListener('change', searchMenu);
 
-    setAutoMenu();
+    await setAutoMenu();
 }
 
 if (document.readyState === 'complete' || document.readyState === 'interactive') {

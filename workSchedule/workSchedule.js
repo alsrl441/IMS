@@ -1,25 +1,22 @@
 async function updateWorkSchedule() {
-        
+    const DB_NAME = "myDB";
+    const STORE_NAME = "workSchedule";
+
     function getDaySchedule(dateStr) {
         return new Promise((resolve) => {
-            const request = indexedDB.open("myDB"); 
+            const request = indexedDB.open(DB_NAME); 
             request.onsuccess = (e) => {
                 const db = e.target.result;
-                if (!db.objectStoreNames.contains("workSchedule")) {
+                if (!db.objectStoreNames.contains(STORE_NAME)) {
                     resolve(null);
                     return;
                 }
                 try {
-                    const tx = db.transaction("workSchedule", "readonly");
-                    const store = tx.objectStore("workSchedule");
-                    
-                    const getAllReq = store.getAll();
-                    getAllReq.onsuccess = () => {
-                        const allData = getAllReq.result || [];
-                        const found = allData.find(item => item.date === dateStr);
-                        resolve(found || null);
-                    };
-                    getAllReq.onerror = () => resolve(null);
+                    const tx = db.transaction(STORE_NAME, "readonly");
+                    const store = tx.objectStore(STORE_NAME);
+                    const getReq = store.get(dateStr);
+                    getReq.onsuccess = () => resolve(getReq.result || null);
+                    getReq.onerror = () => resolve(null);
                 } catch (err) {
                     console.warn("Store 'workSchedule'을 찾을 수 없습니다.");
                     resolve(null);
@@ -27,7 +24,9 @@ async function updateWorkSchedule() {
             };
             request.onupgradeneeded = (e) => {
                 const db = e.target.result;
-                if (!db.objectStoreNames.contains("workSchedule")) db.createObjectStore("workSchedule");
+                if (!db.objectStoreNames.contains(STORE_NAME)) {
+                    db.createObjectStore(STORE_NAME, { keyPath: "date" });
+                }
             };
             request.onerror = () => resolve(null);
         });
@@ -35,26 +34,22 @@ async function updateWorkSchedule() {
 
     function getAllSchedules() {
         return new Promise((resolve) => {
-            const request = indexedDB.open("myDB");
+            const request = indexedDB.open(DB_NAME);
             request.onsuccess = (e) => {
                 const db = e.target.result;
-                if (!db.objectStoreNames.contains("workSchedule")) {
+                if (!db.objectStoreNames.contains(STORE_NAME)) {
                     resolve([]);
                     return;
                 }
                 try {
-                    const tx = db.transaction("workSchedule", "readonly");
-                    const store = tx.objectStore("workSchedule");
+                    const tx = db.transaction(STORE_NAME, "readonly");
+                    const store = tx.objectStore(STORE_NAME);
                     const getReq = store.getAll();
                     getReq.onsuccess = () => resolve(getReq.result || []);
                     getReq.onerror = () => resolve([]);
                 } catch (err) {
                     resolve([]);
                 }
-            };
-            request.onupgradeneeded = (e) => {
-                const db = e.target.result;
-                if (!db.objectStoreNames.contains("workSchedule")) db.createObjectStore("workSchedule");
             };
             request.onerror = () => resolve([]);
         });
