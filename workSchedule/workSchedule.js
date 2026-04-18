@@ -292,9 +292,16 @@ async function updateWorkSchedule() {
                     </table>
                 </div>`;
 
-            const scoreList = Object.values(stats).map(s => s.score);
+            const scoreList = Object.values(stats).map(s => s.score).sort((a, b) => a - b);
             const avgScore = scoreList.length ? (scoreList.reduce((a, b) => a + b, 0) / scoreList.length) : 0;
             
+            // 중앙값 계산
+            let medianScore = 0;
+            if (scoreList.length > 0) {
+                const mid = Math.floor(scoreList.length / 2);
+                medianScore = scoreList.length % 2 !== 0 ? scoreList[mid] : (scoreList[mid - 1] + scoreList[mid]) / 2;
+            }
+
             const maxScore = scoreList.length ? Math.max(...scoreList) : 0;
             const minScore = scoreList.length ? Math.min(...scoreList) : 0;
             const maxUsers = Object.keys(stats).filter(n => stats[n].score === maxScore);
@@ -308,11 +315,13 @@ async function updateWorkSchedule() {
                 statsRows += `
                     <tr>
                         <td class="name-cell">${name}</td>
-                        <td>${s.wdWork}회</td>
-                        <td>${s.weWork}회</td>
-                        <td>${totalWD - s.wdWork}일</td>
-                        <td>${totalWE - s.weWork}일</td>
-                        <td class="hours-cell">${s.totalHours}h <small class="text-muted">(+${s.totalLostTime.toFixed(1)}h)</small></td>
+                        <td>${s.wdWork}</td>
+                        <td>${totalWD - s.wdWork}</td>
+                        <td>${s.weWork}</td>
+                        <td>${totalWE - s.weWork}</td>
+                        <td>${s.totalHours}h</td>
+                        <td>${s.totalLostTime.toFixed(1)}h</td>
+                        <td class="hours-cell">${s.score.toFixed(1)}h</td>
                         <td class="dev-cell ${devClass}">${dev > 0 ? '+' : ''}${dev}h</td>
                     </tr>`;
             });
@@ -323,12 +332,16 @@ async function updateWorkSchedule() {
                         <div class="summary-label">평균값</div>
                         <div class="summary-value">${avgScore.toFixed(1)}h</div>
                     </div>
+                    <div class="summary-item">
+                        <div class="summary-label">중앙값</div>
+                        <div class="summary-value">${medianScore.toFixed(1)}h</div>
+                    </div>
                     <div class="summary-item mvp">
-                        <div class="summary-label">이달의 MVP</div>
+                        <div class="summary-label">이달의 MVP (최대)</div>
                         <div class="summary-value" style="font-size:1rem;">${maxUsers.join(', ')}</div>
                     </div>
                     <div class="summary-item bee">
-                        <div class="summary-label">이달의 꿀벌</div>
+                        <div class="summary-label">이달의 꿀벌 (최소)</div>
                         <div class="summary-value" style="font-size:1rem;">${minUsers.join(', ')}</div>
                     </div>
                 </div>
@@ -338,10 +351,12 @@ async function updateWorkSchedule() {
                             <tr>
                                 <th>성명</th>
                                 <th>평일 근무</th>
-                                <th>휴일 근무</th>
                                 <th>평일 비번</th>
+                                <th>휴일 근무</th>
                                 <th>휴일 비번</th>
-                                <th>총 시간</th>
+                                <th>근무시간</th>
+                                <th>뺏긴 시간</th>
+                                <th>총합</th>
                                 <th>평균 편차</th>
                             </tr>
                         </thead>
