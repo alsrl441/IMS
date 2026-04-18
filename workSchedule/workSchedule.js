@@ -337,11 +337,11 @@ async function updateWorkSchedule() {
                         <div class="summary-value">${medianScore.toFixed(1)}h</div>
                     </div>
                     <div class="summary-item mvp">
-                        <div class="summary-label">이달의 MVP (최대)</div>
+                        <div class="summary-label">이달의 MVP</div>
                         <div class="summary-value" style="font-size:1rem;">${maxUsers.join(', ')}</div>
                     </div>
                     <div class="summary-item bee">
-                        <div class="summary-label">이달의 꿀벌 (최소)</div>
+                        <div class="summary-label">이달의 꿀벌</div>
                         <div class="summary-value" style="font-size:1rem;">${minUsers.join(', ')}</div>
                     </div>
                 </div>
