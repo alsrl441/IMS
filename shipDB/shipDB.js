@@ -247,6 +247,23 @@ async function deleteHistory(shipIdx, historyIdx) {
     }
 }
 
+async function deleteShip(shipIdx) {
+    const ship = shipData[shipIdx];
+    if (confirm(`'${ship.name}' 선박의 모든 정보를 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`)) {
+        const request = indexedDB.open(DB_NAME);
+        request.onsuccess = (e) => {
+            const db = e.target.result;
+            const tx = db.transaction(TARGET_STORE_NAME, "readwrite");
+            const store = tx.objectStore(TARGET_STORE_NAME);
+            store.delete(ship._dbKey);
+            tx.oncomplete = () => {
+                alert("선박 정보가 삭제되었습니다.");
+                initShipSearch(); // 데이터 다시 로드 및 렌더링
+            };
+        };
+    }
+}
+
 function sortShipData() {
     shipData.sort((a, b) => {
         const latestA = (a.history && a.history.length > 0) ? a.history[0].date : "0000-00-00";
@@ -417,7 +434,11 @@ function renderShips() {
             <div class="ship-card" data-idx="${shipIdx}">
                 <div class="ship-card-main">
                     <div class="ship-info-primary">
-                        <div class="ship-name-row"><div class="expand-btn" onclick="toggleCard(${shipIdx})"><span>&#9013;</span></div><h4>${ship.name}</h4></div>
+                        <div class="ship-name-row">
+                            <div class="expand-btn" onclick="toggleCard(${shipIdx})"><span>&#9013;</span></div>
+                            <h4>${ship.name}</h4>
+                            <button class="btn-delete-ship" onclick="event.stopPropagation(); deleteShip(${shipIdx})" title="선박 삭제">&times;</button>
+                        </div>
                         <div class="ship-meta-group">
                             <p class="ship-detail"><strong>톤수</strong> ${ship.tonnage}</p>
                             <p class="ship-detail"><strong>선종</strong> ${ship.type}</p>

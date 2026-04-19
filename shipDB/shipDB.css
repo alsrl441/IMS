@@ -146,6 +146,18 @@
 .ship-info-primary { flex: 0 0 280px; padding: 25px 30px; display: flex; flex-direction: column; justify-content: center; }
 .ship-name-row { display: flex; align-items: center; margin-bottom: 15px; }
 .ship-name-row h4 { font-size: 1.3rem; font-weight: 700; margin: 0; }
+.btn-delete-ship {
+    background: none;
+    border: none;
+    color: #ced4da;
+    font-size: 1.5rem;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0 5px;
+    transition: color 0.2s;
+    margin-left: auto;
+}
+.btn-delete-ship:hover { color: #dc3545; }
 .ship-meta-group { display: flex; flex-direction: column; gap: 6px; }
 .ship-detail { font-size: 0.85rem; color: #6c757d; margin: 0; }
 .ship-detail strong { color: #495057; width: 60px; display: inline-block; }

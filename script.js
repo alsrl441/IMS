@@ -12,7 +12,7 @@ function initDatabase() {
         const requiredStores = ["menu", "workSchedule", "members", "identified_ships", "unidentified_ships"];
         const missingStores = requiredStores.filter(s => !db.objectStoreNames.contains(s));
 
-        // 마이그레이션 대상 확인
+        // 마이그레이션 대상 확인 (기존 'ship' 스토어)
         const needsMigration = db.objectStoreNames.contains("ship");
 
         // 만약 스토어가 하나라도 없거나 마이그레이션이 필요하면 버전을 올려서 다시 열기
@@ -36,19 +36,86 @@ function upgradeDatabase(name, version) {
 
     request.onupgradeneeded = (e) => {
         const db = e.target.result;
+        const tx = e.target.transaction;
         
+        // 1. menu 스토어 및 초기 양식
         if (!db.objectStoreNames.contains("menu")) {
-            db.createObjectStore("menu", { keyPath: "date" });
+            const store = db.createObjectStore("menu", { keyPath: "date" });
+            const initialMenuTemplate = {
+                "date": "0000-00-00", // 예시: "2026-04-18"
+                "breakfast": "",      // 예시: "메뉴1, 메뉴2"
+                "lunch": "",          
+                "dinner": "",         
+                "brunch": ""          
+            };
+            store.put(initialMenuTemplate);
         }
+
+        // 2. workSchedule 스토어 및 초기 양식
         if (!db.objectStoreNames.contains("workSchedule")) {
-            db.createObjectStore("workSchedule", { keyPath: "date" });
+            const store = db.createObjectStore("workSchedule", { keyPath: "date" });
+            const initialWorkTemplate = {
+                "date": "0000-00-00", // 예시: "2026-03-31"
+                "isHoliday": false,
+                "cctv": [
+                    { "shift": "06-14", "p1": "", "p2": "" }, // p1, p2 예시: "홍길동"
+                    { "shift": "14-22", "p1": "", "p2": "" },
+                    { "shift": "22-06", "p1": "", "p2": "" }
+                ],
+                "tod": [
+                    { "location": "고하도", "p1": "", "p2": "" },
+                    { "location": "외기 평시", "p1": "", "p2": "" },
+                    { "location": "외기 핵취", "p1": "", "p2": "" }
+                ]
+            };
+            store.put(initialWorkTemplate);
         }
+
+        // 3. members 스토어 및 초기 양식
         if (!db.objectStoreNames.contains("members")) {
-            db.createObjectStore("members", { keyPath: "id" });
+            const store = db.createObjectStore("members", { keyPath: "id" });
+            const initialMemberTemplate = {
+                "id": "0",
+                "name": "",        // 예시: "홍길동"
+                "nickName": "",    // 예시: "길동이"
+                "start": "0000-00-00", // 입대일
+                "end": "0000-00-00",   // 전역일
+                "vacation": "0000-00-00", // 다음 휴가일
+                "promotion": { "pfc2cpl": 0, "cpl2sgt": 0 } // 진급 점수 등
+            };
+            store.put(initialMemberTemplate);
         }
+
+        // 4. identified_ships 스토어 및 초기 양식
         if (!db.objectStoreNames.contains("identified_ships")) {
-            db.createObjectStore("identified_ships");
+            const store = db.createObjectStore("identified_ships");
+            const initialShipTemplate = {
+                "name": "",     // 예시: "아라호"
+                "tonnage": "",  // 예시: "2톤"
+                "type": "",     // 예시: "어선"
+                "number": "",   // 예시: "1234567-1234567"
+                "tel": "",      // 예시: "010-1234-5678 (홍길동)"
+                "tags": [],     // 예시: ["흰색 선체", "그물 적재"]
+                "history": [
+                    {
+                        "date": "0000-00-00",
+                        "firstTime": "00:00",
+                        "firstPos": "",
+                        "lastTime": "00:00",
+                        "lastPos": "",
+                        "crewCount": 0,
+                        "handover": "",
+                        "worker": "",
+                        "telephonee": "",
+                        "shipImage": "Images/no-image.jpg",
+                        "pathImage": "Images/no-image.jpg"
+                    }
+                ]
+            };
+            store.put(initialShipTemplate, "template_key");
         }
+
+        // 5. unidentified_ships 스토어
         if (!db.objectStoreNames.contains("unidentified_ships")) {
             db.createObjectStore("unidentified_ships");
         }
@@ -56,8 +123,6 @@ function upgradeDatabase(name, version) {
         // 마이그레이션 로직
         if (db.objectStoreNames.contains("ship")) {
             console.log("Migrating data from 'ship' to new stores...");
-            // onupgradeneeded 안에서는 transaction을 직접 열 필요 없이 e.target.transaction을 사용
-            const tx = e.target.transaction;
             const oldStore = tx.objectStore("ship");
             const identifiedStore = tx.objectStore("identified_ships");
             const unidentifiedStore = tx.objectStore("unidentified_ships");
@@ -75,6 +140,8 @@ function upgradeDatabase(name, version) {
                 }
             };
         }
+        
+        console.log(`Database upgraded to version ${version}.`);
     };
 
     request.onsuccess = (e) => {
