@@ -146,18 +146,18 @@
 .ship-info-primary { flex: 0 0 280px; padding: 25px 30px; display: flex; flex-direction: column; justify-content: center; }
 .ship-name-row { display: flex; align-items: center; margin-bottom: 15px; width: 100%; }
 .ship-name-row h4 { font-size: 1.3rem; font-weight: 700; margin: 0; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.ship-actions-main { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+.ship-actions-main { display: flex; align-items: center; gap: 4px; margin-left: auto; }
 .btn-delete-ship, .btn-edit-ship {
     background: none;
     border: none;
     color: #ced4da;
     cursor: pointer;
     line-height: 1;
-    padding: 0 5px;
+    padding: 0 2px;
     transition: color 0.2s;
 }
-.btn-edit-ship { font-size: 1.1rem; }
-.btn-delete-ship { font-size: 1.5rem; }
+.btn-edit-ship { font-size: 0.9rem; }
+.btn-delete-ship { font-size: 1.3rem; }
 .btn-delete-ship:hover { color: #dc3545; }
 .btn-edit-ship:hover { color: #0d6efd; }
 .ship-meta-group { display: flex; flex-direction: column; gap: 6px; }
@@ -249,9 +249,19 @@
 .drop-zone span { font-size: 0.7rem; color: #adb5bd; display: block; margin-bottom: 5px; }
 .drop-zone input { border: none; background: transparent; padding: 0; font-size: 0.8rem; width: 100%; color: #495057; text-align: center; }
 
-.history-path-box { width: 320px; padding: 25px; display: flex; align-items: center; justify-content: center; border-left: 1px solid #eee; }
+.history-path-box { width: 320px; padding: 25px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-left: 1px solid #eee; }
 .path-img-container { width: 270px; height: 270px; background: #eee; border-radius: 8px; overflow: hidden; border: 1px solid #eee; }
-.path-img { width: 100%; height: 100%; object-fit: cover; }
+.path-img { width: 100%; height: 100%; object-fit: contain; }
+.path-text-display {
+    margin-top: 10px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    color: #495057;
+    text-align: center;
+    border-left: 4px solid #0d6efd;
+}
 
 /* 페이지네이션 */
 .pagination-wrapper { display: flex; justify-content: center; gap: 8px; margin: 40px 0; }

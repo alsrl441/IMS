@@ -118,8 +118,9 @@ function renderHistoryForm(shipIdx, historyIdx = null) {
         date: new Date().toISOString().split('T')[0],
         firstTime: "00:00", firstPos: "", firstAzEl: "-",
         lastTime: "00:00", lastPos: "", lastAzEl: "-",
+        moveDirOverall: "", terminationReason: "종료",
         crewCount: "식별불가", 
-        raderStation: "-", traceNumber: "-", firstOutport: "-", direction: "-", distance: "-",
+        raderStation: "-", traceNumber: "-", firstOutport: "-",
         violation: "무",
         worker: "", telephonee: "",
         shipImage: "Images/no-image.jpg",
@@ -134,21 +135,21 @@ function renderHistoryForm(shipIdx, historyIdx = null) {
         <div class="history-info-group fade-in">
             <div class="edit-group"><label>문의 기지/추적번호</label>
                 <div class="d-flex gap-1">
-                    <input type="text" id="edit-rader" value="${h.raderStation}" style="width: 80px;">
-                    <input type="text" id="edit-tracenum" value="${h.traceNumber}" style="flex:1;">
+                    <input type="text" id="edit-rader" value="${h.raderStation || '-'}" style="width: 80px;">
+                    <input type="text" id="edit-tracenum" value="${h.traceNumber || '-'}" style="flex:1;">
                 </div>
             </div>
             <div class="edit-group"><label>식별 날짜</label><input type="date" id="edit-date" value="${h.date}"></div>
             <div class="edit-group"><label>최초 시간/위치/AzEl</label>
                 <div class="d-flex gap-1">
-                    <input type="time" id="edit-first-time" value="${h.firstTime}" style="width: 85px;">
+                    <input type="text" id="edit-first-time" value="${h.firstTime}" placeholder="hh:mm" style="width: 85px;">
                     <input type="text" id="edit-first-pos" value="${h.firstPos}" placeholder="위치" style="flex:1;">
                     <input type="text" id="edit-first-azel" value="${h.firstAzEl || '-'}" placeholder="Az/El" style="width: 90px;">
                 </div>
             </div>
             <div class="edit-group"><label>최종 시간/위치/AzEl</label>
                 <div class="d-flex gap-1">
-                    <input type="time" id="edit-last-time" value="${h.lastTime}" style="width: 85px;">
+                    <input type="text" id="edit-last-time" value="${h.lastTime}" placeholder="hh:mm" style="width: 85px;">
                     <input type="text" id="edit-last-pos" value="${h.lastPos}" placeholder="위치" style="flex:1;">
                     <input type="text" id="edit-last-azel" value="${h.lastAzEl || '-'}" placeholder="Az/El" style="width: 90px;">
                 </div>
@@ -160,12 +161,14 @@ function renderHistoryForm(shipIdx, historyIdx = null) {
         </div>
         <div class="history-info-group fade-in">
             <div class="edit-group"><label>인원</label><input type="text" id="edit-crew" value="${h.crewCount}"></div>
-            <div class="edit-group"><label>출항지/방향/거리(km)</label>
+            <div class="edit-group"><label>이동 방향/종료 사유</label>
                 <div class="d-flex gap-1">
-                    <input type="text" id="edit-outport" value="${h.firstOutport}" style="flex:1;">
-                    <input type="text" id="edit-direction" value="${h.direction}" style="width: 70px;">
-                    <input type="text" id="edit-distance" value="${h.distance}" style="width: 70px;">
+                    <input type="text" id="edit-move-dir" value="${h.moveDirOverall || ''}" placeholder="방향(예: 북상)" style="flex:1;">
+                    <input type="text" id="edit-term-reason" value="${h.terminationReason || '종료'}" placeholder="사유(예: 시계외 종료)" style="flex:1;">
                 </div>
+            </div>
+            <div class="edit-group"><label>출항지</label>
+                <input type="text" id="edit-outport" value="${h.firstOutport || '-'}" style="flex:1;">
             </div>
             <div class="edit-group"><label>어선법 위반</label>
                 <select id="edit-violation" class="form-control-sm">
@@ -217,26 +220,34 @@ function renderHistoryForm(shipIdx, historyIdx = null) {
 async function saveHistoryData(shipIdx, historyIdx) {
     const ship = shipData[shipIdx];
     const isEdit = historyIdx !== null;
+    
+    const fPos = document.getElementById('edit-first-pos').value || "(최초 위치)";
+    const moveDir = document.getElementById('edit-move-dir').value || "(방향)";
+    const lPos = document.getElementById('edit-last-pos').value || "(최종 위치)";
+    const termReason = document.getElementById('edit-term-reason').value || "종료";
+    const newPath = `${fPos}에서 ${moveDir}하여 ${lPos}에서 ${termReason}.`;
+
     const newHistory = {
         date: document.getElementById('edit-date').value,
         firstTime: document.getElementById('edit-first-time').value,
-        firstPos: document.getElementById('edit-first-pos').value,
+        firstPos: fPos,
         firstAzEl: document.getElementById('edit-first-azel').value,
         lastTime: document.getElementById('edit-last-time').value,
-        lastPos: document.getElementById('edit-last-pos').value,
+        lastPos: lPos,
         lastAzEl: document.getElementById('edit-last-azel').value,
+        moveDirOverall: moveDir,
+        terminationReason: termReason,
+        movementPath: newPath,
         crewCount: document.getElementById('edit-crew').value || "식별불가",
         violation: document.getElementById('edit-violation').value,
         raderStation: document.getElementById('edit-rader').value,
         traceNumber: document.getElementById('edit-tracenum').value,
         firstOutport: document.getElementById('edit-outport').value,
-        direction: document.getElementById('edit-direction').value,
-        distance: document.getElementById('edit-distance').value,
         worker: document.getElementById('edit-worker').value,
         telephonee: document.getElementById('edit-telephonee').value,
         shipImage: document.getElementById('edit-ship-img').value,
         pathImage: document.getElementById('edit-path-img').value,
-        timestamp: new Date().getTime()
+        timestamp: isEdit ? (ship.history[historyIdx].timestamp || new Date().getTime()) : new Date().getTime()
     };
     if (isEdit) ship.history[historyIdx] = newHistory;
     else ship.history.push(newHistory);
@@ -443,7 +454,12 @@ function showHistoryDetail(shipIdx, historyIdx) {
         </div>
     `;
     const pathBox = card.querySelector('.history-path-box');
-    pathBox.innerHTML = `<div class="path-img-container"><img src="${h.pathImage}" class="path-img fade-in" style="opacity: 0;"></div>`;
+    pathBox.innerHTML = `
+        <div class="path-img-container">
+            <img src="${h.pathImage}" class="path-img fade-in" style="opacity: 0;">
+        </div>
+        <div class="path-text-display fade-in">${h.movementPath || ''}</div>
+    `;
     const pathImg = pathBox.querySelector('.path-img');
     setTimeout(() => { pathImg.style.opacity = 1; }, 50);
 }
