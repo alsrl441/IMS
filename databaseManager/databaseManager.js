@@ -360,7 +360,7 @@ async function saveData() {
         };
     } catch (e) { 
         logToConsole(`Parsing error during save: ${e.message}`, 'error');
-        alert("PARSING ERROR: " + e.message + "\n\nJSON 문법을 확인해주세요. (큰따옴표 권장, 마지막 쉼표 제거 등)"); 
+        alert("PARSING ERROR: " + e.message + "\n\nPlease check JSON syntax."); 
     }
 }
 
