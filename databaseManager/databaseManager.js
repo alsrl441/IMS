@@ -445,5 +445,5 @@ function clearConsole() {
     logToConsole("Console cleared.", "info");
 }
 
-logToConsole("DBM Explorer v4.0 initialized.", "success");
+logToConsole("Successfully initialized.", "success");
 refreshTree();
