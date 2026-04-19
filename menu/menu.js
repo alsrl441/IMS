@@ -1,25 +1,26 @@
 async function updateMenu() {
-    const mealTypeEl = document.getElementById('meal-type');
-    const menuDisplayEl = document.getElementById('menu-display');
-    const searchDateInput = document.getElementById('search-date');
-    const searchMealSelect = document.getElementById('search-meal');
-
     const DB_NAME = "IMS_database";
     const STORE_NAME = "menu";
 
+    // 1. 필요한 스토어가 있는지 확인하고 없으면 생성
+    await window.ensureStore(STORE_NAME, "date");
+
+    const mealTypeEl = document.getElementById('meal-type');
+    const menuDisplayEl = document.getElementById('menu-display');
+...
     function getMenuFromDB(dateStr) {
         return new Promise((resolve) => {
             const request = indexedDB.open(DB_NAME);
-            
+
             request.onsuccess = (e) => {
                 const db = e.target.result;
                 const tx = db.transaction(STORE_NAME, "readwrite");
                 const store = tx.objectStore(STORE_NAME);
 
-                // 데이터가 하나도 없는지 확인
+                // 데이터가 하나도 없는지 확인 (초기 데이터 주입)
                 const countReq = store.count();
                 countReq.onsuccess = () => {
-                    if (countReq.result === 0) {
+...
                         const initialMenuTemplate = {
                             "date": "0000-00-00",
                             "breakfast": "",

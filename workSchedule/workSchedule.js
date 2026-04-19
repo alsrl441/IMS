@@ -17,6 +17,9 @@ async function updateWorkSchedule() {
     const DB_NAME = "IMS_database";
     const STORE_NAME = "workSchedule";
 
+    // 스토어 확인 및 생성
+    await window.ensureStore(STORE_NAME, "date");
+
     function getDaySchedule(dateStr) {
         return new Promise((resolve) => {
             const request = indexedDB.open(DB_NAME); 

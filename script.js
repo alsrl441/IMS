@@ -1,67 +1,49 @@
-function initDatabase() {
-    const DB_NAME = "IMS_database";
+const DB_NAME = "IMS_database";
 
-    // 1. 우선 버전을 명시하지 않고 열어서 현재 버전을 확인함
-    const request = indexedDB.open(DB_NAME);
-
-    request.onsuccess = (e) => {
-        const db = e.target.result;
-        const currentVersion = db.version;
+/**
+ * 특정 스토어가 존재하는지 확인하고, 없으면 버전을 올려서 생성한다.
+ * @param {string} storeName - 생성할 스토어 이름
+ * @param {string|null} keyPath - 키 경로 (필요한 경우)
+ * @returns {Promise} - 스토어 준비 완료 시 resolve
+ */
+window.ensureStore = function(storeName, keyPath = null) {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME);
         
-        // 필요한 스토어 목록
-        const requiredStores = ["menu", "workSchedule", "members", "identified_ships", "unidentified_ships"];
-        const missingStores = requiredStores.filter(s => !db.objectStoreNames.contains(s));
-
-        // 만약 스토어가 하나라도 없으면 버전을 올려서 다시 열기
-        if (missingStores.length > 0) {
-            console.log(`Database update needed. Missing: ${missingStores.join(", ")}`);
+        request.onsuccess = (e) => {
+            const db = e.target.result;
+            if (db.objectStoreNames.contains(storeName)) {
+                db.close();
+                resolve();
+                return;
+            }
+            
+            const version = db.version;
             db.close();
-            upgradeDatabase(DB_NAME, currentVersion + 1);
-        } else {
-            console.log(`Database is up to date (Version: ${currentVersion}).`);
-            db.close();
-        }
-    };
-
-    request.onerror = (e) => {
-        console.error("Database open error:", e.target.error);
-    };
-}
-
-function upgradeDatabase(name, version) {
-    const request = indexedDB.open(name, version);
-
-    request.onupgradeneeded = (e) => {
-        const db = e.target.result;
-        
-        // 1. menu (keyPath: date)
-        if (!db.objectStoreNames.contains("menu")) {
-            db.createObjectStore("menu", { keyPath: "date" });
-        }
-        // 2. workSchedule (keyPath: date)
-        if (!db.objectStoreNames.contains("workSchedule")) {
-            db.createObjectStore("workSchedule", { keyPath: "date" });
-        }
-        // 3. members (keyPath: id)
-        if (!db.objectStoreNames.contains("members")) {
-            db.createObjectStore("members", { keyPath: "id" });
-        }
-        // 4. identified_ships (no keyPath)
-        if (!db.objectStoreNames.contains("identified_ships")) {
-            db.createObjectStore("identified_ships");
-        }
-        // 5. unidentified_ships (no keyPath)
-        if (!db.objectStoreNames.contains("unidentified_ships")) {
-            db.createObjectStore("unidentified_ships");
-        }
-        
-        console.log(`Database upgraded to version ${version}.`);
-    };
-
-    request.onsuccess = (e) => {
-        e.target.result.close();
-    };
-}
+            
+            // 버전을 올려서 다시 열기 (onupgradeneeded 호출 유도)
+            const upgradeReq = indexedDB.open(DB_NAME, version + 1);
+            upgradeReq.onupgradeneeded = (ev) => {
+                const upDb = ev.target.result;
+                if (!upDb.objectStoreNames.contains(storeName)) {
+                    const options = keyPath ? { keyPath } : {};
+                    upDb.createObjectStore(storeName, options);
+                    console.log(`[Database] Store '${storeName}' created.`);
+                }
+            };
+            upgradeReq.onsuccess = (ev) => {
+                ev.target.result.close();
+                resolve();
+            };
+            upgradeReq.onerror = (ev) => reject(ev.target.error);
+            upgradeReq.onblocked = () => {
+                console.warn("Database upgrade blocked. Please close other tabs.");
+                reject("blocked");
+            };
+        };
+        request.onerror = (e) => reject(e.target.error);
+    });
+};
 
 function updateClock() {
     const now = new Date();
@@ -81,7 +63,8 @@ function updateClock() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    initDatabase();
+    // 이제 initDatabase() 같은 하드코딩된 호출은 하지 않음.
+    // 각 페이지(JS)에서 본인이 필요한 store를 ensureStore()로 요청함.
     setInterval(updateClock, 1000);
     updateClock();
 });
