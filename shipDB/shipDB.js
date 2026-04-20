@@ -566,15 +566,27 @@ function renderShips() {
                                 </div>
                             </div>` : ''}
                         </div>
-                        <div class="ship-meta-group">
+                        <div class="ship-meta-group" style="${isEditing ? 'gap: 4px;' : ''}">
                             ${isEditing ? `
-                                <div class="edit-group"><label>톤수</label><input type="text" id="edit-tonnage" value="${ship.tonnage || ''}" placeholder="-"></div>
-                                <div class="edit-group"><label>선종</label><input type="text" id="edit-type" value="${ship.type || ''}" placeholder="-"></div>
-                                <div class="edit-group"><label>어선번호</label><input type="text" id="edit-number" value="${ship.number || ''}" placeholder="-"></div>
-                                <div class="edit-group"><label>연락처</label><input type="text" id="edit-tel" value="${ship.tel || ''}" placeholder="-"></div>
-                                <div class="history-actions" style="margin-top:10px; padding-top:5px;">
-                                    <button class="btn-custom btn-save" onclick="event.stopPropagation(); saveShipMainInfo(${shipIdx})">확인</button>
-                                    <button class="btn-custom btn-edit" onclick="event.stopPropagation(); cancelEditShip()">취소</button>
+                                <div class="edit-group" style="flex-direction: row; align-items: center; gap: 10px; margin-bottom: 2px;">
+                                    <label style="font-size: 0.75rem; width: 60px; margin-bottom: 0;">톤수</label>
+                                    <input type="text" id="edit-tonnage" value="${ship.tonnage || ''}" placeholder="-" style="font-size: 0.8rem; padding: 4px 8px; flex: 1;">
+                                </div>
+                                <div class="edit-group" style="flex-direction: row; align-items: center; gap: 10px; margin-bottom: 2px;">
+                                    <label style="font-size: 0.75rem; width: 60px; margin-bottom: 0;">선종</label>
+                                    <input type="text" id="edit-type" value="${ship.type || ''}" placeholder="-" style="font-size: 0.8rem; padding: 4px 8px; flex: 1;">
+                                </div>
+                                <div class="edit-group" style="flex-direction: row; align-items: center; gap: 10px; margin-bottom: 2px;">
+                                    <label style="font-size: 0.75rem; width: 60px; margin-bottom: 0;">어선번호</label>
+                                    <input type="text" id="edit-number" value="${ship.number || ''}" placeholder="-" style="font-size: 0.8rem; padding: 4px 8px; flex: 1;">
+                                </div>
+                                <div class="edit-group" style="flex-direction: row; align-items: center; gap: 10px; margin-bottom: 2px;">
+                                    <label style="font-size: 0.75rem; width: 60px; margin-bottom: 0;">연락처</label>
+                                    <input type="text" id="edit-tel" value="${ship.tel || ''}" placeholder="-" style="font-size: 0.8rem; padding: 4px 8px; flex: 1;">
+                                </div>
+                                <div class="history-actions" style="margin-top: 5px; padding-top: 0; justify-content: flex-end; gap: 5px;">
+                                    <button class="btn-custom btn-save" onclick="event.stopPropagation(); saveShipMainInfo(${shipIdx})" style="padding: 4px 12px; font-size: 0.75rem;">확인</button>
+                                    <button class="btn-custom btn-edit" onclick="event.stopPropagation(); cancelEditShip()" style="padding: 4px 12px; font-size: 0.75rem;">취소</button>
                                 </div>
                             ` : `
                                 <p class="ship-detail"><strong>톤수</strong> ${ship.tonnage || '-'}</p>
