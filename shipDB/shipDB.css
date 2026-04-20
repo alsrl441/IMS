@@ -146,20 +146,66 @@
 .ship-info-primary { flex: 0 0 280px; padding: 25px 30px; display: flex; flex-direction: column; justify-content: center; }
 .ship-name-row { display: flex; align-items: center; margin-bottom: 15px; width: 100%; }
 .ship-name-row h4 { font-size: 1.3rem; font-weight: 700; margin: 0; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.ship-actions-main { display: flex; align-items: center; gap: 4px; margin-left: auto; }
-.btn-delete-ship, .btn-edit-ship {
+/* 선박 카드 액션 드롭다운 */
+.ship-actions-wrapper {
+    position: relative;
+    margin-left: auto;
+}
+
+.btn-actions {
     background: none;
     border: none;
-    color: #ced4da;
+    color: #adb5bd;
+    font-size: 1.4rem;
     cursor: pointer;
+    padding: 0 5px;
     line-height: 1;
-    padding: 0 2px;
     transition: color 0.2s;
 }
-.btn-edit-ship { font-size: 0.9rem; display: inline-block; transform: scaleX(-1); }
-.btn-delete-ship { font-size: 1.3rem; }
-.btn-delete-ship:hover { color: #dc3545; }
-.btn-edit-ship:hover { color: #0d6efd; }
+
+.btn-actions:hover {
+    color: #495057;
+}
+
+.actions-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background: white;
+    min-width: 80px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border: 1px solid #eee;
+    z-index: 1001;
+    overflow: hidden;
+}
+
+.actions-dropdown.show {
+    display: block;
+}
+
+.actions-dropdown-item {
+    display: block;
+    width: 100%;
+    padding: 10px 15px;
+    text-align: left;
+    border: none;
+    background: none;
+    font-size: 0.85rem;
+    color: #495057;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.actions-dropdown-item:hover {
+    background: #f8f9fa;
+    color: #0d6efd;
+}
+
+.actions-dropdown-item.delete:hover {
+    color: #dc3545;
+}
 .ship-meta-group { display: flex; flex-direction: column; gap: 6px; }
 .ship-detail { font-size: 0.85rem; color: #6c757d; margin: 0; }
 .ship-detail strong { color: #495057; width: 60px; display: inline-block; }

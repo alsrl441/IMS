@@ -14,6 +14,25 @@ async function editShipMainInfo(idx) {
     renderShips();
 }
 
+function toggleActionsDropdown(idx) {
+    // 다른 열려있는 드롭다운 닫기
+    document.querySelectorAll('.actions-dropdown').forEach((el, i) => {
+        if (i !== idx) el.classList.remove('show');
+    });
+
+    const dropdown = document.getElementById(`actions-dropdown-${idx}`);
+    if (dropdown) {
+        dropdown.classList.toggle('show');
+    }
+}
+
+// 바탕 클릭 시 드롭다운 닫기
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('.ship-actions-wrapper')) {
+        document.querySelectorAll('.actions-dropdown').forEach(el => el.classList.remove('show'));
+    }
+});
+
 function cancelEditShip() {
     editingShipIdx = null;
     renderShips();
@@ -538,12 +557,15 @@ function renderShips() {
                                 `<input type="text" id="edit-name" value="${ship.name}" placeholder="${ship.name}" style="font-size: 1.1rem; font-weight: 700; flex: 1; padding: 4px 8px; border: 1px solid #0d6efd; border-radius: 6px;">` : 
                                 `<h4>${ship.name}</h4>`
                             }
-                            <div class="ship-actions-main">
+                            <div class="ship-actions-wrapper">
                                 ${isEditing ? 
                                     `<button class="btn-save-ship" onclick="event.stopPropagation(); saveShipMainInfo(${shipIdx})" title="저장" style="color: #198754; background: none; border: none; cursor: pointer; font-size: 1.1rem;">✓</button>
                                      <button class="btn-cancel-ship" onclick="event.stopPropagation(); cancelEditShip()" title="취소" style="color: #dc3545; background: none; border: none; cursor: pointer; font-size: 1.1rem;">×</button>` : 
-                                    `<button class="btn-edit-ship" onclick="event.stopPropagation(); editShipMainInfo(${shipIdx})" title="선박 정보 수정">✎</button>
-                                     <button class="btn-delete-ship" onclick="event.stopPropagation(); deleteShip(${shipIdx})" title="선박 삭제">×</button>`
+                                    `<button class="btn-actions" onclick="event.stopPropagation(); toggleActionsDropdown(${shipIdx})" title="작업">⋮</button>
+                                     <div id="actions-dropdown-${shipIdx}" class="actions-dropdown">
+                                         <button class="actions-dropdown-item" onclick="event.stopPropagation(); editShipMainInfo(${shipIdx})">수정</button>
+                                         <button class="actions-dropdown-item delete" onclick="event.stopPropagation(); deleteShip(${shipIdx})">삭제</button>
+                                     </div>`
                                 }
                             </div>
                         </div>
