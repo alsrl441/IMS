@@ -275,6 +275,7 @@ async function saveTraceLog() {
                 }
             } else {
                 const newShip = {
+                    id: Date.now().toString(), // keyPath "id"를 만족시키기 위해 추가
                     name: shipName,
                     tonnage: tonnage,
                     type: shipType,
@@ -285,16 +286,16 @@ async function saveTraceLog() {
                 };
                 
                 if (store.keyPath) {
-                    // keyPath가 설정되어 있다면, 객체 안에 해당 필드가 있어야 함 (예: name)
                     store.add(newShip);
                 } else {
-                    store.add(newShip, Date.now().toString());
+                    store.add(newShip, newShip.id);
                 }
             }
         };
     } else {
         // 미식별 선박 로직: 무조건 매번 새로 씀
         const newShip = {
+            id: Date.now().toString(), // keyPath가 "id"일 경우를 대비해 추가
             name: shipName,
             tonnage: tonnage,
             type: shipType,
@@ -307,7 +308,7 @@ async function saveTraceLog() {
         if (store.keyPath) {
             store.add(newShip);
         } else {
-            store.add(newShip, Date.now().toString());
+            store.add(newShip, newShip.id);
         }
     }
 
