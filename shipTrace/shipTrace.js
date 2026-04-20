@@ -58,6 +58,7 @@ function toggleTraceMode() {
         directSection.style.setProperty('display', 'block', 'important');
     }
 }
+window.toggleTraceMode = toggleTraceMode;
 
 // 이벤트 리스너 등록 및 초기화
 document.addEventListener('DOMContentLoaded', () => {
