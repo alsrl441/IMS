@@ -81,34 +81,50 @@ async function loadShipsFromDB() {
             countReq.onsuccess = () => {
                 if (countReq.result === 0) {
                     const initialShipTemplate = {
-                        "name": "샘플 선박",
+                        "id": "1776694373861",
+                        "name": "아라호",
+                        "type": "선외기",
                         "tonnage": "2",
-                        "type": "어선",
-                        "number": "1234567-1234567",
-                        "owner": "홍길동",
-                        "tel": "010-0000-0000",
-                        "tags": ["흰색 선체"],
+                        "number": "1111111111111111",
+                        "owner": "ㅂㅂㅂㅂ",
+                        "tel": "0100000000",
                         "history": [
                             {
                                 "date": "2026-04-20",
-                                "firstTime": "00:00",
-                                "firstPos": "샘플 위치",
-                                "firstAzEl": "1234 56",
-                                "lastTime": "00:00",
-                                "lastPos": "샘플 위치",
-                                "lastAzEl": "1234 56",
+                                "coord": "123 456",
+                                "directionAtInquiry": "동진",
+                                "distance": "1.9km",
+                                "traceNumber": "145-1",
+                                "firstOutport": "해태발",
+                                "firstTime": "23:11",
+                                "firstAzEl": "123 45",
+                                "firstPos": "송공항 남서쪽 1.9km",
+                                "lastTime": "23:16",
+                                "lastAzEl": "234 56",
+                                "lastPos": "송공항",
+                                "tags": [
+                                    "선미 검은색 모터",
+                                    "조타실 상부 항해등"
+                                ],
+                                "moveDirOverall": "북동진",
+                                "terminationReason": "입항",
+                                "movementPath": "송공항 남서쪽 1.9km에서 북동진하여 송공항에서 입항.",
                                 "crewCount": "1",
-                                "handoverDetails": "인수인계 샘플",
-                                "worker": "일병 김철수",
-                                "telephonee": "상병 이영희",
+                                "externalName": "X",
+                                "handoverDetails": "145 R/S에서 인수받은 선박.",
                                 "shipImage": "Images/no-image.jpg",
                                 "pathImage": "Images/no-image.jpg",
-                                "tags": ["선미 검은색 모터"],
-                                "movementPath": "샘플 경로",
-                                "violation": "X",
-                                "externalName": "X",
-                                "traceNumber": "145-1"
+                                "violation": "O (초록색 어선 번호판을 부착한 선박은 신호를 켜야 할 의무가 있음.)",
+                                "worker": "상병 김철수",
+                                "telephonee": "일병 홍길동",
+                                "timestamp": 1776694373851,
+                                "cameraNum": "송공항 CCTV"
                             }
+                        ],
+                        "tags": [
+                            "1",
+                            "11",
+                            "111"
                         ]
                     };
                     if (store.keyPath) {
