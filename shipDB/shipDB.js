@@ -354,29 +354,6 @@ async function deleteShip(shipIdx) {
     }
 }
 
-async function editShipMainInfo(shipIdx) {
-    const ship = shipData[shipIdx];
-    const newName = prompt("선명 수정:", ship.name);
-    if (newName === null) return;
-    const newTonnage = prompt("톤수 수정:", ship.tonnage || "-");
-    const newType = prompt("선종 수정:", ship.type || "-");
-    const newNumber = prompt("어선번호 수정:", ship.number || "-");
-    const newTel = prompt("연락처 수정:", ship.tel || "-");
-
-    const updatedShip = {
-        ...ship,
-        name: newName || "이름없음",
-        tonnage: newTonnage || "-",
-        type: newType || "-",
-        number: newNumber || "-",
-        tel: newTel || "-"
-    };
-
-    await updateShipInDB(ship._dbKey, updatedShip);
-    alert("선박 정보가 수정되었습니다.");
-    initShipSearch();
-}
-
 function sortShipData() {
     shipData.sort((a, b) => {
         const latestA = (a.history && a.history.length > 0) ? a.history[0].date : "0000-00-00";
