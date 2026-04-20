@@ -266,20 +266,30 @@ async function saveTraceLog() {
                 });
 
                 if (!existingShip.history) existingShip.history = [];
-                // 새로운 히스토리를 앞에 추가 (최신순)
                 existingShip.history.unshift(newHistory);
-                store.put(existingShip, existingKey);
+                
+                if (store.keyPath) {
+                    store.put(existingShip);
+                } else {
+                    store.put(existingShip, existingKey);
+                }
             } else {
                 const newShip = {
                     name: shipName,
                     tonnage: tonnage,
                     type: shipType,
-                    number: "-", // 초기값
-                    tel: "-",    // 초기값
+                    number: "-",
+                    tel: "-",
                     tags: tags,
                     history: [newHistory]
                 };
-                store.add(newShip, Date.now().toString());
+                
+                if (store.keyPath) {
+                    // keyPath가 설정되어 있다면, 객체 안에 해당 필드가 있어야 함 (예: name)
+                    store.add(newShip);
+                } else {
+                    store.add(newShip, Date.now().toString());
+                }
             }
         };
     } else {
@@ -293,7 +303,12 @@ async function saveTraceLog() {
             tags: tags,
             history: [newHistory]
         };
-        store.add(newShip, Date.now().toString());
+        
+        if (store.keyPath) {
+            store.add(newShip);
+        } else {
+            store.add(newShip, Date.now().toString());
+        }
     }
 
     tx.oncomplete = () => {
