@@ -447,18 +447,13 @@ function showHistoryDetail(shipIdx, historyIdx) {
 
     card.querySelectorAll('.history-date-item').forEach((item, idx) => item.classList.toggle('active', idx === historyIdx));
     
-    // 히스토리 상세 뷰 레이아웃 수정
     card.querySelector('.history-detail-view').innerHTML = `
         <div class="history-layout-container fade-in">
-            <!-- 좌측: 날짜 -->
+            <!-- 좌측: 버튼만 유지 -->
             <div class="history-side-left">
-                <div class="h-item">
-                    <label>식별 날짜</label>
-                    <span class="highlight-text">${h.date} (${h.firstTime})</span>
-                </div>
-                <div class="history-actions" style="margin-top: auto; padding-top: 20px;">
-                    <button class="btn-custom btn-outline-primary" onclick="editHistory(${shipIdx}, ${historyIdx})">수정</button>
-                    <button class="btn-custom btn-outline-danger" onclick="deleteHistory(${shipIdx}, ${historyIdx})">삭제</button>
+                <div class="history-actions" style="margin-top: 0; display: flex; flex-direction: column; gap: 10px; width: 100%;">
+                    <button class="btn-custom btn-outline-primary w-100" onclick="editHistory(${shipIdx}, ${historyIdx})">기록 수정</button>
+                    <button class="btn-custom btn-outline-danger w-100" onclick="deleteHistory(${shipIdx}, ${historyIdx})">기록 삭제</button>
                 </div>
             </div>
 
@@ -477,7 +472,10 @@ function showHistoryDetail(shipIdx, historyIdx) {
                         <label>인수인계</label>
                         <div class="scroll-box">${h.handoverDetails || 'X'}</div>
                     </div>
-                    <div class="h-item"><label>어선법 위반 여부</label><span>${h.violation || 'X'}</span></div>
+                    <div class="h-item h-item-block">
+                        <label>어선법 위반 여부</label>
+                        <div class="scroll-box">${h.violation || 'X'}</div>
+                    </div>
                     <div class="h-item"><label>근무자</label><span>${h.worker || ''}</span></div>
                     <div class="h-item"><label>수화자</label><span>${h.telephonee || ''}</span></div>
                 </div>
@@ -507,7 +505,7 @@ function renderShips() {
             (s.type && s.type.includes(t)) || 
             (s.number && s.number.includes(t)) || 
             (s.owner && s.owner.includes(t)) ||
-            (s.history && s.history.some(h => h.tags && Array.isArray(h.tags) && h.tags.includes(t)))
+            (s.tags && s.tags.includes(t))
         );
     });
 
@@ -531,9 +529,6 @@ function renderShips() {
         
         // 연락처(선주) 표시 로직
         const displayContact = ship.tel ? `${ship.tel} ${ship.owner ? '(' + ship.owner + ')' : ''}` : (ship.owner || '-');
-
-        // 특징 표시 로직 (최신 히스토리의 태그들)
-        const latestFeatures = (ship.history && ship.history.length > 0 && ship.history[0].tags) ? ship.history[0].tags.join(' ') : '-';
 
         return `
             <div class="ship-card" data-idx="${shipIdx}">
@@ -589,16 +584,12 @@ function renderShips() {
                         </div>
                     </div>
                     <div class="ship-info-tags">
-                        <div class="features-summary">
-                            <label>특징</label>
-                            <span class="features-text">${latestFeatures}</span>
-                        </div>
                         <div class="ship-tags">
                             ${(ship.tags || []).map((t, tIdx) => `<span class="tag-badge ${editingTagsShipIdx === shipIdx ? 'edit-mode' : ''}">${t}<span class="tag-delete-btn" onclick="event.stopPropagation(); deleteTagInline(${shipIdx}, ${tIdx})">&times;</span></span>`).join('')}
                             ${editingTagsShipIdx === shipIdx ? 
                                 `<input type="text" id="inline-tag-input-${shipIdx}" class="inline-tag-input" onkeydown="addTagInline(event, ${shipIdx})" autofocus>
                                  <button class="btn-custom btn-save py-0" onclick="toggleTagEdit(${shipIdx})" style="font-size: 0.7rem;">완료</button>` : 
-                                `<button class="btn-custom btn-edit py-0" onclick="toggleTagEdit(${shipIdx})" style="font-size: 0.7rem;">수정</button>`}
+                                `<button class="btn-custom btn-edit py-0" onclick="toggleTagEdit(${shipIdx})" style="font-size: 0.7rem;">특징 수정</button>`}
                         </div>
                     </div>
                     <div class="ship-photo-slider">

@@ -243,28 +243,7 @@
 .dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,0.4); transition: 0.2s; }
 .dot.active { background: #fff; transform: scale(1.4); }
 
-/* 특징 요약 스타일 */
-.features-summary {
-    margin-bottom: 15px;
-    padding: 10px;
-    background: #f8f9fa;
-    border-radius: 8px;
-    border-left: 4px solid #0d6efd;
-}
-
-.features-summary label {
-    display: block;
-    font-size: 0.75rem;
-    color: #6c757d;
-    font-weight: 700;
-    margin-bottom: 4px;
-}
-
-.features-text {
-    font-size: 0.9rem;
-    color: #212529;
-    font-weight: 500;
-}
+/* 특징 요약 스타일 삭제됨 - 개별 태그 뱃지 사용 */
 
 /* 확장 섹션 */
 .ship-card-expanded { display: none; border-top: 1px solid #eee; background: #fafafa; height: auto; min-height: 380px; }
@@ -284,13 +263,14 @@
     gap: 0;
 }
 
-/* 좌측: 날짜 및 버튼 */
+/* 좌측: 버튼 전용 */
 .history-side-left {
-    flex: 0 0 160px;
-    padding: 25px 20px;
+    flex: 0 0 140px;
+    padding: 25px 15px;
     border-right: 1px dashed #eee;
     display: flex;
     flex-direction: column;
+    justify-content: flex-start;
 }
 
 /* 중간: 식별/기지 정보 (다시 좌우 분할) */
@@ -322,7 +302,7 @@
 .h-item span { font-size: 0.88rem; font-weight: 500; color: #343a40; white-space: pre-wrap; word-break: break-all; }
 .highlight-text { color: #0d6efd !important; font-weight: 700 !important; }
 
-.h-item-block { flex: 1; display: flex; flex-direction: column; min-height: 80px; }
+.h-item-block { flex: 1; display: flex; flex-direction: column; min-height: 100px; }
 .scroll-box {
     flex: 1;
     background: #f8f9fa;
@@ -332,7 +312,7 @@
     font-size: 0.82rem;
     color: #495057;
     overflow-y: auto;
-    max-height: 120px;
+    max-height: 100px;
 }
 
 .path-img-container { width: 100%; height: 200px; background: #eee; border-radius: 8px; overflow: hidden; border: 1px solid #eee; margin-bottom: 10px; }
@@ -345,9 +325,10 @@
     font-size: 0.85rem;
     color: #0d6efd;
     text-align: center;
-    border-left: 4px solid #0d6efd;
+    border: 1px solid #d0e3ff;
     font-weight: 500;
 }
+
 
 /* 편집 모드 Row */
 .edit-row { flex-direction: row !important; align-items: center !important; gap: 8px !important; margin-bottom: 2px !important; }
