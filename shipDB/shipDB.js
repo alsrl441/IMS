@@ -507,7 +507,7 @@ function renderShips() {
             (s.type && s.type.includes(t)) || 
             (s.number && s.number.includes(t)) || 
             (s.owner && s.owner.includes(t)) ||
-            (s.history && s.history.some(h => h.tags && h.tags.includes(t)))
+            (s.history && s.history.some(h => h.tags && Array.isArray(h.tags) && h.tags.includes(t)))
         );
     });
 
@@ -533,7 +533,7 @@ function renderShips() {
         const displayContact = ship.tel ? `${ship.tel} ${ship.owner ? '(' + ship.owner + ')' : ''}` : (ship.owner || '-');
 
         // 특징 표시 로직 (최신 히스토리의 태그들)
-        const latestFeatures = (ship.history && ship.history.length > 0) ? ship.history[0].tags.join(' ') : '-';
+        const latestFeatures = (ship.history && ship.history.length > 0 && ship.history[0].tags) ? ship.history[0].tags.join(' ') : '-';
 
         return `
             <div class="ship-card" data-idx="${shipIdx}">
