@@ -42,7 +42,11 @@ async function loadShipsFromDB() {
                             }
                         ]
                     };
-                    store.put(initialShipTemplate, "template_key");
+                    if (store.keyPath) {
+                        store.put(initialShipTemplate);
+                    } else {
+                        store.put(initialShipTemplate, "template_key");
+                    }
                     console.log(`Initial ${TARGET_STORE_NAME} template inserted.`);
                 }
 
@@ -73,7 +77,11 @@ async function updateShipInDB(key, updatedData) {
             const db = e.target.result;
             const tx = db.transaction(TARGET_STORE_NAME, "readwrite");
             const store = tx.objectStore(TARGET_STORE_NAME);
-            store.put(dataToSave, key);
+            if (store.keyPath) {
+                store.put(dataToSave);
+            } else {
+                store.put(dataToSave, key);
+            }
             tx.oncomplete = () => resolve(true);
         };
     });
