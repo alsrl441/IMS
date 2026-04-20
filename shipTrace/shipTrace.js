@@ -1,11 +1,14 @@
-const DB_NAME = 'IMS_database';
-const STORE_IDENTIFIED = 'identified_ships';
-const STORE_UNIDENTIFIED = 'unidentified_ships';
-let db;
+// 상수는 script.js와 겹칠 수 있으므로 존재 여부 확인 후 선언하거나 전역 변수 사용
+if (typeof DB_NAME === 'undefined') {
+    var DB_NAME = 'IMS_database';
+}
+var STORE_IDENTIFIED = 'identified_ships';
+var STORE_UNIDENTIFIED = 'unidentified_ships';
+var db;
 
 function initDB() {
     const request = indexedDB.open(DB_NAME);
-
+...
     request.onupgradeneeded = (e) => {
         const upgradeDb = e.target.result;
         if (!upgradeDb.objectStoreNames.contains(STORE_IDENTIFIED)) {
