@@ -14,7 +14,6 @@ const WORK_WEIGHTS = {
 };
 
 async function updateWorkSchedule() {
-    const DB_NAME = "IMS_database";
     const STORE_NAME = "workSchedule";
 
     // 스토어 확인 및 생성

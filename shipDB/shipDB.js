@@ -6,7 +6,6 @@ let shipData = [];
 let shipSliderState = {};
 let editingTagsShipIdx = null;
 
-const DB_NAME = "IMS_database";
 // TARGET_STORE_NAME은 각 페이지(identified.js, unidentified.js)에서 정의함
 
 async function loadShipsFromDB() {
