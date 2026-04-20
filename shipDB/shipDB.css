@@ -263,16 +263,6 @@
     gap: 0;
 }
 
-/* 좌측: 버튼 전용 */
-.history-side-left {
-    flex: 0 0 140px;
-    padding: 25px 15px;
-    border-right: 1px dashed #eee;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-}
-
 /* 중간: 식별/기지 정보 (다시 좌우 분할) */
 .history-middle {
     flex: 1;

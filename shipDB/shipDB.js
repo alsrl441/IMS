@@ -449,14 +449,6 @@ function showHistoryDetail(shipIdx, historyIdx) {
     
     card.querySelector('.history-detail-view').innerHTML = `
         <div class="history-layout-container fade-in">
-            <!-- 좌측: 버튼만 유지 -->
-            <div class="history-side-left">
-                <div class="history-actions" style="margin-top: 0; display: flex; flex-direction: column; gap: 10px; width: 100%;">
-                    <button class="btn-custom btn-outline-primary w-100" onclick="editHistory(${shipIdx}, ${historyIdx})">기록 수정</button>
-                    <button class="btn-custom btn-outline-danger w-100" onclick="deleteHistory(${shipIdx}, ${historyIdx})">기록 삭제</button>
-                </div>
-            </div>
-
             <!-- 중간: 식별 정보 -->
             <div class="history-middle">
                 <div class="history-mid-left">
@@ -466,6 +458,11 @@ function showHistoryDetail(shipIdx, historyIdx) {
                     <div class="h-item"><label>최종 식별 위치</label><span>${h.lastAzEl || '-'} [${h.lastPos || '-'}]</span></div>
                     <div class="h-item"><label>추적번호</label><span>${traceNo}</span></div>
                     <div class="h-item"><label>인원</label><span>${displayCrew}</span></div>
+                    
+                    <div class="history-actions" style="margin-top: auto; display: flex; gap: 8px;">
+                        <button class="btn-custom btn-outline-primary" style="flex:1;" onclick="editHistory(${shipIdx}, ${historyIdx})">기록 수정</button>
+                        <button class="btn-custom btn-outline-danger" style="flex:1;" onclick="deleteHistory(${shipIdx}, ${historyIdx})">기록 삭제</button>
+                    </div>
                 </div>
                 <div class="history-mid-right">
                     <div class="h-item h-item-block">
