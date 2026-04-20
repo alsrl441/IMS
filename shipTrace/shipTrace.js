@@ -167,9 +167,16 @@ async function saveTraceLog() {
     
     const camera = document.getElementById('camera-num').value;
     const shipName = document.getElementById('ship-name').value.trim() || "식별불가";
-    const tonnage = document.getElementById('ship-tonnage').value.trim() || "식별불가";
+    // 't' 등 단위 제거하고 숫자만 저장
+    let tonnage = document.getElementById('ship-tonnage').value.trim().replace(/t/gi, '');
+    if (!tonnage) tonnage = "식별불가";
+    
     const shipType = document.getElementById('ship-type').value.trim() || "식별불가";
-    const crewCount = document.getElementById('crew-count').value.trim() || "식별불가";
+    
+    // '명' 등 단위 제거하고 숫자만 저장
+    let crewCount = document.getElementById('crew-count').value.trim().replace(/명/g, '');
+    if (!crewCount) crewCount = "식별불가";
+    
     const worker = document.getElementById('worker').value.trim() || "미입력";
     
     const violationStatus = document.getElementById('violation-select').value;

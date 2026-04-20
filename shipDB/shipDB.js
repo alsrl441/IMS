@@ -43,7 +43,8 @@ async function saveShipMainInfo(idx) {
     if (!card) return;
 
     const newName = card.querySelector('#edit-name').value.trim();
-    const newTonnage = card.querySelector('#edit-tonnage').value.trim();
+    // 't' 등 단위 제거하고 숫자만 저장
+    let newTonnage = card.querySelector('#edit-tonnage').value.trim().replace(/t/gi, '');
     const newType = card.querySelector('#edit-type').value.trim();
     const newNumber = card.querySelector('#edit-number').value.trim();
     const newTel = card.querySelector('#edit-tel').value.trim();
@@ -302,6 +303,10 @@ async function saveHistoryData(shipIdx, historyIdx) {
     const termReason = document.getElementById('edit-term-reason').value || "종료";
     const newPath = `${fPos}에서 ${moveDir}하여 ${lPos}에서 ${termReason}.`;
 
+    // '명' 등 단위 제거하고 숫자만 저장
+    let crewCount = document.getElementById('edit-crew').value.trim().replace(/명/g, '');
+    if (!crewCount) crewCount = "식별불가";
+
     const newHistory = {
         date: document.getElementById('edit-date').value,
         firstTime: document.getElementById('edit-first-time').value,
@@ -484,6 +489,9 @@ function showHistoryDetail(shipIdx, historyIdx) {
     // 추적번호 표시 로직
     const traceNo = (h.raderStation === '-' || !h.raderStation) ? (h.traceNumber || '-') : `${h.raderStation}-${h.traceNumber}`;
 
+    // 인원수 표시 로직 (숫자일 때만 '명' 붙임)
+    const displayCrew = (h.crewCount && !isNaN(h.crewCount)) ? h.crewCount + '명' : (h.crewCount || '-');
+
     card.querySelectorAll('.history-date-item').forEach((item, idx) => item.classList.toggle('active', idx === historyIdx));
     card.querySelector('.history-detail-view').innerHTML = `
         <div class="history-info-group fade-in">
@@ -498,7 +506,7 @@ function showHistoryDetail(shipIdx, historyIdx) {
             </div>
         </div>
         <div class="history-info-group fade-in">
-            <div class="h-item"><label>인원</label><span>${isNaN(h.crewCount) ? h.crewCount : h.crewCount + '명'}</span></div>
+            <div class="h-item"><label>인원</label><span>${displayCrew}</span></div>
             <div class="h-item"><label>출항지</label><span>${h.firstOutport || '-'}</span></div>
             <div class="h-item"><label>어선법 위반 유무</label><span>${violationText}</span></div>
             <div class="h-item"><label>근무자</label><span>${h.worker || ''}</span></div>
@@ -547,6 +555,9 @@ function renderShips() {
         const currentImgIdx = shipSliderState[shipIdx] || 0;
         const isEditing = editingShipIdx === shipIdx;
 
+        // 톤수 표시 로직 (숫자일 때만 't' 붙임)
+        const displayTonnage = (ship.tonnage && !isNaN(ship.tonnage)) ? ship.tonnage + 't' : (ship.tonnage || '-');
+
         return `
             <div class="ship-card" data-idx="${shipIdx}">
                 <div class="ship-card-main">
@@ -566,30 +577,30 @@ function renderShips() {
                                 </div>
                             </div>` : ''}
                         </div>
-                        <div class="ship-meta-group" style="${isEditing ? 'gap: 4px;' : ''}">
+                        <div class="ship-meta-group" style="${isEditing ? 'gap: 2px;' : ''}">
                             ${isEditing ? `
-                                <div class="edit-group" style="flex-direction: row; align-items: center; gap: 10px; margin-bottom: 2px;">
-                                    <label style="font-size: 0.75rem; width: 60px; margin-bottom: 0;">톤수</label>
-                                    <input type="text" id="edit-tonnage" value="${ship.tonnage || ''}" placeholder="-" style="font-size: 0.8rem; padding: 4px 8px; flex: 1;">
+                                <div class="edit-group" style="flex-direction: row; align-items: center; gap: 6px; margin-bottom: 1px;">
+                                    <label style="font-size: 0.65rem; width: 50px; margin-bottom: 0;">톤수</label>
+                                    <input type="text" id="edit-tonnage" value="${ship.tonnage || ''}" placeholder="-" style="font-size: 0.75rem; padding: 2px 6px; flex: 1;">
                                 </div>
-                                <div class="edit-group" style="flex-direction: row; align-items: center; gap: 10px; margin-bottom: 2px;">
-                                    <label style="font-size: 0.75rem; width: 60px; margin-bottom: 0;">선종</label>
-                                    <input type="text" id="edit-type" value="${ship.type || ''}" placeholder="-" style="font-size: 0.8rem; padding: 4px 8px; flex: 1;">
+                                <div class="edit-group" style="flex-direction: row; align-items: center; gap: 6px; margin-bottom: 1px;">
+                                    <label style="font-size: 0.65rem; width: 50px; margin-bottom: 0;">선종</label>
+                                    <input type="text" id="edit-type" value="${ship.type || ''}" placeholder="-" style="font-size: 0.75rem; padding: 2px 6px; flex: 1;">
                                 </div>
-                                <div class="edit-group" style="flex-direction: row; align-items: center; gap: 10px; margin-bottom: 2px;">
-                                    <label style="font-size: 0.75rem; width: 60px; margin-bottom: 0;">어선번호</label>
-                                    <input type="text" id="edit-number" value="${ship.number || ''}" placeholder="-" style="font-size: 0.8rem; padding: 4px 8px; flex: 1;">
+                                <div class="edit-group" style="flex-direction: row; align-items: center; gap: 6px; margin-bottom: 1px;">
+                                    <label style="font-size: 0.65rem; width: 50px; margin-bottom: 0;">어선번호</label>
+                                    <input type="text" id="edit-number" value="${ship.number || ''}" placeholder="-" style="font-size: 0.75rem; padding: 2px 6px; flex: 1;">
                                 </div>
-                                <div class="edit-group" style="flex-direction: row; align-items: center; gap: 10px; margin-bottom: 2px;">
-                                    <label style="font-size: 0.75rem; width: 60px; margin-bottom: 0;">연락처</label>
-                                    <input type="text" id="edit-tel" value="${ship.tel || ''}" placeholder="-" style="font-size: 0.8rem; padding: 4px 8px; flex: 1;">
+                                <div class="edit-group" style="flex-direction: row; align-items: center; gap: 6px; margin-bottom: 1px;">
+                                    <label style="font-size: 0.65rem; width: 50px; margin-bottom: 0;">연락처</label>
+                                    <input type="text" id="edit-tel" value="${ship.tel || ''}" placeholder="-" style="font-size: 0.75rem; padding: 2px 6px; flex: 1;">
                                 </div>
-                                <div class="history-actions" style="margin-top: 5px; padding-top: 0; justify-content: flex-end; gap: 5px;">
-                                    <button class="btn-custom btn-save" onclick="event.stopPropagation(); saveShipMainInfo(${shipIdx})" style="padding: 4px 12px; font-size: 0.75rem;">확인</button>
-                                    <button class="btn-custom btn-edit" onclick="event.stopPropagation(); cancelEditShip()" style="padding: 4px 12px; font-size: 0.75rem;">취소</button>
+                                <div class="history-actions" style="margin-top: 4px; padding-top: 0; justify-content: flex-end; gap: 4px;">
+                                    <button class="btn-custom btn-save" onclick="event.stopPropagation(); saveShipMainInfo(${shipIdx})" style="padding: 2px 8px; font-size: 0.7rem;">확인</button>
+                                    <button class="btn-custom btn-edit" onclick="event.stopPropagation(); cancelEditShip()" style="padding: 2px 8px; font-size: 0.7rem;">취소</button>
                                 </div>
                             ` : `
-                                <p class="ship-detail"><strong>톤수</strong> ${ship.tonnage || '-'}</p>
+                                <p class="ship-detail"><strong>톤수</strong> ${displayTonnage}</p>
                                 <p class="ship-detail"><strong>선종</strong> ${ship.type || '-'}</p>
                                 <p class="ship-detail"><strong>어선번호</strong> ${ship.number || '-'}</p>
                                 <p class="ship-detail"><strong>연락처</strong> ${ship.tel || '-'}</p>

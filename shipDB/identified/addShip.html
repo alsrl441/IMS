@@ -86,7 +86,7 @@
             
             const newShip = {
                 name: document.getElementById('name').value,
-                tonnage: document.getElementById('tonnage').value,
+                tonnage: document.getElementById('tonnage').value.replace(/t/gi, ''),
                 type: document.getElementById('type').value,
                 number: document.getElementById('number').value || "-",
                 tel: document.getElementById('tel').value || "-",
