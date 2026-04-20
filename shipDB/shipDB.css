@@ -156,7 +156,7 @@
     padding: 0 2px;
     transition: color 0.2s;
 }
-.btn-edit-ship { font-size: 0.9rem; }
+.btn-edit-ship { font-size: 0.9rem; display: inline-block; transform: scaleX(-1); }
 .btn-delete-ship { font-size: 1.3rem; }
 .btn-delete-ship:hover { color: #dc3545; }
 .btn-edit-ship:hover { color: #0d6efd; }
