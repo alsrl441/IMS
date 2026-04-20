@@ -47,16 +47,13 @@ function toggleTraceMode() {
     
     const mode = modeEl.value;
     const inquirySection = document.getElementById('section-inquiry');
-    const directSection = document.getElementById('section-direct');
     
-    if (!inquirySection || !directSection) return;
+    if (!inquirySection) return;
 
     if (mode === 'inquiry') {
         inquirySection.style.setProperty('display', 'block', 'important');
-        directSection.style.setProperty('display', 'none', 'important');
     } else {
         inquirySection.style.setProperty('display', 'none', 'important');
-        directSection.style.setProperty('display', 'block', 'important');
     }
 }
 window.toggleTraceMode = toggleTraceMode;

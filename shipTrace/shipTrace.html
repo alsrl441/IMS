@@ -48,7 +48,6 @@
             </div>
 
             <form id="trace-form" class="trace-form">
-                <!-- 문의로 식별 전용 섹션 -->
                 <div id="section-inquiry" class="mode-section" style="display: none;">
                     <div class="form-group-section">
                         <h6 class="section-label">레이더 기지 문의 정보</h6>
@@ -100,10 +99,9 @@
                     </div>
                 </div>
 
-                <!-- 직접 식별 전용 섹션 -->
-                <div id="section-direct" class="mode-section">
+                <div id="section-common" class="mode-section">
                     <div class="form-group-section">
-                        <h6 class="section-label">직접 식별 정보</h6>
+                        <h6 class="section-label">선박 식별 정보 및 제원</h6>
                         <div class="grid-layout">
                             <div class="input-field">
                                 <label>식별 카메라</label>
@@ -115,15 +113,6 @@
                                     <option value="외우목도 CCTV">외우목도 CCTV</option>
                                 </select>
                             </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 공통 섹션 -->
-                <div id="section-common" class="mode-section">
-                    <div class="form-group-section">
-                        <h6 class="section-label">선박 식별 정보 및 제원</h6>
-                        <div class="grid-layout">
                             <div class="input-field">
                                 <label>선명</label>
                                 <input type="text" id="ship-name" size="15" placeholder="선명">
