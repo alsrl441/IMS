@@ -5,8 +5,48 @@ let currentFocus = -1;
 let shipData = []; 
 let shipSliderState = {};
 let editingTagsShipIdx = null;
+let editingShipIdx = null; // 인라인 편집 중인 선박 인덱스
 
 // TARGET_STORE_NAME은 각 페이지(identified.js, unidentified.js)에서 정의함
+
+async function editShipMainInfo(idx) {
+    editingShipIdx = idx;
+    renderShips();
+}
+
+function cancelEditShip() {
+    editingShipIdx = null;
+    renderShips();
+}
+
+async function saveShipMainInfo(idx) {
+    const card = document.querySelector(`.ship-card[data-idx="${idx}"]`);
+    if (!card) return;
+
+    const newName = card.querySelector('#edit-name').value.trim();
+    const newTonnage = card.querySelector('#edit-tonnage').value.trim();
+    const newType = card.querySelector('#edit-type').value.trim();
+    const newNumber = card.querySelector('#edit-number').value.trim();
+    const newTel = card.querySelector('#edit-tel').value.trim();
+
+    if (!newName) {
+        alert("선명은 필수 입력 항목입니다.");
+        return;
+    }
+
+    const ship = shipData[idx];
+    ship.name = newName;
+    ship.tonnage = newTonnage;
+    ship.type = newType;
+    ship.number = newNumber;
+    ship.tel = newTel;
+
+    const success = await updateShipInDB(ship._dbKey, ship);
+    if (success) {
+        editingShipIdx = null;
+        renderShips();
+    }
+}
 
 async function loadShipsFromDB() {
     return new Promise((resolve) => {
@@ -509,23 +549,40 @@ function renderShips() {
     results.innerHTML = paged.map(ship => {
         const shipIdx = shipData.findIndex(s => s._dbKey === ship._dbKey);
         const currentImgIdx = shipSliderState[shipIdx] || 0;
+        const isEditing = editingShipIdx === shipIdx;
+
         return `
             <div class="ship-card" data-idx="${shipIdx}">
                 <div class="ship-card-main">
                     <div class="ship-info-primary">
                         <div class="ship-name-row">
                             <div class="expand-btn" onclick="toggleCard(${shipIdx})"><span>&#9013;</span></div>
-                            <h4>${ship.name}</h4>
+                            ${isEditing ? 
+                                `<input type="text" id="edit-name" value="${ship.name}" placeholder="${ship.name}" style="font-size: 1.1rem; font-weight: 700; flex: 1; padding: 4px 8px; border: 1px solid #0d6efd; border-radius: 6px;">` : 
+                                `<h4>${ship.name}</h4>`
+                            }
                             <div class="ship-actions-main">
-                                <button class="btn-edit-ship" onclick="event.stopPropagation(); editShipMainInfo(${shipIdx})" title="선박 정보 수정">✎</button>
-                                <button class="btn-delete-ship" onclick="event.stopPropagation(); deleteShip(${shipIdx})" title="선박 삭제">×</button>
+                                ${isEditing ? 
+                                    `<button class="btn-save-ship" onclick="event.stopPropagation(); saveShipMainInfo(${shipIdx})" title="저장" style="color: #198754; background: none; border: none; cursor: pointer; font-size: 1.1rem;">✓</button>
+                                     <button class="btn-cancel-ship" onclick="event.stopPropagation(); cancelEditShip()" title="취소" style="color: #dc3545; background: none; border: none; cursor: pointer; font-size: 1.1rem;">×</button>` : 
+                                    `<button class="btn-edit-ship" onclick="event.stopPropagation(); editShipMainInfo(${shipIdx})" title="선박 정보 수정">✎</button>
+                                     <button class="btn-delete-ship" onclick="event.stopPropagation(); deleteShip(${shipIdx})" title="선박 삭제">×</button>`
+                                }
                             </div>
                         </div>
                         <div class="ship-meta-group">
-                            <p class="ship-detail"><strong>톤수</strong> ${ship.tonnage || '-'}</p>
-                            <p class="ship-detail"><strong>선종</strong> ${ship.type || '-'}</p>
-                            <p class="ship-detail"><strong>어선번호</strong> ${ship.number || '-'}</p>
-                            <p class="ship-detail"><strong>연락처</strong> ${ship.tel || '-'}</p>
+                            <p class="ship-detail"><strong>톤수</strong> 
+                                ${isEditing ? `<input type="text" id="edit-tonnage" value="${ship.tonnage || ''}" placeholder="${ship.tonnage || '-'}" style="width: 100px; padding: 2px 5px;">` : (ship.tonnage || '-')}
+                            </p>
+                            <p class="ship-detail"><strong>선종</strong> 
+                                ${isEditing ? `<input type="text" id="edit-type" value="${ship.type || ''}" placeholder="${ship.type || '-'}" style="width: 100px; padding: 2px 5px;">` : (ship.type || '-')}
+                            </p>
+                            <p class="ship-detail"><strong>어선번호</strong> 
+                                ${isEditing ? `<input type="text" id="edit-number" value="${ship.number || ''}" placeholder="${ship.number || '-'}" style="width: 100px; padding: 2px 5px;">` : (ship.number || '-')}
+                            </p>
+                            <p class="ship-detail"><strong>연락처</strong> 
+                                ${isEditing ? `<input type="text" id="edit-tel" value="${ship.tel || ''}" placeholder="${ship.tel || '-'}" style="width: 100px; padding: 2px 5px;">` : (ship.tel || '-')}
+                            </p>
                         </div>
                     </div>
                     <div class="ship-info-tags">
