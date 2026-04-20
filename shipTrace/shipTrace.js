@@ -6,7 +6,7 @@ var db;
 function initDB() {
     // script.js에 선언된 전역 DB_NAME 사용
     const request = indexedDB.open(DB_NAME);
-...
+
     request.onupgradeneeded = (e) => {
         const upgradeDb = e.target.result;
         if (!upgradeDb.objectStoreNames.contains(STORE_IDENTIFIED)) {
