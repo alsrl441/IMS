@@ -48,17 +48,25 @@ function toggleTraceMode() {
     const inquirySection = document.getElementById('section-inquiry');
     const directSection = document.getElementById('section-direct');
     
+    if (!inquirySection || !directSection) return;
+
     if (mode === 'inquiry') {
-        inquirySection.style.display = 'block';
-        directSection.style.display = 'none';
+        inquirySection.style.setProperty('display', 'block', 'important');
+        directSection.style.setProperty('display', 'none', 'important');
     } else {
-        inquirySection.style.display = 'none';
-        directSection.style.display = 'block';
+        inquirySection.style.setProperty('display', 'none', 'important');
+        directSection.style.setProperty('display', 'block', 'important');
     }
 }
 
-// 페이지 로드 시 초기 상태 반영
-window.addEventListener('DOMContentLoaded', () => {
+// 이벤트 리스너 등록 및 초기화
+document.addEventListener('DOMContentLoaded', () => {
+    const modeRadios = document.querySelectorAll('input[name="trace-mode"]');
+    modeRadios.forEach(radio => {
+        radio.addEventListener('change', toggleTraceMode);
+    });
+    
+    // 초기 실행
     toggleTraceMode();
 });
 
