@@ -269,7 +269,6 @@ function renderHistoryForm(shipIdx, historyIdx = null) {
                 <div class="edit-group"><label>선박 이미지 (경로 입력/드래그)</label>
                     <div class="history-drop-zone" id="edit-ship-drop-zone" style="height: 100px; border: 2px dashed #ddd; border-radius: 4px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; background: #f9f9f9; cursor: pointer;">
                         <img id="edit-ship-preview" src="${h.shipImage}" style="max-height: 100%; max-width: 100%; object-fit: contain;">
-                        <div style="position: absolute; bottom: 5px; font-size: 0.6rem; color: #666; background: rgba(255,255,255,0.7); padding: 2px 5px;">드래그</div>
                     </div>
                     <input type="text" id="edit-ship-img" value="${h.shipImage}" style="font-size: 0.7rem; margin-top: 4px;">
                 </div>
@@ -277,7 +276,6 @@ function renderHistoryForm(shipIdx, historyIdx = null) {
                 <div class="edit-group"><label>항로 이미지 (경로 입력/드래그)</label>
                     <div class="history-drop-zone" id="edit-path-drop-zone" style="height: 100px; border: 2px dashed #ddd; border-radius: 4px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; background: #f9f9f9; cursor: pointer;">
                         <img id="edit-path-preview" src="${h.pathImage}" style="max-height: 100%; max-width: 100%; object-fit: contain;">
-                        <div style="position: absolute; bottom: 5px; font-size: 0.6rem; color: #666; background: rgba(255,255,255,0.7); padding: 2px 5px;">드래그</div>
                     </div>
                     <input type="text" id="edit-path-img" value="${h.pathImage}" style="font-size: 0.7rem; margin-top: 4px;">
                 </div>
