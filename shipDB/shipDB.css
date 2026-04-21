@@ -113,7 +113,6 @@
 .remove-tag { cursor: pointer; color: #adb5bd; font-size: 1.1rem; }
 .remove-tag:hover { color: #dc3545; }
 
-/* 선박 카드 */
 .ship-card {
     background: white;
     border-radius: 16px;
@@ -142,7 +141,7 @@
 .ship-info-primary { flex: 0 0 280px; padding: 25px 30px; display: flex; flex-direction: column; justify-content: center; }
 .ship-name-row { display: flex; align-items: center; margin-bottom: 15px; width: 100%; }
 .ship-name-row h4 { font-size: 1.3rem; font-weight: 700; margin: 0; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-/* 선박 카드 액션 드롭다운 */
+
 .ship-actions-wrapper {
     position: relative;
     margin-left: auto;
@@ -218,13 +217,11 @@
     border: 1px solid #eee;
 }
 
-/* 태그 편집 모드 */
 .tag-badge.edit-mode { border-color: #0d6efd; background: #fff; padding-right: 8px; }
 .tag-delete-btn { display: none; color: #dc3545; cursor: pointer; font-weight: bold; margin-left: 6px; font-size: 1rem; }
 .tag-badge.edit-mode .tag-delete-btn { display: inline-block; }
 .inline-tag-input { border: 1px solid #0d6efd; border-radius: 6px; padding: 2px 8px; font-size: 0.75rem; width: 90px; outline: none; }
 
-/* 슬라이더 */
 .ship-photo-slider { width: 320px; position: relative; background: #f8f9fa; overflow: hidden; }
 .slider-track { display: flex; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); height: 100%; }
 .slider-img { flex: 0 0 100%; width: 320px; object-fit: cover; }
@@ -239,9 +236,6 @@
 .dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,0.4); transition: 0.2s; }
 .dot.active { background: #fff; transform: scale(1.4); }
 
-/* 특징 요약 스타일 삭제됨 - 개별 태그 뱃지 사용 */
-
-/* 확장 섹션 */
 .ship-card-expanded { display: none; border-top: 1px solid #eee; background: #fafafa; height: auto; min-height: 380px; }
 .ship-card.is-expanded .ship-card-expanded { display: flex; }
 .history-date-list { width: 180px; border-right: 1px solid #eee; overflow-y: auto; background: #fdfdfd; }
@@ -249,7 +243,6 @@
 .history-date-item:hover { background: #f1f3f5; }
 .history-date-item.active { background: #fff; color: #0d6efd; font-weight: 700; border-left-color: #0d6efd; }
 
-/* 히스토리 상세 3단 레이아웃 */
 .history-detail-view-wrapper { flex: 1; display: flex; flex-direction: column; }
 .history-detail-view { flex: 1; padding: 0; display: block; overflow: visible; }
 
@@ -259,7 +252,6 @@
     gap: 0;
 }
 
-/* 중간: 식별/기지 정보 (다시 좌우 분할) */
 .history-middle {
     flex: 1;
     display: flex;
@@ -275,7 +267,6 @@
     gap: 12px;
 }
 
-/* 우측: 항로 정보 */
 .history-side-right {
     flex: 0 0 320px;
     padding: 25px;
@@ -314,13 +305,10 @@
     line-height: 1.5;
 }
 
-
-/* 편집 모드 Row */
 .edit-row { flex-direction: row !important; align-items: center !important; gap: 8px !important; margin-bottom: 2px !important; }
 .edit-row label { width: 60px; font-size: 0.65rem; margin-bottom: 0; }
 .edit-row input { flex: 1; padding: 2px 8px !important; font-size: 0.75rem !important; }
 
-/* 버튼 디자인 통일 */
 .btn-custom {
     padding: 6px 12px;
     font-size: 0.85rem;
@@ -345,8 +333,7 @@
 
 .history-actions { display: flex; gap: 8px; margin-top: auto; padding-top: 15px; }
 
-/* 폼 스타일 */
-.history-edit-form { display: contents; } /* 부모 그리드 유지 */
+.history-edit-form { display: contents; }
 .edit-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px; }
 .edit-group input, .edit-group textarea {
     width: 100%; padding: 8px 12px; border: 1px solid #dee2e6; border-radius: 8px; font-size: 0.9rem; outline: none; background: white;
@@ -360,7 +347,6 @@
 
 .history-path-box { width: 320px; padding: 25px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-left: 1px solid #eee; }
 
-/* 페이지네이션 */
 .pagination-wrapper { display: flex; justify-content: center; gap: 8px; margin: 40px 0; }
 .page-btn {
     min-width: 38px; height: 38px; border-radius: 10px; border: 1px solid #eee; background: white;
