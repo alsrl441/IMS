@@ -1,10 +1,8 @@
-// STORE 이름은 shipTrace.js 내에서만 쓰이므로 변수명 충돌 방지를 위해 지역 변수로 유지하거나 var 사용
 var STORE_IDENTIFIED = 'identified_ships';
 var STORE_UNIDENTIFIED = 'unidentified_ships';
 var db;
 
 function initDB() {
-    // 기존 DB를 열어서 버전을 확인하고, 스토어가 없으면 버전을 올려서 다시 엽니다.
     const request = indexedDB.open(DB_NAME);
 
     request.onsuccess = (e) => {
