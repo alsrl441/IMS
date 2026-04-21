@@ -259,6 +259,10 @@ function renderHistoryForm(shipIdx, historyIdx = null) {
                         <input type="text" id="edit-telephonee" value="${h.telephonee || ''}" placeholder="수화자">
                     </div>
                 </div>
+                <div class="edit-group">
+                    <label>특징 (쉼표로 구분)</label>
+                    <input type="text" id="edit-tags" value="${(h.tags || []).join(', ')}" placeholder="선수 ㅇㅇ, 선미 ㅁㅁ">
+                </div>
             </div>
             <div class="edit-column" style="flex: 1; display: flex; flex-direction: column; gap: 10px;">
                 <div class="edit-group"><label>이동 경로</label><textarea id="edit-path-text" rows="3" style="font-size: 0.8rem;">${h.movementPath || ''}</textarea></div>
