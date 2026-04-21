@@ -465,7 +465,6 @@ async function initShipSearch() {
     });
     const allTerms = Array.from(termsSet);
 
-    // 방향키 페이지 이동 추가
     document.addEventListener('keydown', (e) => {
         const activeElement = document.activeElement;
         const isInput = activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA';

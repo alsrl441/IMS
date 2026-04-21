@@ -30,7 +30,6 @@
     overflow: hidden;
 }
 
-/* Header */
 .trace-header {
     padding: 20px 24px;
     background: #fff;
@@ -53,7 +52,6 @@
     color: var(--primary-color);
 }
 
-/* Mode Tabs */
 .mode-tabs {
     display: flex;
     background: #f3f4f6;
@@ -102,7 +100,6 @@
     background: #fecaca;
 }
 
-/* Form Sections */
 .trace-form {
     padding: 24px;
 }
@@ -130,7 +127,6 @@
     background: var(--border-color);
 }
 
-/* Grid Layouts */
 .grid-layout {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -161,7 +157,6 @@
     color: var(--required-color);
 }
 
-/* Inputs */
 input[type="text"],
 input[type="number"],
 input[type="time"],
@@ -188,7 +183,6 @@ input:focus, select:focus, textarea:focus {
     align-items: center;
 }
 
-/* Time Box */
 .time-record-box {
     border: 1px solid var(--border-color);
     border-radius: 8px;
@@ -232,7 +226,6 @@ input:focus, select:focus, textarea:focus {
     font-weight: 600;
 }
 
-/* Buttons */
 .btn-now {
     background: #6b7280;
     color: white;
@@ -249,7 +242,6 @@ input:focus, select:focus, textarea:focus {
 .btn-now.bg-blue { background: var(--primary-color); }
 .btn-now:hover { filter: brightness(1.1); }
 
-/* Switch Toggle */
 .violation-wrapper {
     display: flex;
     align-items: center;
@@ -295,7 +287,6 @@ input:checked + .slider:before { transform: translateX(22px); }
     min-width: 80px;
 }
 
-/* Image Upload */
 .image-upload-box {
     display: flex;
     flex-direction: column;
@@ -352,7 +343,6 @@ input:checked + .slider:before { transform: translateX(22px); }
     font-size: 0.75rem;
 }
 
-/* Badges */
 .km-badge {
     background: #eff6ff;
     color: var(--primary-color);
@@ -365,7 +355,6 @@ input:checked + .slider:before { transform: translateX(22px); }
     text-align: center;
 }
 
-/* Textarea */
 textarea {
     width: 100%;
     resize: vertical;
@@ -373,7 +362,6 @@ textarea {
     box-sizing: border-box;
 }
 
-/* Footer Actions */
 .form-actions {
     margin-top: 40px;
     display: flex;
@@ -402,7 +390,6 @@ textarea {
     box-shadow: 0 10px 15px -3px rgba(13, 110, 253, 0.4);
 }
 
-/* Footer */
 .footer {
     padding: 40px 0;
     border-top: 1px solid var(--border-color);

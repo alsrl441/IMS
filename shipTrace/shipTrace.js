@@ -25,7 +25,6 @@ function initDB() {
             const upgradeRequest = indexedDB.open(DB_NAME, newVersion);
             upgradeRequest.onupgradeneeded = (ev) => {
                 const upgradeDb = ev.target.result;
-                // 기존 스토어가 있으면 삭제 후 재생성 (keyPath 변경을 위해)
                 if (upgradeDb.objectStoreNames.contains(STORE_IDENTIFIED)) {
                     upgradeDb.deleteObjectStore(STORE_IDENTIFIED);
                 }
