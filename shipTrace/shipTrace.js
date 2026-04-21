@@ -7,23 +7,38 @@ function initDB() {
 
     request.onsuccess = (e) => {
         const tempDb = e.target.result;
+        let needsUpgrade = false;
+
+        // 스토어가 없거나 keyPath가 설정되지 않은 경우 확인
         if (!tempDb.objectStoreNames.contains(STORE_IDENTIFIED) || !tempDb.objectStoreNames.contains(STORE_UNIDENTIFIED)) {
+            needsUpgrade = true;
+        } else {
+            const tx = tempDb.transaction([STORE_IDENTIFIED, STORE_UNIDENTIFIED], "readonly");
+            if (tx.objectStore(STORE_IDENTIFIED).keyPath !== 'id' || tx.objectStore(STORE_UNIDENTIFIED).keyPath !== 'id') {
+                needsUpgrade = true;
+            }
+        }
+
+        if (needsUpgrade) {
             const newVersion = tempDb.version + 1;
             tempDb.close();
             
             const upgradeRequest = indexedDB.open(DB_NAME, newVersion);
             upgradeRequest.onupgradeneeded = (ev) => {
                 const upgradeDb = ev.target.result;
-                if (!upgradeDb.objectStoreNames.contains(STORE_IDENTIFIED)) {
-                    upgradeDb.createObjectStore(STORE_IDENTIFIED, { keyPath: 'id' });
+                // 기존 스토어가 있으면 삭제 후 재생성 (keyPath 변경을 위해)
+                if (upgradeDb.objectStoreNames.contains(STORE_IDENTIFIED)) {
+                    upgradeDb.deleteObjectStore(STORE_IDENTIFIED);
                 }
-                if (!upgradeDb.objectStoreNames.contains(STORE_UNIDENTIFIED)) {
-                    upgradeDb.createObjectStore(STORE_UNIDENTIFIED, { keyPath: 'id' });
+                if (upgradeDb.objectStoreNames.contains(STORE_UNIDENTIFIED)) {
+                    upgradeDb.deleteObjectStore(STORE_UNIDENTIFIED);
                 }
+                upgradeDb.createObjectStore(STORE_IDENTIFIED, { keyPath: 'id' });
+                upgradeDb.createObjectStore(STORE_UNIDENTIFIED, { keyPath: 'id' });
             };
             upgradeRequest.onsuccess = (ev) => {
                 db = ev.target.result;
-                console.log("[IndexedDB] 스토어 생성 및 연결 성공");
+                console.log("[IndexedDB] 스토어 재설정 및 연결 성공");
             };
         } else {
             db = tempDb;
