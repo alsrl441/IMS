@@ -203,12 +203,12 @@ async function saveTraceLog() {
         return;
     }
 
-    if (!shipPreview.src || shipPreview.src.includes('no-image.jpg') || shipPreview.src === window.location.href) {
-        alert("선박 이미지를 등록해주세요.");
+    if (!shipPreview.src || shipPreview.src === window.location.href) {
+        alert("선박 외형 사진을 등록해주세요.");
         return;
     }
-    if (!pathPreview.src || pathPreview.src.includes('no-image.jpg') || pathPreview.src === window.location.href) {
-        alert("항로 이미지를 등록해주세요.");
+    if (!pathPreview.src || pathPreview.src === window.location.href) {
+        alert("이동 경로 사진을 등록해주세요.");
         return;
     }
 
@@ -328,8 +328,8 @@ async function saveTraceLog() {
     tx.oncomplete = () => {
         alert("추적 기록이 성공적으로 DB에 등록되었습니다.");
         document.getElementById('trace-form').reset();
-        document.getElementById('ship-preview').src = "../shipDB/identified/Images/no-image.jpg";
-        document.getElementById('path-preview').src = "../shipDB/identified/Images/no-image.jpg";
+        document.getElementById('ship-preview').src = "";
+        document.getElementById('path-preview').src = "";
         toggleTraceMode();
         toggleViolationDetail();
         toggleTraceNum();

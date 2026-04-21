@@ -81,26 +81,31 @@ async function loadShipsFromDB() {
             countReq.onsuccess = () => {
                 if (countReq.result === 0) {
                     const initialShipTemplate = {
-                        "id": "1776694373861",
+                        "id": "0",
                         "name": "아라호",
                         "type": "선외기",
                         "tonnage": "2",
-                        "number": "1111111111111111",
-                        "owner": "ㅂㅂㅂㅂ",
-                        "tel": "0100000000",
+                        "number": "0000000-0000000",
+                        "owner": "홍길동",
+                        "tel": "010-0000-0000",
+                        "tags": [
+                            "특징 1",
+                            "특징 2",
+                            "특징 3"
+                        ],
                         "history": [
                             {
-                                "date": "2026-04-20",
-                                "coord": "123 456",
+                                "date": "2026-01-01",
+                                "coord": "000 000",
                                 "directionAtInquiry": "동진",
                                 "distance": "1.9km",
                                 "traceNumber": "145-1",
                                 "firstOutport": "해태발",
-                                "firstTime": "23:11",
-                                "firstAzEl": "123 45",
+                                "firstTime": "23:00",
+                                "firstAzEl": "1234 56",
                                 "firstPos": "송공항 남서쪽 1.9km",
-                                "lastTime": "23:16",
-                                "lastAzEl": "234 56",
+                                "lastTime": "23:05",
+                                "lastAzEl": "4567 89",
                                 "lastPos": "송공항",
                                 "tags": [
                                     "선미 검은색 모터",
@@ -108,23 +113,18 @@ async function loadShipsFromDB() {
                                 ],
                                 "moveDirOverall": "북동진",
                                 "terminationReason": "입항",
-                                "movementPath": "송공항 남서쪽 1.9km에서 북동진하여 송공항에서 입항.",
+                                "movementPath": "송공항 남서쪽 1.9km에서 북동진하여 송공항에 입항.",
                                 "crewCount": "1",
                                 "externalName": "X",
                                 "handoverDetails": "145 R/S에서 인수받은 선박.",
-                                "shipImage": "Images/no-image.jpg",
-                                "pathImage": "Images/no-image.jpg",
+                                "shipImage": "",
+                                "pathImage": "",
                                 "violation": "O (초록색 어선 번호판을 부착한 선박은 신호를 켜야 할 의무가 있음.)",
                                 "worker": "상병 김철수",
                                 "telephonee": "일병 홍길동",
-                                "timestamp": 1776694373851,
+                                "timestamp": 0,
                                 "cameraNum": "송공항 CCTV"
                             }
-                        ],
-                        "tags": [
-                            "1",
-                            "11",
-                            "111"
                         ]
                     };
                     if (store.keyPath) {
@@ -216,8 +216,8 @@ function renderHistoryForm(shipIdx, historyIdx = null) {
         violation: "X",
         worker: "", telephonee: "",
         externalName: "X", handoverDetails: "X",
-        shipImage: "Images/no-image.jpg",
-        pathImage: "Images/no-image.jpg",
+        shipImage: "",
+        pathImage: "",
         tags: [""]
     };
 
@@ -701,7 +701,7 @@ function renderShips() {
                     <div class="ship-photo-slider">
                         <div class="slider-nav slider-prev" onclick="changeShipImage(${shipIdx}, -1)">&lt;</div>
                         <div class="slider-track" style="transform: translateX(-${currentImgIdx * 100}%);">
-                            ${(ship.history && ship.history.length > 0) ? ship.history.map(h => `<img src="${h.shipImage}" class="slider-img">`).join('') : `<img src="Images/no-image.jpg" class="slider-img">`}
+                            ${(ship.history && ship.history.length > 0) ? ship.history.map(h => h.shipImage ? `<img src="${h.shipImage}" class="slider-img">` : '').join('') : ''}
                         </div>
                         <div class="slider-nav slider-next" onclick="changeShipImage(${shipIdx}, 1)">&gt;</div>
                         <div class="slider-dots">${(ship.history || []).map((_, i) => `<div class="dot ${i === currentImgIdx ? 'active' : ''}"></div>`).join('')}</div>
