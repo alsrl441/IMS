@@ -9,48 +9,36 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     async function loadMembersFromDB() {
         const STORE_NAME = "members";
-        return new Promise((resolve) => {
-            const request = indexedDB.open("IMS_database");
-            request.onsuccess = (e) => {
-                const db = e.target.result;
-                if (!db.objectStoreNames.contains(STORE_NAME)) {
-                    resolve([]);
-                    return;
-                }
-                const tx = db.transaction(STORE_NAME, "readwrite");
-                const store = tx.objectStore(STORE_NAME);
-
-                const countReq = store.count();
-                countReq.onsuccess = () => {
-                    if (countReq.result === 0) {
-                        const sampleMember = {
-                            "id": "0",
-                            "name": "홍길동",
-                            "nickName": "ㅎㄱㄷ",
-                            "start": "2025-01-01",
-                            "end": "2026-06-30",
-                            "vacation": "2026-6-01",
-                            "promotion": { "pfc2cpl": 0, "cpl2sgt": 0 },
-                            "photo": "",
-                            "affiliation": "해안복합감시반",
-                            "position": "항포구 감시병",
-                            "hobby": "취미",
-                            "specialty": "특기"
-                        };
-                        store.put(sampleMember);
-                        console.log("샘플 인원 정보가 생성되었습니다.");
-                        
-                        const getReq = store.getAll();
-                        getReq.onsuccess = () => resolve(getReq.result || []);
-                    } else {
-                        const getReq = store.getAll();
-                        getReq.onsuccess = () => resolve(getReq.result || []);
-                    }
+        try {
+            // 'id'를 keyPath로 사용하는 저장소 생성 보장
+            await window.ensureStore(STORE_NAME, "id");
+            
+            let data = await window.getDBData(STORE_NAME);
+            
+            if (!data || data.length === 0) {
+                const sampleMember = {
+                    "id": "0",
+                    "name": "홍길동",
+                    "nickName": "ㅎㄱㄷ",
+                    "start": "2025-01-01",
+                    "end": "2026-06-30",
+                    "vacation": "2026-06-01",
+                    "promotion": { "pfc2cpl": 0, "cpl2sgt": 0 },
+                    "photo": "",
+                    "affiliation": "해안복합감시반",
+                    "position": "항포구 감시병",
+                    "hobby": "취미",
+                    "specialty": "특기"
                 };
-                getReq.onerror = () => resolve([]);
-            };
-            request.onerror = () => resolve([]);
-        });
+                await window.putDBData(STORE_NAME, sampleMember);
+                console.log("샘플 인원 정보가 생성되었습니다.");
+                data = [sampleMember];
+            }
+            return data;
+        } catch (err) {
+            console.error("인원 정보 로딩 실패:", err);
+            return [];
+        }
     }
 
     members = await loadMembersFromDB();
