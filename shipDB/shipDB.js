@@ -263,18 +263,16 @@ function renderHistoryForm(shipIdx, historyIdx = null) {
             <div class="edit-column" style="flex: 1; display: flex; flex-direction: column; gap: 10px;">
                 <div class="edit-group"><label>이동 경로</label><textarea id="edit-path-text" rows="3" style="font-size: 0.8rem;">${h.movementPath || ''}</textarea></div>
                 
-                <div class="edit-group"><label>선박 이미지 (경로 입력/드래그)</label>
+                <div class="edit-group"><label>선박 이미지 (드래그)</label>
                     <div class="history-drop-zone" id="edit-ship-drop-zone" style="height: 100px; border: 2px dashed #ddd; border-radius: 4px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; background: #f9f9f9; cursor: pointer;">
                         <img id="edit-ship-preview" src="${h.shipImage}" style="max-height: 100%; max-width: 100%; object-fit: contain;">
                     </div>
-                    <input type="text" id="edit-ship-img" value="${h.shipImage}" style="font-size: 0.7rem; margin-top: 4px;">
                 </div>
 
-                <div class="edit-group"><label>항로 이미지 (경로 입력/드래그)</label>
+                <div class="edit-group"><label>항로 이미지 (드래그)</label>
                     <div class="history-drop-zone" id="edit-path-drop-zone" style="height: 100px; border: 2px dashed #ddd; border-radius: 4px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; background: #f9f9f9; cursor: pointer;">
                         <img id="edit-path-preview" src="${h.pathImage}" style="max-height: 100%; max-width: 100%; object-fit: contain;">
                     </div>
-                    <input type="text" id="edit-path-img" value="${h.pathImage}" style="font-size: 0.7rem; margin-top: 4px;">
                 </div>
             </div>
         </div>
@@ -322,16 +320,15 @@ function compressImage(file, maxWidth = 800, maxHeight = 600) {
 
 function setupHistoryImageHandlers() {
     const zones = [
-        { dropZone: 'edit-ship-drop-zone', input: 'edit-ship-img', preview: 'edit-ship-preview' },
-        { dropZone: 'edit-path-drop-zone', input: 'edit-path-img', preview: 'edit-path-preview' }
+        { dropZone: 'edit-ship-drop-zone', preview: 'edit-ship-preview' },
+        { dropZone: 'edit-path-drop-zone', preview: 'edit-path-preview' }
     ];
 
     zones.forEach(zone => {
         const dropZone = document.getElementById(zone.dropZone);
-        const input = document.getElementById(zone.input);
         const preview = document.getElementById(zone.preview);
 
-        if (!dropZone || !input || !preview) return;
+        if (!dropZone || !preview) return;
 
         dropZone.addEventListener('dragover', (e) => {
             e.preventDefault();
@@ -354,18 +351,8 @@ function setupHistoryImageHandlers() {
                 const file = files[0];
                 if (file.type.startsWith('image/')) {
                     const compressedData = await compressImage(file);
-                    input.value = compressedData;
                     preview.src = compressedData;
                 }
-            }
-        });
-
-        input.addEventListener('input', () => {
-            const val = input.value.trim();
-            if (val.startsWith('data:image')) {
-                preview.src = val;
-            } else {
-                preview.src = val || "Images/no-image.jpg";
             }
         });
     });
