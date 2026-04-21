@@ -763,8 +763,3 @@ function renderPagination(totalItems) {
 }
 
 document.addEventListener('DOMContentLoaded', initShipSearch);
- + 1), false, currentPage === totalPages));
-    }
-}
-
-document.addEventListener('DOMContentLoaded', initShipSearch);
