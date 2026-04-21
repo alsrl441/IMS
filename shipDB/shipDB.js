@@ -375,8 +375,10 @@ async function saveHistoryData(shipIdx, historyIdx) {
     const ship = shipData[shipIdx];
     const isEdit = historyIdx !== null;
     
-    const tagsVal = document.getElementById('edit-tags').value;
-    const tagsArr = tagsVal ? tagsVal.split(',').map(t => t.trim()).filter(t => t) : [""];
+    // edit-tags 필드가 없을 수 있으므로 예외처리
+    const tagsEl = document.getElementById('edit-tags');
+    const tagsVal = tagsEl ? tagsEl.value : "";
+    const tagsArr = tagsVal ? tagsVal.split(',').map(t => t.trim()).filter(t => t) : (isEdit ? ship.history[historyIdx].tags : [""]);
 
     const newHistory = {
         date: document.getElementById('edit-date').value,
