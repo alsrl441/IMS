@@ -5,9 +5,7 @@ let currentFocus = -1;
 let shipData = []; 
 let shipSliderState = {};
 let editingTagsShipIdx = null;
-let editingShipIdx = null; // 인라인 편집 중인 선박 인덱스
-
-// TARGET_STORE_NAME은 각 페이지(identified.js, unidentified.js)에서 정의함
+let editingShipIdx = null;
 
 async function editShipMainInfo(idx) {
     editingShipIdx = idx;
@@ -15,7 +13,6 @@ async function editShipMainInfo(idx) {
 }
 
 function toggleActionsDropdown(idx) {
-    // 다른 열려있는 드롭다운 닫기
     document.querySelectorAll('.actions-dropdown').forEach((el, i) => {
         if (i !== idx) el.classList.remove('show');
     });
@@ -26,7 +23,6 @@ function toggleActionsDropdown(idx) {
     }
 }
 
-// 바탕 클릭 시 드롭다운 닫기
 document.addEventListener('click', (e) => {
     if (!e.target.closest('.ship-actions-wrapper')) {
         document.querySelectorAll('.actions-dropdown').forEach(el => el.classList.remove('show'));
@@ -259,10 +255,6 @@ function renderHistoryForm(shipIdx, historyIdx = null) {
                         <input type="text" id="edit-telephonee" value="${h.telephonee || ''}" placeholder="수화자">
                     </div>
                 </div>
-                <div class="edit-group">
-                    <label>특징 (쉼표로 구분)</label>
-                    <input type="text" id="edit-tags" value="${(h.tags || []).join(', ')}" placeholder="선수 ㅇㅇ, 선미 ㅁㅁ">
-                </div>
             </div>
             <div class="edit-column" style="flex: 1; display: flex; flex-direction: column; gap: 10px;">
                 <div class="edit-group"><label>이동 경로</label><textarea id="edit-path-text" rows="3" style="font-size: 0.8rem;">${h.movementPath || ''}</textarea></div>
@@ -282,11 +274,9 @@ function renderHistoryForm(shipIdx, historyIdx = null) {
         </div>
     `;
     
-    // 이미지 핸들러 즉시 설정
     setTimeout(() => setupHistoryImageHandlers(), 0);
 }
 
-// 이미지 압축 및 리사이징 함수
 function compressImage(file, maxWidth = 800, maxHeight = 600) {
     return new Promise((resolve) => {
         const reader = new FileReader();
@@ -366,7 +356,6 @@ async function saveHistoryData(shipIdx, historyIdx) {
     const ship = shipData[shipIdx];
     const isEdit = historyIdx !== null;
     
-    // edit-tags 필드가 없을 수 있으므로 예외처리
     const tagsEl = document.getElementById('edit-tags');
     const tagsVal = tagsEl ? tagsEl.value : "";
     const tagsArr = tagsVal ? tagsVal.split(',').map(t => t.trim()).filter(t => t) : (isEdit ? ship.history[historyIdx].tags : [""]);
@@ -457,7 +446,7 @@ async function initShipSearch() {
 
     const input = document.getElementById('tag-input');
     const autocompleteList = document.getElementById('autocomplete-list');
-    if (!input) return; // input이 없는 페이지(수신 선박 등) 대비
+    if (!input) return;
 
     if (shipData.length === 0) {
         document.getElementById('ship-results').innerHTML = '<div class="text-center py-5 text-muted">등록된 선박 정보가 없습니다.</div>';
@@ -547,10 +536,8 @@ function showHistoryDetail(shipIdx, historyIdx) {
     if (!card || !h) return;
     editingTagsShipIdx = null;
     
-    // 추적번호 표시 로직
     const traceNo = h.traceNumber || "-";
 
-    // 인원수 표시 로직
     const displayCrew = (h.crewCount && !isNaN(h.crewCount)) ? h.crewCount + '명' : (h.crewCount || '식별불가');
 
     card.querySelectorAll('.history-date-item').forEach((item, idx) => item.classList.toggle('active', idx === historyIdx));
@@ -630,10 +617,8 @@ function renderShips() {
         const currentImgIdx = shipSliderState[shipIdx] || 0;
         const isEditing = editingShipIdx === shipIdx;
 
-        // 톤수 표시 로직
         const displayTonnage = (ship.tonnage && !isNaN(ship.tonnage)) ? ship.tonnage + 't' : (ship.tonnage || '-');
         
-        // 연락처(선주) 표시 로직
         const displayContact = ship.tel ? `${ship.tel} ${ship.owner ? '(' + ship.owner + ')' : ''}` : (ship.owner || '-');
 
         return `
@@ -695,7 +680,7 @@ function renderShips() {
                             ${editingTagsShipIdx === shipIdx ? 
                                 `<input type="text" id="inline-tag-input-${shipIdx}" class="inline-tag-input" onkeydown="addTagInline(event, ${shipIdx})" autofocus>
                                  <button class="btn-custom btn-save py-0" onclick="toggleTagEdit(${shipIdx})" style="font-size: 0.7rem;">완료</button>` : 
-                                `<button class="btn-custom btn-edit py-0" onclick="toggleTagEdit(${shipIdx})" style="font-size: 0.7rem;">특징 수정</button>`}
+                                `<button class="btn-custom btn-edit py-0" onclick="toggleTagEdit(${shipIdx})" style="font-size: 0.7rem;">수정</button>`}
                         </div>
                     </div>
                     <div class="ship-photo-slider">
