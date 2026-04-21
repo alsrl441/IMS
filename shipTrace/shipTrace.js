@@ -197,18 +197,19 @@ async function saveTraceLog() {
     const moveDirCommon = document.getElementById('move-dir-common').value.trim();
     const shipPreview = document.getElementById('ship-preview');
     const pathPreview = document.getElementById('path-preview');
-
-    if (!firstTime || !lastTime || !firstAzEl || !lastAzEl || !firstPos || !lastPos || !moveDirCommon) {
-        alert("최초/최종 식별 시간, 방위각/고각/위치, 이동 방향은 필수 입력 항목입니다.");
+    const worker = document.getElementById('worker').value.trim() || "";
+    
+    if (!firstTime || !lastTime || !firstAzEl || !lastAzEl || !firstPos || !lastPos || !moveDirCommon || !worker) {
+        alert("근무자, 식별 시간, 방위각/고각, 위치, 이동 방향은 필수 입력 항목입니다.");
         return;
     }
 
     if (!shipPreview.src || shipPreview.src === window.location.href) {
-        alert("선박 외형 사진을 등록해주세요.");
+        alert("선박 사진을 등록해주세요.");
         return;
     }
     if (!pathPreview.src || pathPreview.src === window.location.href) {
-        alert("이동 경로 사진을 등록해주세요.");
+        alert("항로 사진을 등록해주세요.");
         return;
     }
 
@@ -219,7 +220,6 @@ async function saveTraceLog() {
     const shipOwner = document.getElementById('ship-owner').value.trim() || "";
     const shipTel = document.getElementById('ship-tel').value.trim() || "";
 
-    const worker = document.getElementById('worker').value.trim() || "미입력";
     const telephonee = document.getElementById('telephonee').value.trim() || "";
     const violationStatus = document.getElementById('violation-select').value;
     const violationDetail = document.getElementById('violation-detail').value.trim();
