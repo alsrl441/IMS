@@ -4,7 +4,33 @@ var STORE_UNIDENTIFIED = 'unidentified_ships';
 var db;
 
 function initDB() {
+    // 기존 DB를 열어서 버전을 확인하고, 스토어가 없으면 버전을 올려서 다시 엽니다.
     const request = indexedDB.open(DB_NAME);
+
+    request.onsuccess = (e) => {
+        const tempDb = e.target.result;
+        if (!tempDb.objectStoreNames.contains(STORE_IDENTIFIED) || !tempDb.objectStoreNames.contains(STORE_UNIDENTIFIED)) {
+            const newVersion = tempDb.version + 1;
+            tempDb.close();
+            
+            const upgradeRequest = indexedDB.open(DB_NAME, newVersion);
+            upgradeRequest.onupgradeneeded = (ev) => {
+                const upgradeDb = ev.target.result;
+                if (!upgradeDb.objectStoreNames.contains(STORE_IDENTIFIED)) {
+                    upgradeDb.createObjectStore(STORE_IDENTIFIED);
+                }
+                if (!upgradeDb.objectStoreNames.contains(STORE_UNIDENTIFIED)) {
+                    upgradeDb.createObjectStore(STORE_UNIDENTIFIED);
+                }
+            };
+            upgradeRequest.onsuccess = (ev) => {
+                db = ev.target.result;
+                console.log("[IndexedDB] 스토어 생성 및 연결 성공");
+            };
+        } else {
+            db = tempDb;
+        }
+    };
 
     request.onupgradeneeded = (e) => {
         const upgradeDb = e.target.result;
@@ -14,10 +40,6 @@ function initDB() {
         if (!upgradeDb.objectStoreNames.contains(STORE_UNIDENTIFIED)) {
             upgradeDb.createObjectStore(STORE_UNIDENTIFIED);
         }
-    };
-
-    request.onsuccess = (e) => {
-        db = e.target.result;
     };
 
     request.onerror = (e) => {
