@@ -310,7 +310,7 @@ async function saveTraceLog() {
             if (!existingShip.history) existingShip.history = [];
             existingShip.history.unshift(newHistory);
             
-            store.put(existingShip, existingKey);
+            store.put(existingShip);
         } else {
             const newShip = {
                 id: Date.now().toString(),
@@ -323,7 +323,7 @@ async function saveTraceLog() {
                 tags: tags,
                 history: [newHistory]
             };
-            store.add(newShip, newShip.id);
+            store.add(newShip);
         }
     };
 
