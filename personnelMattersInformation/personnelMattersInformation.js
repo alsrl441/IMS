@@ -17,10 +17,36 @@ document.addEventListener('DOMContentLoaded', async () => {
                     resolve([]);
                     return;
                 }
-                const tx = db.transaction(STORE_NAME, "readonly");
+                const tx = db.transaction(STORE_NAME, "readwrite");
                 const store = tx.objectStore(STORE_NAME);
-                const getReq = store.getAll();
-                getReq.onsuccess = () => resolve(getReq.result || []);
+
+                const countReq = store.count();
+                countReq.onsuccess = () => {
+                    if (countReq.result === 0) {
+                        const sampleMember = {
+                            "id": "0",
+                            "name": "홍길동",
+                            "nickName": "ㅎㄱㄷ",
+                            "start": "2025-01-01",
+                            "end": "2026-06-30",
+                            "vacation": "2026-6-01",
+                            "promotion": { "pfc2cpl": 0, "cpl2sgt": 0 },
+                            "photo": "",
+                            "affiliation": "해안복합감시반",
+                            "position": "항포구 감시병",
+                            "hobby": "취미",
+                            "specialty": "특기"
+                        };
+                        store.put(sampleMember);
+                        console.log("샘플 인원 정보가 생성되었습니다.");
+                        
+                        const getReq = store.getAll();
+                        getReq.onsuccess = () => resolve(getReq.result || []);
+                    } else {
+                        const getReq = store.getAll();
+                        getReq.onsuccess = () => resolve(getReq.result || []);
+                    }
+                };
                 getReq.onerror = () => resolve([]);
             };
             request.onerror = () => resolve([]);
