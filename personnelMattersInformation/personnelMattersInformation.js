@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     "nickName": "ㅎㄱㄷ",
                     "start": "2025-07-15",
                     "end": "2027-01-14",
-                    "vacation": "2026-06-01",
+                    "vacation": ["2026-06-01", "2026-06-08"],
                     "promotion": { "pfc2cpl": 0, "cpl2sgt": 0 },
                     "photo": "",
                     "affiliation": "해안복합감시반",
@@ -96,6 +96,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    function formatDate(date) {
+        const d = new Date(date);
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
     function updateStaticProfile(user) {
         document.getElementById('resPhoto').src = user.photo || '../img/default-profile.png';
         document.getElementById('resNickName').innerText = user.nickName || user.name;
@@ -105,15 +113,27 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('resStartDate').innerText = user.start || '-';
         document.getElementById('resEndDate').innerText = user.end || '-';
         
-        // 휴가 범위 (데이터 구조상 시작일만 있을 경우 표시 방식)
-        document.getElementById('resVacationRange').innerText = user.vacation ? `${user.vacation} ~` : '일정 없음';
+        // 휴가 범위 표시: yyyy-MM-DD ~ yyyy-MM-DD (n일)
+        const vacRangeEl = document.getElementById('resVacationRange');
+        if (Array.isArray(user.vacation) && user.vacation.length === 2) {
+            const vStart = new Date(user.vacation[0]);
+            const vEnd = new Date(user.vacation[1]);
+            const diffTime = Math.abs(vEnd - vStart);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // 시작일 포함
+            vacRangeEl.innerText = `${user.vacation[0]} ~ ${user.vacation[1]} (${diffDays}일)`;
+        } else {
+            vacRangeEl.innerText = '일정 없음';
+        }
     }
 
     function calculateMilitary(user) {
         const now = new Date();
         const start = new Date(user.start);
         const end = new Date(user.end);
-        const vac = user.vacation ? new Date(user.vacation) : null;
+        
+        // 휴가 D-day 계산을 위한 시작일 추출
+        const vacStartStr = Array.isArray(user.vacation) ? user.vacation[0] : null;
+        const vac = vacStartStr ? new Date(vacStartStr) : null;
 
         const totalTime = end - start;
         const passedTime = now - start;
@@ -122,7 +142,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         const percent = Math.min(100, Math.max(0, (passedTime / totalTime) * 100)).toFixed(8);
         const remainDays = Math.ceil(remainTime / (1000 * 60 * 60 * 24));
 
-        // 계급 및 호봉 계산
         const startFirstDay = new Date(start.getFullYear(), start.getMonth(), 1);
         const currentMonthCount = (now.getFullYear() - startFirstDay.getFullYear()) * 12 + (now.getMonth() - startFirstDay.getMonth()) + 1;
         
@@ -145,13 +164,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             rank = "병장"; hobong = currentMonthCount - sgtThreshold; promoMonthOffset = -1;
         }
 
-        // 데이터 업데이트
         document.getElementById('resRankStatus').innerText = remainTime > 0 ? `${rank} ${hobong}호봉` : "병장 (전역)";
         document.getElementById('resPercent').innerText = `${percent}%`;
         document.getElementById('progressBarFill').style.width = `${percent}%`;
         document.getElementById('resDday').innerText = remainTime > 0 ? `D-${remainDays}` : "전역 완료";
 
-        // 진급일 계산
         let nextPromoDate = null;
         if (promoMonthOffset !== -1) {
             nextPromoDate = new Date(startFirstDay.getFullYear(), startFirstDay.getMonth() + promoMonthOffset, 1);
@@ -165,11 +182,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             promoDdayEl.innerText = "-";
         } else {
             const promoDday = Math.ceil((nextPromoDate - now) / (1000 * 60 * 60 * 24));
-            promoDateEl.innerText = nextPromoDate.toLocaleDateString();
+            promoDateEl.innerText = formatDate(nextPromoDate); // yyyy-MM-DD 형식 적용
             promoDdayEl.innerText = `D-${promoDday}`;
         }
 
-        // 휴가 D-day
         const vacDdayEl = document.getElementById('resVacDday');
         if (vac && vac > now) {
             const vacDday = Math.ceil((vac - now) / (1000 * 60 * 60 * 24));
