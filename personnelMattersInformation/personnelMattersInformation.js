@@ -43,10 +43,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         members.forEach((m, idx) => {
             let opt = document.createElement('option');
             opt.value = idx;
-            opt.textContent = m.name; // 별명 제거, 이름만 표시
+            opt.textContent = m.name;
             selectEl.appendChild(opt);
         });
-        renderPreview();
+        // 초기 상태 로드
+        handleMemberSelect("");
     } else {
         previewEl.innerHTML = '<div class="text-center py-5 text-muted">DB에 등록된 인원 정보가 없습니다.</div>';
     }
@@ -63,6 +64,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             noDataEl.classList.remove('hidden');
             previewEl.classList.remove('hidden');
             renderPreview();
+            // 목록 실시간 업데이트 시작
+            timerId = setInterval(updateAllPreviews, 10);
         } else {
             const user = members[val];
             displayEl.classList.remove('hidden');
@@ -71,6 +74,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             
             updateStaticProfile(user);
             calculateMilitary(user);
+            // 상세 정보 실시간 업데이트 시작
             timerId = setInterval(() => calculateMilitary(user), 10);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
@@ -79,21 +83,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     function renderPreview() {
         previewEl.innerHTML = '';
         members.forEach((user, idx) => {
-            const start = new Date(user.start);
-            const end = new Date(user.end);
-            const now = new Date();
-            const percent = Math.min(100, Math.max(0, ((now - start) / (end - start)) * 100)).toFixed(1);
-
             const card = document.createElement('div');
             card.className = 'preview-card';
             card.innerHTML = `
                 <div class="preview-text">
                     <div class="preview-header-row">
                         <div class="preview-name">${user.name}</div>
-                        <div class="preview-percent-text">${percent}%</div>
+                        <div id="preview-percent-${idx}" class="preview-percent-text">0.00000000%</div>
                     </div>
                     <div class="preview-progress-container">
-                        <div class="preview-progress-fill" style="width: ${percent}%"></div>
+                        <div id="preview-bar-${idx}" class="preview-progress-fill" style="width: 0%"></div>
                     </div>
                 </div>
             `;
@@ -102,6 +101,21 @@ document.addEventListener('DOMContentLoaded', async () => {
                 handleMemberSelect(idx);
             });
             previewEl.appendChild(card);
+        });
+        updateAllPreviews();
+    }
+
+    function updateAllPreviews() {
+        members.forEach((user, idx) => {
+            const start = new Date(user.start);
+            const end = new Date(user.end);
+            const now = new Date();
+            const percent = Math.min(100, Math.max(0, ((now - start) / (end - start)) * 100)).toFixed(8);
+            
+            const percentEl = document.getElementById(`preview-percent-${idx}`);
+            const barEl = document.getElementById(`preview-bar-${idx}`);
+            if (percentEl) percentEl.innerText = `${percent}%`;
+            if (barEl) barEl.style.width = `${percent}%`;
         });
     }
 
@@ -122,13 +136,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('resStartDate').innerText = user.start || '-';
         document.getElementById('resEndDate').innerText = user.end || '-';
         
-        // 휴가 범위 표시: yyyy-MM-DD ~ yyyy-MM-DD (n일)
         const vacRangeEl = document.getElementById('resVacationRange');
         if (Array.isArray(user.vacation) && user.vacation.length === 2) {
             const vStart = new Date(user.vacation[0]);
             const vEnd = new Date(user.vacation[1]);
             const diffTime = Math.abs(vEnd - vStart);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // 시작일 포함
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
             vacRangeEl.innerText = `${user.vacation[0]} ~ ${user.vacation[1]} (${diffDays}일)`;
         } else {
             vacRangeEl.innerText = '일정 없음';
@@ -139,8 +152,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         const now = new Date();
         const start = new Date(user.start);
         const end = new Date(user.end);
-        
-        // 휴가 D-day 계산을 위한 시작일 추출
         const vacStartStr = Array.isArray(user.vacation) ? user.vacation[0] : null;
         const vac = vacStartStr ? new Date(vacStartStr) : null;
 
@@ -191,7 +202,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             promoDdayEl.innerText = "-";
         } else {
             const promoDday = Math.ceil((nextPromoDate - now) / (1000 * 60 * 60 * 24));
-            promoDateEl.innerText = formatDate(nextPromoDate); // yyyy-MM-DD 형식 적용
+            promoDateEl.innerText = formatDate(nextPromoDate);
             promoDdayEl.innerText = `D-${promoDday}`;
         }
 
