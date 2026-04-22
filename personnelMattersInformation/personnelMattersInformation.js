@@ -12,8 +12,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     const deleteBtn = document.getElementById('deleteMemberBtn');
     const closeBtn = document.getElementById('closeModal');
     
+    // Photo Drop Zone elements
+    const photoDropZone = document.getElementById('photoDropZone');
+    const modalPhotoPreview = document.getElementById('modalPhotoPreview');
+    const mPhotoFile = document.getElementById('mPhotoFile');
+    
     let timerId = null; 
     let members = [];
+    let currentPhotoBase64 = ""; // 현재 선택된 사진의 Base64 데이터를 저장
     const STORE_NAME = "members";
 
     async function init() {
@@ -126,11 +132,76 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    // Photo Drop Zone handling
+    photoDropZone.onclick = () => mPhotoFile.click();
+
+    photoDropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        photoDropZone.classList.add('dragover');
+    });
+
+    photoDropZone.addEventListener('dragleave', () => {
+        photoDropZone.classList.remove('dragover');
+    });
+
+    photoDropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        photoDropZone.classList.remove('dragover');
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+            handlePhotoSelection(e.dataTransfer.files[0]);
+        }
+    });
+
+    mPhotoFile.onchange = (e) => {
+        if (e.target.files && e.target.files[0]) {
+            handlePhotoSelection(e.target.files[0]);
+        }
+    };
+
+    function handlePhotoSelection(file) {
+        if (!file.type.startsWith('image/')) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                // Resize and compress the image using canvas
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+                const max_size = 400;
+
+                if (width > height) {
+                    if (width > max_size) {
+                        height *= max_size / width;
+                        width = max_size;
+                    }
+                } else {
+                    if (height > max_size) {
+                        width *= max_size / height;
+                        height = max_size;
+                    }
+                }
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                currentPhotoBase64 = canvas.toDataURL('image/jpeg', 0.8);
+                modalPhotoPreview.src = currentPhotoBase64;
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
     // Modal Operations
     addBtn.onclick = () => {
         modalTitle.innerText = "인원 추가";
         memberForm.reset();
         document.getElementById('editId').value = "";
+        currentPhotoBase64 = "";
+        modalPhotoPreview.src = "../img/default-profile.png";
         modal.classList.remove('hidden');
     };
 
@@ -151,7 +222,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('mVacEnd').value = (user.vacation && user.vacation[1]) || "";
         document.getElementById('mPfc2cpl').value = (user.promotion && user.promotion.pfc2cpl) || 0;
         document.getElementById('mCpl2sgt').value = (user.promotion && user.promotion.cpl2sgt) || 0;
-        document.getElementById('mPhoto').value = user.photo || "";
+        
+        currentPhotoBase64 = user.photo || "";
+        modalPhotoPreview.src = user.photo || "../img/default-profile.png";
         
         modal.classList.remove('hidden');
     };
@@ -185,14 +258,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 pfc2cpl: parseInt(document.getElementById('mPfc2cpl').value) || 0,
                 cpl2sgt: parseInt(document.getElementById('mCpl2sgt').value) || 0
             },
-            photo: document.getElementById('mPhoto').value
+            photo: currentPhotoBase64 // 사진 정보 자체를 저장
         };
 
         await window.putDBData(STORE_NAME, newMember);
         modal.classList.add('hidden');
         await init();
         
-        // 방금 추가/수정한 인원 자동 선택
         const newIdx = members.findIndex(m => m.id === id);
         if (newIdx !== -1) {
             selectEl.value = newIdx;
@@ -200,7 +272,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
-    // (formatDate, updateStaticProfile, calculateMilitary functions remain unchanged)
     function formatDate(date) {
         const d = new Date(date);
         const year = d.getFullYear();
