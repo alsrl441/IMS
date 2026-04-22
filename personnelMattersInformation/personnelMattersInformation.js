@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         members.forEach((m, idx) => {
             let opt = document.createElement('option');
             opt.value = idx;
-            opt.textContent = `${m.name} (${m.nickName || ''})`;
+            opt.textContent = m.name; // 별명 제거, 이름만 표시
             selectEl.appendChild(opt);
         });
         renderPreview();
@@ -82,7 +82,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             const card = document.createElement('div');
             card.className = 'preview-card';
             card.innerHTML = `
-                <img src="${user.photo || '../img/default-profile.png'}" class="preview-photo">
                 <div class="preview-text">
                     <div class="preview-name">${user.name}</div>
                     <div class="preview-info">${user.rank || ''} ${user.affiliation || ''}</div>
