@@ -280,11 +280,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     function getPromotionDate(startDateStr, plusMonths, adj) {
         if (!startDateStr) return null;
         let date = new Date(startDateStr);
-        // 진급은 보통 입대 X개월 후 다음달 1일임
+        // 진급 표준일 계산: 입대 X개월 후 다음달 1일
         date.setMonth(date.getMonth() + plusMonths + 1);
         date.setDate(1);
-        // 보정치 적용 (조기진급: -1, 누락: 1 등)
-        if (adj) date.setMonth(date.getMonth() + adj);
+        // 보정치 적용 (조기진급 +1이면 한 달 당겨야 하므로 -adj)
+        if (adj) date.setMonth(date.getMonth() - adj);
         return date;
     }
 
@@ -308,7 +308,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('resDday').textContent = dday > 0 ? `D-${dday}` : (dday === 0 ? "D-Day" : `전역 후 ${Math.abs(dday)}일`);
 
         // 진급일 계산 (일병: 입대+2, 상병: 입대+8, 병장: 입대+14 개월 후 다음달 1일)
-        const pfcDate = getPromotionDate(user.start, 2, 0); // 일병 진급은 보정 없음
+        const pfcDate = getPromotionDate(user.start, 2, 0); 
         const cplDate = getPromotionDate(user.start, 8, user.pfc2cpl); // 일병>상병 보정
         const sgtDate = getPromotionDate(user.start, 14, user.cpl2sgt); // 상병>병장 보정
 
