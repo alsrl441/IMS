@@ -191,8 +191,13 @@
 
 .preview-card:hover { border-color: #212529; }
 
-.preview-name { font-size: 0.9rem; font-weight: 800; }
-.preview-percent-text { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; }
+.preview-name { font-size: 0.9rem; font-weight: 800; color: #212529; }
+.preview-percent-text { 
+    font-family: 'JetBrains Mono', monospace; 
+    font-size: 0.75rem; 
+    font-weight: 700; 
+    color: #212529; 
+}
 
 .hidden { display: none !important; }
 .mb-2 { margin-bottom: 0.5rem !important; }

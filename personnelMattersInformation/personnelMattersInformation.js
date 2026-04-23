@@ -261,7 +261,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         let p = ((now - start) / (end - start)) * 100;
         if (p < 0) p = 0; if (p > 100) p = 100;
         document.getElementById('progressBarFill').style.width = p + "%";
-        document.getElementById('resPercent').textContent = p.toFixed(2) + "%";
+        document.getElementById('resPercent').textContent = p.toFixed(8) + "%";
 
         // 1행
         document.getElementById('resStartDate').textContent = user.start;
@@ -311,7 +311,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             let p = ((n - s) / (e - s)) * 100; if (p < 0) p = 0; if (p > 100) p = 100;
             const pt = document.getElementById(`preview-percent-${idx}`);
             const pb = document.getElementById(`preview-bar-${idx}`);
-            if (pt) pt.textContent = p.toFixed(2) + "%"; if (pb) pb.style.width = p + "%";
+            if (pt) pt.textContent = p.toFixed(8) + "%"; if (pb) pb.style.width = p + "%";
         });
     }
     init();
