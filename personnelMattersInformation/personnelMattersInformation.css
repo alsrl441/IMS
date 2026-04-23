@@ -274,6 +274,33 @@
     box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
+.preview-card-add {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: #f8f9fa;
+    border: 2px dashed #ddd;
+    color: #6c757d;
+    min-height: 80px;
+}
+
+.preview-card-add:hover {
+    background: #fff;
+    border-color: #212529;
+    color: #212529;
+}
+
+.preview-card-add i {
+    font-size: 1.5rem;
+}
+
+.preview-card-add span {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
 .preview-header-row {
     display: flex;
     justify-content: space-between;

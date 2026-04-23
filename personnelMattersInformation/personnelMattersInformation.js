@@ -115,6 +115,19 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
             previewEl.appendChild(card);
         });
+
+        // Add "Add Member" card at the end
+        const addCard = document.createElement('div');
+        addCard.className = 'preview-card preview-card-add';
+        addCard.innerHTML = `
+            <i class="fas fa-plus"></i>
+            <span>인원 추가</span>
+        `;
+        addCard.addEventListener('click', () => {
+            addBtn.click();
+        });
+        previewEl.appendChild(addCard);
+
         updateAllPreviews();
     }
 
