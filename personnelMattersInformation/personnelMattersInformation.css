@@ -152,6 +152,52 @@
     font-size: 0.9rem;
 }
 
+.btn-minimal-xs {
+    background: transparent;
+    border: 1px solid #dee2e6;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: #868e96;
+    transition: all 0.2s;
+}
+
+.btn-minimal-xs:hover {
+    background: #f8f9fa;
+    color: #212529;
+    border-color: #adb5bd;
+}
+
+.custom-edit-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+    align-items: center;
+}
+
+.custom-edit-row input {
+    flex: 1;
+}
+
+.custom-edit-row select {
+    width: 70px;
+    padding: 4px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.85rem;
+}
+
+.btn-remove-custom {
+    color: #fa5252;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+    padding: 4px;
+}
+
 .info-grid-minimal {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));

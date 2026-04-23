@@ -73,8 +73,11 @@
                         <div class="profile-sections">
                             <!-- 기본 정보 -->
                             <div class="info-section">
-                                <h6 class="section-title"><i class="fas fa-user-circle"></i> 기본 정보</h6>
-                                <div class="info-grid-minimal">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h6 class="section-title mb-0"><i class="fas fa-user-circle"></i> 기본 정보</h6>
+                                    <button id="addCustomFieldBtn" class="btn-minimal-xs edit-mode hidden"><i class="fas fa-plus"></i> 항목 추가</button>
+                                </div>
+                                <div class="info-grid-minimal" id="basicInfoGrid">
                                     <div class="info-row-minimal">
                                         <label>이름</label>
                                         <span id="resName" class="view-mode"></span>
@@ -90,13 +93,18 @@
                                         <span id="resPosition" class="view-mode"></span>
                                         <input type="text" id="editPosition" class="form-control-minimal edit-mode hidden">
                                     </div>
+                                    <!-- 커스텀 항목들이 여기에 추가됨 -->
                                 </div>
+                                <div id="customFieldsEditContainer" class="edit-mode hidden mt-2"></div>
                             </div>
 
                             <!-- 복무 정보 -->
                             <div class="info-section">
-                                <h6 class="section-title"><i class="fas fa-calendar-alt"></i> 복무 정보</h6>
-                                <div class="info-grid-minimal">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h6 class="section-title mb-0"><i class="fas fa-calendar-alt"></i> 복무 정보</h6>
+                                    <button id="addCustomScheduleBtn" class="btn-minimal-xs edit-mode hidden"><i class="fas fa-plus"></i> 일정 추가</button>
+                                </div>
+                                <div class="info-grid-minimal" id="serviceInfoGrid">
                                     <div class="info-row-minimal">
                                         <label>입대일</label>
                                         <span id="resStartDate" class="view-mode"></span>
@@ -116,7 +124,9 @@
                                         <label>전역</label>
                                         <span id="resDday"></span>
                                     </div>
+                                    <!-- 커스텀 일정들이 여기에 추가됨 -->
                                 </div>
+                                <div id="customSchedulesEditContainer" class="edit-mode hidden mt-2"></div>
                             </div>
 
                             <!-- 진급 및 휴가 -->

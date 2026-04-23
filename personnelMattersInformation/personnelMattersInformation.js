@@ -14,6 +14,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     const resPhoto = document.getElementById('resPhoto');
     const photoOverlay = document.getElementById('photoOverlay');
     const photoEditArea = document.getElementById('photoEditArea');
+
+    const addFieldBtn = document.getElementById('addCustomFieldBtn');
+    const fieldEditContainer = document.getElementById('customFieldsEditContainer');
+    const basicInfoGrid = document.getElementById('basicInfoGrid');
+
+    const addScheduleBtn = document.getElementById('addCustomScheduleBtn');
+    const scheduleEditContainer = document.getElementById('customSchedulesEditContainer');
+    const serviceInfoGrid = document.getElementById('serviceInfoGrid');
     
     let timerId = null; 
     let members = [];
@@ -34,15 +42,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const sampleMember = {
                     "id": Date.now().toString(),
                     "name": "홍길동",
-                    "nickName": "ㅎㄱㄷ",
+                    "affiliation": "1소대",
+                    "position": "운전병",
                     "start": "2024-03-15",
                     "transfer": "2024-05-10",
                     "end": "2025-09-14",
                     "pfc2cpl": 0, "cpl2sgt": 0,
                     "photo": "",
-                    "affiliation": "1소대",
-                    "position": "운전병",
-                    "vacation": ["2024-12-01", "2024-12-05"]
+                    "vacation": ["2024-12-01", "2024-12-05"],
+                    "customFields": [],
+                    "customSchedules": []
                 };
                 await window.putDBData(STORE_NAME, sampleMember);
                 data = [sampleMember];
@@ -146,18 +155,39 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function updateStaticProfile(user) {
-        // View Mode UI Fill
+        // 기본 필드
         document.getElementById('resName').textContent = user.name;
         document.getElementById('resAffiliation').textContent = user.affiliation || "-";
         document.getElementById('resPosition').textContent = user.position || "-";
         document.getElementById('resStartDate').textContent = user.start;
         document.getElementById('resTransferDate').textContent = user.transfer || "-";
         document.getElementById('resEndDate').textContent = user.end;
-        
         resPhoto.src = user.photo || "../img/default-profile.png";
         currentPhotoBase64 = user.photo || "";
 
-        // Edit Mode Inputs Fill
+        // 커스텀 항목 렌더링
+        document.querySelectorAll('.custom-field-row').forEach(el => el.remove());
+        fieldEditContainer.innerHTML = '';
+        (user.customFields || []).forEach(f => {
+            addCustomFieldRow(f.key, f.value); // 편집용
+            const row = document.createElement('div'); // 보기용
+            row.className = 'info-row-minimal custom-field-row view-mode';
+            row.innerHTML = `<label>${f.key}</label><span>${f.value}</span>`;
+            basicInfoGrid.appendChild(row);
+        });
+
+        // 커스텀 일정 렌더링
+        document.querySelectorAll('.custom-schedule-row').forEach(el => el.remove());
+        scheduleEditContainer.innerHTML = '';
+        (user.customSchedules || []).forEach(s => {
+            addCustomScheduleRow(s.label, s.date, s.type); // 편집용
+            const row = document.createElement('div'); // 보기용
+            row.className = 'info-row-minimal custom-schedule-row view-mode';
+            row.innerHTML = `<label>${s.label}</label><span id="custom-sched-${s.label.replace(/\s/g, '')}">-</span>`;
+            serviceInfoGrid.appendChild(row);
+        });
+
+        // 입력창 채우기
         document.getElementById('editName').value = user.name;
         document.getElementById('editAffiliation').value = user.affiliation || "";
         document.getElementById('editPosition').value = user.position || "";
@@ -168,53 +198,70 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('editCpl2sgt').value = user.cpl2sgt || 0;
     }
 
+    function addCustomFieldRow(key = "", value = "") {
+        const row = document.createElement('div');
+        row.className = 'custom-edit-row';
+        row.innerHTML = `
+            <input type="text" class="form-control-minimal custom-key" placeholder="항목명" value="${key}">
+            <input type="text" class="form-control-minimal custom-value" placeholder="내용" value="${value}">
+            <button class="btn-remove-custom"><i class="fas fa-trash"></i></button>
+        `;
+        row.querySelector('.btn-remove-custom').onclick = () => row.remove();
+        fieldEditContainer.appendChild(row);
+    }
+
+    function addCustomScheduleRow(label = "", date = "", type = "D-") {
+        const row = document.createElement('div');
+        row.className = 'custom-edit-row';
+        row.innerHTML = `
+            <input type="text" class="form-control-minimal custom-label" placeholder="일정명" value="${label}">
+            <input type="date" class="form-control-minimal custom-date" value="${date}">
+            <select class="custom-type">
+                <option value="D-" ${type === 'D-' ? 'selected' : ''}>D-</option>
+                <option value="D+" ${type === 'D+' ? 'selected' : ''}>D+</option>
+            </select>
+            <button class="btn-remove-custom"><i class="fas fa-trash"></i></button>
+        `;
+        row.querySelector('.btn-remove-custom').onclick = () => row.remove();
+        scheduleEditContainer.appendChild(row);
+    }
+
+    addFieldBtn.addEventListener('click', () => addCustomFieldRow());
+    addScheduleBtn.addEventListener('click', () => addCustomScheduleRow());
+
     function startAddMember() {
         isAdding = true;
         selectEl.value = "";
         handleMemberSelect("");
-        
         displayEl.classList.remove('hidden');
         noDataEl.classList.add('hidden');
         previewEl.classList.add('hidden');
-        
         document.querySelectorAll('.edit-mode input').forEach(input => {
             if (input.type === 'number') input.value = 0;
             else input.value = "";
         });
+        fieldEditContainer.innerHTML = '';
+        scheduleEditContainer.innerHTML = '';
         resPhoto.src = "../img/default-profile.png";
         currentPhotoBase64 = "";
-        
         toggleEditMode(true);
         document.getElementById('editName').focus();
     }
 
     // Drag and Drop
-    photoEditArea.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        photoEditArea.style.borderColor = "#212529";
-    });
-    photoEditArea.addEventListener('dragleave', () => {
-        photoEditArea.style.borderColor = "#eee";
-    });
+    photoEditArea.addEventListener('dragover', (e) => { e.preventDefault(); photoEditArea.style.borderColor = "#212529"; });
+    photoEditArea.addEventListener('dragleave', () => { photoEditArea.style.borderColor = "#eee"; });
     photoEditArea.addEventListener('drop', (e) => {
-        e.preventDefault();
-        photoEditArea.style.borderColor = "#eee";
+        e.preventDefault(); photoEditArea.style.borderColor = "#eee";
         const file = e.dataTransfer.files[0];
         if (file && file.type.startsWith('image/')) handlePhoto(file);
     });
-
     photoOverlay.addEventListener('click', () => photoInput.click());
-    photoInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file) handlePhoto(file);
-    });
+    photoInput.addEventListener('change', (e) => { if (e.target.files[0]) handlePhoto(e.target.files[0]); });
 
     function handlePhoto(file) {
         const reader = new FileReader();
-        reader.onload = (rev) => {
-            currentPhotoBase64 = rev.target.result;
-            resPhoto.src = currentPhotoBase64;
-        };
+        reader.onload = (rev) => { currentPhotoBase64 = rev.target.result; resPhoto.src = currentPhotoBase64; };
         reader.readAsDataURL(file);
     }
 
@@ -225,10 +272,24 @@ document.addEventListener('DOMContentLoaded', async () => {
         const name = document.getElementById('editName').value.trim();
         if (!name) return alert("이름을 입력하세요.");
 
+        const customFields = [];
+        fieldEditContainer.querySelectorAll('.custom-edit-row').forEach(row => {
+            const key = row.querySelector('.custom-key').value.trim();
+            const value = row.querySelector('.custom-value').value.trim();
+            if (key) customFields.push({ key, value });
+        });
+
+        const customSchedules = [];
+        scheduleEditContainer.querySelectorAll('.custom-edit-row').forEach(row => {
+            const label = row.querySelector('.custom-label').value.trim();
+            const date = row.querySelector('.custom-date').value;
+            const type = row.querySelector('.custom-type').value;
+            if (label && date) customSchedules.push({ label, date, type });
+        });
+
         const id = isAdding ? Date.now().toString() : members[selectEl.value].id;
         const updatedUser = {
-            id,
-            name,
+            id, name,
             affiliation: document.getElementById('editAffiliation').value.trim(),
             position: document.getElementById('editPosition').value.trim(),
             start: document.getElementById('editStartDate').value,
@@ -237,7 +298,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             pfc2cpl: parseInt(document.getElementById('editPfc2cpl').value) || 0,
             cpl2sgt: parseInt(document.getElementById('editCpl2sgt').value) || 0,
             photo: currentPhotoBase64,
-            vacation: isAdding ? [] : (members[selectEl.value].vacation || [])
+            vacation: isAdding ? [] : (members[selectEl.value].vacation || []),
+            customFields,
+            customSchedules
         };
 
         try {
@@ -280,59 +343,56 @@ document.addEventListener('DOMContentLoaded', async () => {
         const start = new Date(user.start);
         const end = new Date(user.end);
 
-        // 복무율
+        // 전역/복무율
         const totalMs = end - start;
         const elapsedMs = now - start;
         let percent = (elapsedMs / totalMs) * 100;
-        if (percent < 0) percent = 0;
-        if (percent > 100) percent = 100;
+        if (percent < 0) percent = 0; if (percent > 100) percent = 100;
         document.getElementById('resPercent').textContent = percent.toFixed(8) + "%";
         document.getElementById('progressBarFill').style.width = percent + "%";
-
-        // 전역 D-day
         const dday = Math.ceil((end - now) / (1000 * 60 * 60 * 24));
         document.getElementById('resDday').textContent = dday > 0 ? `D-${dday}` : (dday === 0 ? "D-Day" : `전역 후 ${Math.abs(dday)}일`);
 
-        // 진급일 계산
+        // 진급/휴가 계산 (중략)
         const pfcDate = getPromotionDate(user.start, 2, 0); 
         const cplDate = getPromotionDate(user.start, 8, user.pfc2cpl);
         const sgtDate = getPromotionDate(user.start, 14, user.cpl2sgt);
-        const promoDates = [
-            { name: "일병", date: pfcDate },
-            { name: "상병", date: cplDate },
-            { name: "병장", date: sgtDate },
-            { name: "전역", date: end }
-        ];
+        const promoDates = [{name:"일병",date:pfcDate},{name:"상병",date:cplDate},{name:"병장",date:sgtDate},{name:"전역",date:end}];
         let nextPromo = promoDates.find(p => p.date > now) || promoDates[3];
         document.getElementById('resNextPromoDate').textContent = nextPromo.date.toISOString().split('T')[0];
         const pDday = Math.ceil((nextPromo.date - now) / (1000 * 60 * 60 * 24));
         document.getElementById('resNextPromoDday').textContent = pDday > 0 ? `D-${pDday}` : "D-Day";
 
-        // 휴가 계산
         const vacRangeEl = document.getElementById('resVacationRange');
         const vacDdayEl = document.getElementById('resVacDday');
         if (user.vacation && user.vacation.length === 2) {
-            const vStart = new Date(user.vacation[0]);
-            const vEnd = new Date(user.vacation[1]);
-            const vDays = Math.round((vEnd - vStart) / (1000 * 60 * 60 * 24)) + 1;
+            const vStart = new Date(user.vacation[0]); const vEnd = new Date(user.vacation[1]);
+            const vDays = Math.round((vEnd - vStart) / 86400000) + 1;
             vacRangeEl.textContent = `${user.vacation[0]} ~ ${user.vacation[1]} (${vDays}일)`;
-            
-            const vDday = Math.ceil((vStart - now) / (1000 * 60 * 60 * 24));
-            if (vDday > 0) vacDdayEl.textContent = `D-${vDday}`;
-            else if (now >= vStart && now <= new Date(vEnd.getTime() + 86400000)) vacDdayEl.textContent = "휴가 중";
-            else vacDdayEl.textContent = "종료";
-        } else {
-            vacRangeEl.textContent = "-";
-            vacDdayEl.textContent = "-";
+            const vDday = Math.ceil((vStart - now) / 86400000);
+            vacDdayEl.textContent = vDday > 0 ? `D-${vDday}` : (now <= new Date(vEnd.getTime() + 86400000) ? "휴가 중" : "종료");
         }
+
+        // 커스텀 일정 계산
+        (user.customSchedules || []).forEach(s => {
+            const target = new Date(s.date);
+            const el = document.getElementById(`custom-sched-${s.label.replace(/\s/g, '')}`);
+            if (!el) return;
+            const msPerDay = 86400000;
+            if (s.type === 'D-') {
+                const diff = Math.ceil((target - now) / msPerDay);
+                el.textContent = diff > 0 ? `D-${diff}` : (diff === 0 ? "D-Day" : `D+${Math.abs(diff)}`);
+            } else {
+                const diff = Math.floor((now - target) / msPerDay);
+                el.textContent = diff >= 0 ? `D+${diff}` : `D-${Math.abs(diff)}`;
+            }
+        });
     }
 
     function updateAllPreviews() {
         members.forEach((user, idx) => {
             if (!user.start || !user.end) return;
-            const start = new Date(user.start);
-            const end = new Date(user.end);
-            const now = new Date();
+            const start = new Date(user.start); const end = new Date(user.end); const now = new Date();
             let p = ((now - start) / (end - start)) * 100;
             if (p < 0) p = 0; if (p > 100) p = 100;
             const pText = document.getElementById(`preview-percent-${idx}`);
