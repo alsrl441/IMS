@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <div class="preview-text">
                     <div class="preview-header-row">
                         <div class="preview-name">${user.name}</div>
-                        <div id="preview-percent-${idx}" class="preview-percent-text">0.00000000%</div>
+                        <div id="preview-percent-${idx}" class="preview-percent-text">0.00%</div>
                     </div>
                     <div class="preview-progress-container"><div id="preview-bar-${idx}" class="preview-progress-fill" style="width: 0%"></div></div>
                 </div>`;
@@ -122,7 +122,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         resPhoto.src = user.photo || "../img/default-profile.png";
         currentPhotoBase64 = user.photo || "";
 
-        // 커스텀 항목 렌더링
+        // 커스텀 항목
         document.querySelectorAll('.custom-field-row').forEach(el => el.remove());
         fieldEditContainer.innerHTML = '';
         (user.customFields || []).forEach(f => {
@@ -133,22 +133,22 @@ document.addEventListener('DOMContentLoaded', async () => {
             basicInfoGrid.appendChild(row);
         });
 
-        // 커스텀 일정 렌더링 (2열 구조용 공간 확보)
+        // 커스텀 일정 (2열 구조)
         document.querySelectorAll('.custom-schedule-row').forEach(el => el.remove());
         scheduleEditContainer.innerHTML = '';
         (user.customSchedules || []).forEach(s => {
             addCustomScheduleRow(s.label, s.date);
-            const rowL = document.createElement('div');
-            rowL.className = 'info-row-minimal custom-schedule-row view-mode';
-            rowL.innerHTML = `<label id="label-cust-${s.label.replace(/\s/g, '')}">${s.label}일</label><span id="val-cust-date-${s.label.replace(/\s/g, '')}">${s.date}</span>`;
-            const rowR = document.createElement('div');
-            rowR.className = 'info-row-minimal custom-schedule-row view-mode';
-            rowR.innerHTML = `<label>${s.label}</label><span id="val-cust-dday-${s.label.replace(/\s/g, '')}">-</span>`;
-            scheduleInfoGrid.appendChild(rowL);
-            scheduleInfoGrid.appendChild(rowR);
+            const rowDate = document.createElement('div');
+            rowDate.className = 'info-row-minimal custom-schedule-row view-mode';
+            rowDate.innerHTML = `<label>${s.label}일자</label><span id="val-cust-date-${s.label.replace(/\s/g, '')}">${s.date}</span>`;
+            const rowDday = document.createElement('div');
+            rowDday.className = 'info-row-minimal custom-schedule-row view-mode';
+            rowDday.innerHTML = `<label>${s.label}</label><span id="val-cust-dday-${s.label.replace(/\s/g, '')}">-</span>`;
+            scheduleInfoGrid.appendChild(rowDate);
+            scheduleInfoGrid.appendChild(rowDday);
         });
 
-        // 입력창 채우기
+        // 입력 채우기
         document.getElementById('editName').value = user.name;
         document.getElementById('editAffiliation').value = user.affiliation || "";
         document.getElementById('editPosition').value = user.position || "";
@@ -160,10 +160,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function addCustomFieldRow(key = "", value = "") {
-        const row = document.createElement('div');
-        row.className = 'custom-edit-row';
-        row.innerHTML = `
-            <input type="text" class="form-control-minimal custom-key" placeholder="항목명" value="${key}">
+        const row = document.createElement('div'); row.className = 'custom-edit-row';
+        row.innerHTML = `<input type="text" class="form-control-minimal custom-key" placeholder="항목명" value="${key}">
             <input type="text" class="form-control-minimal custom-value" placeholder="내용" value="${value}">
             <button class="btn-remove-custom"><i class="fas fa-trash"></i></button>`;
         row.querySelector('.btn-remove-custom').onclick = () => row.remove();
@@ -171,10 +169,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function addCustomScheduleRow(label = "", date = "") {
-        const row = document.createElement('div');
-        row.className = 'custom-edit-row';
-        row.innerHTML = `
-            <input type="text" class="form-control-minimal custom-label" placeholder="일정명" value="${label}">
+        const row = document.createElement('div'); row.className = 'custom-edit-row';
+        row.innerHTML = `<input type="text" class="form-control-minimal custom-label" placeholder="일정명" value="${label}">
             <input type="date" class="form-control-minimal custom-date" value="${date}">
             <button class="btn-remove-custom"><i class="fas fa-trash"></i></button>`;
         row.querySelector('.btn-remove-custom').onclick = () => row.remove();
@@ -187,15 +183,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     function startAddMember() {
         isAdding = true; selectEl.value = ""; handleMemberSelect("");
         displayEl.classList.remove('hidden'); noDataEl.classList.add('hidden'); previewEl.classList.add('hidden');
-        document.querySelectorAll('.edit-mode input').forEach(input => {
-            if (input.type === 'number') input.value = 0; else input.value = "";
-        });
+        document.querySelectorAll('.edit-mode input').forEach(input => { if (input.type === 'number') input.value = 0; else input.value = ""; });
         fieldEditContainer.innerHTML = ''; scheduleEditContainer.innerHTML = '';
         resPhoto.src = "../img/default-profile.png"; currentPhotoBase64 = "";
         toggleEditMode(true); document.getElementById('editName').focus();
     }
 
-    // Photo & Drag Drop
+    // Photo Drop
     photoEditArea.addEventListener('dragover', (e) => { e.preventDefault(); photoEditArea.style.borderColor = "#212529"; });
     photoEditArea.addEventListener('dragleave', () => { photoEditArea.style.borderColor = "#eee"; });
     photoEditArea.addEventListener('drop', (e) => {
@@ -205,8 +199,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     photoOverlay.addEventListener('click', () => photoInput.click());
     photoInput.addEventListener('change', (e) => { if (e.target.files[0]) handlePhoto(e.target.files[0]); });
     function handlePhoto(file) {
-        const reader = new FileReader();
-        reader.onload = (rev) => { currentPhotoBase64 = rev.target.result; resPhoto.src = currentPhotoBase64; };
+        const reader = new FileReader(); reader.onload = (rev) => { currentPhotoBase64 = rev.target.result; resPhoto.src = currentPhotoBase64; };
         reader.readAsDataURL(file);
     }
 
@@ -214,18 +207,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     cancelBtn.addEventListener('click', () => isAdding ? handleMemberSelect("") : toggleEditMode(false));
 
     saveBtn.addEventListener('click', async () => {
-        const name = document.getElementById('editName').value.trim();
-        if (!name) return alert("이름을 입력하세요.");
+        const name = document.getElementById('editName').value.trim(); if (!name) return alert("이름 필수");
         const customFields = [];
         fieldEditContainer.querySelectorAll('.custom-edit-row').forEach(row => {
-            const k = row.querySelector('.custom-key').value.trim();
-            const v = row.querySelector('.custom-value').value.trim();
+            const k = row.querySelector('.custom-key').value.trim(); const v = row.querySelector('.custom-value').value.trim();
             if (k) customFields.push({ key: k, value: v });
         });
         const customSchedules = [];
         scheduleEditContainer.querySelectorAll('.custom-edit-row').forEach(row => {
-            const l = row.querySelector('.custom-label').value.trim();
-            const d = row.querySelector('.custom-date').value;
+            const l = row.querySelector('.custom-label').value.trim(); const d = row.querySelector('.custom-date').value;
             if (l && d) customSchedules.push({ label: l, date: d });
         });
         const id = isAdding ? Date.now().toString() : members[selectEl.value].id;
@@ -247,7 +237,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     deleteBtn.addEventListener('click', async () => {
-        const idx = selectEl.value; if (idx === "" || !confirm("삭제하시겠습니까?")) return;
+        const idx = selectEl.value; if (idx === "" || !confirm("삭제?")) return;
         try {
             const db = await window.getDB(); const tx = db.transaction(STORE_NAME, "readwrite");
             tx.objectStore(STORE_NAME).delete(members[idx].id);
@@ -267,59 +257,50 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function calculateMilitary(user) {
         if (!user.start || !user.end) return;
-        const now = new Date();
-        const start = new Date(user.start); const end = new Date(user.end);
-        
+        const now = new Date(); const start = new Date(user.start); const end = new Date(user.end);
         let p = ((now - start) / (end - start)) * 100;
         if (p < 0) p = 0; if (p > 100) p = 100;
-        document.getElementById('resPercent').textContent = p.toFixed(8) + "%";
         document.getElementById('progressBarFill').style.width = p + "%";
+        document.getElementById('resPercent').textContent = p.toFixed(2) + "%";
 
         // 1행
         document.getElementById('resStartDate').textContent = user.start;
         document.getElementById('resTransferDate').textContent = user.transfer || "-";
         
         // 2행
-        document.getElementById('resEndDate').textContent = user.end;
+        document.getElementById('resEndDateDate').textContent = user.end;
         document.getElementById('resDday').textContent = getDday(user.end);
 
         // 3행
-        const pfc = getPromotionDate(user.start, 2, 0);
-        const cpl = getPromotionDate(user.start, 8, user.pfc2cpl);
+        const pfc = getPromotionDate(user.start, 2, 0); const cpl = getPromotionDate(user.start, 8, user.pfc2cpl);
         const sgt = getPromotionDate(user.start, 14, user.cpl2sgt);
-        const promoDates = [{n:"일병",d:pfc},{n:"상병",d:cpl},{n:"병장",d:sgt},{n:"전역",d:end}];
-        const nextP = promoDates.find(x => x.d > now) || promoDates[3];
-        document.getElementById('resPromoLabel').textContent = `${nextP.n} 진급일`;
+        const pDates = [{n:"일병",d:pfc},{n:"상병",d:cpl},{n:"병장",d:sgt},{n:"전역",d:end}];
+        const nextP = pDates.find(x => x.d > now) || pDates[3];
+        document.getElementById('resPromoLabel').textContent = `${nextP.n} 진급일자`;
         document.getElementById('resPromoDate').textContent = nextP.d.toISOString().split('T')[0];
         document.getElementById('resPromoDday').textContent = getDday(nextP.d.toISOString().split('T')[0]);
 
         // 4행
-        const vRange = document.getElementById('resVacRange');
-        const vDday = document.getElementById('resVacDday');
         if (user.vacation && user.vacation.length === 2) {
             const vS = new Date(user.vacation[0]); const vE = new Date(user.vacation[1]);
             const days = Math.round((vE - vS) / 86400000) + 1;
-            vRange.textContent = `${user.vacation[0]} ~ ${user.vacation[1]} (${days}일)`;
+            document.getElementById('resVacRange').textContent = `${user.vacation[0]} (${days}일)`;
             const vD = Math.ceil((vS - now) / 86400000);
-            vDday.textContent = vD > 0 ? `D-${vD}` : (now <= new Date(vE.getTime() + 86400000) ? "휴가 중" : "종료");
+            document.getElementById('resVacDday').textContent = vD > 0 ? `D-${vD}` : (now <= new Date(vE.getTime() + 86400000) ? "휴가 중" : "종료");
         } else {
-            vRange.textContent = "-"; vDday.textContent = "-";
+            document.getElementById('resVacRange').textContent = "-"; document.getElementById('resVacDday').textContent = "-";
         }
 
-        // 커스텀 일정
+        // 커스텀
         (user.customSchedules || []).forEach(s => {
-            const vDate = document.getElementById(`val-cust-date-${s.label.replace(/\s/g, '')}`);
-            const vDday = document.getElementById(`val-cust-dday-${s.label.replace(/\s/g, '')}`);
-            if (vDate && vDday) {
-                vDate.textContent = s.date;
-                vDday.textContent = getDday(s.date);
-            }
+            const vD = document.getElementById(`val-cust-date-${s.label.replace(/\s/g, '')}`);
+            const vDy = document.getElementById(`val-cust-dday-${s.label.replace(/\s/g, '')}`);
+            if (vD && vDy) { vD.textContent = s.date; vDy.textContent = getDday(s.date); }
         });
     }
 
     function getPromotionDate(s, m, a) {
-        if (!s) return null;
-        let d = new Date(s); d.setMonth(d.getMonth() + m + 1); d.setDate(1);
+        if (!s) return null; let d = new Date(s); d.setMonth(d.getMonth() + m + 1); d.setDate(1);
         if (a) d.setMonth(d.getMonth() - a); return d;
     }
 
@@ -330,9 +311,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             let p = ((n - s) / (e - s)) * 100; if (p < 0) p = 0; if (p > 100) p = 100;
             const pt = document.getElementById(`preview-percent-${idx}`);
             const pb = document.getElementById(`preview-bar-${idx}`);
-            if (pt) pt.textContent = p.toFixed(8) + "%"; if (pb) pb.style.width = p + "%";
+            if (pt) pt.textContent = p.toFixed(2) + "%"; if (pb) pb.style.width = p + "%";
         });
     }
-
     init();
 });
