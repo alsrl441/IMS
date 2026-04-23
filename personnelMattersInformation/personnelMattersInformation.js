@@ -36,14 +36,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                     "name": "홍길동",
                     "nickName": "ㅎㄱㄷ",
                     "start": "2024-03-15",
+                    "transfer": "2024-05-10",
                     "end": "2025-09-14",
                     "pfc2cpl": 0, "cpl2sgt": 0,
                     "photo": "",
-                    "affiliation": "해안복합감시반",
-                    "position": "항포구 감시병",
-                    "hobby": "취미",
-                    "specialty": "특기",
-                    "vacation": []
+                    "affiliation": "1소대",
+                    "position": "운전병",
+                    "vacation": ["2024-12-01", "2024-12-05"]
                 };
                 await window.putDBData(STORE_NAME, sampleMember);
                 data = [sampleMember];
@@ -147,28 +146,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function updateStaticProfile(user) {
+        // View Mode UI Fill
         document.getElementById('resName').textContent = user.name;
-        document.getElementById('resNickName').textContent = user.nickName || "";
         document.getElementById('resAffiliation').textContent = user.affiliation || "-";
         document.getElementById('resPosition').textContent = user.position || "-";
-        document.getElementById('resHobby').textContent = user.hobby || "-";
-        document.getElementById('resSpecialty').textContent = user.specialty || "-";
         document.getElementById('resStartDate').textContent = user.start;
+        document.getElementById('resTransferDate').textContent = user.transfer || "-";
         document.getElementById('resEndDate').textContent = user.end;
-        document.getElementById('resPfc2cpl').textContent = (user.pfc2cpl || 0) + "개월";
-        document.getElementById('resCpl2sgt').textContent = (user.cpl2sgt || 0) + "개월";
         
         resPhoto.src = user.photo || "../img/default-profile.png";
         currentPhotoBase64 = user.photo || "";
 
-        // Fill inputs
+        // Edit Mode Inputs Fill
         document.getElementById('editName').value = user.name;
-        document.getElementById('editNickName').value = user.nickName || "";
         document.getElementById('editAffiliation').value = user.affiliation || "";
         document.getElementById('editPosition').value = user.position || "";
-        document.getElementById('editHobby').value = user.hobby || "";
-        document.getElementById('editSpecialty').value = user.specialty || "";
         document.getElementById('editStartDate').value = user.start;
+        document.getElementById('editTransferDate').value = user.transfer || "";
         document.getElementById('editEndDate').value = user.end;
         document.getElementById('editPfc2cpl').value = user.pfc2cpl || 0;
         document.getElementById('editCpl2sgt').value = user.cpl2sgt || 0;
@@ -194,23 +188,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('editName').focus();
     }
 
-    // Drag and Drop implementation
+    // Drag and Drop
     photoEditArea.addEventListener('dragover', (e) => {
         e.preventDefault();
         photoEditArea.style.borderColor = "#212529";
     });
-
     photoEditArea.addEventListener('dragleave', () => {
         photoEditArea.style.borderColor = "#eee";
     });
-
     photoEditArea.addEventListener('drop', (e) => {
         e.preventDefault();
         photoEditArea.style.borderColor = "#eee";
         const file = e.dataTransfer.files[0];
-        if (file && file.type.startsWith('image/')) {
-            handlePhoto(file);
-        }
+        if (file && file.type.startsWith('image/')) handlePhoto(file);
     });
 
     photoOverlay.addEventListener('click', () => photoInput.click());
@@ -239,17 +229,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         const updatedUser = {
             id,
             name,
-            nickName: document.getElementById('editNickName').value.trim(),
             affiliation: document.getElementById('editAffiliation').value.trim(),
             position: document.getElementById('editPosition').value.trim(),
-            hobby: document.getElementById('editHobby').value.trim(),
-            specialty: document.getElementById('editSpecialty').value.trim(),
             start: document.getElementById('editStartDate').value,
+            transfer: document.getElementById('editTransferDate').value,
             end: document.getElementById('editEndDate').value,
             pfc2cpl: parseInt(document.getElementById('editPfc2cpl').value) || 0,
             cpl2sgt: parseInt(document.getElementById('editCpl2sgt').value) || 0,
             photo: currentPhotoBase64,
-            vacation: isAdding ? [] : members[selectEl.value].vacation
+            vacation: isAdding ? [] : (members[selectEl.value].vacation || [])
         };
 
         try {
@@ -280,10 +268,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     function getPromotionDate(startDateStr, plusMonths, adj) {
         if (!startDateStr) return null;
         let date = new Date(startDateStr);
-        // 진급 표준일 계산: 입대 X개월 후 다음달 1일
         date.setMonth(date.getMonth() + plusMonths + 1);
         date.setDate(1);
-        // 보정치 적용 (조기진급 +1이면 한 달 당겨야 하므로 -adj)
         if (adj) date.setMonth(date.getMonth() - adj);
         return date;
     }
@@ -307,23 +293,38 @@ document.addEventListener('DOMContentLoaded', async () => {
         const dday = Math.ceil((end - now) / (1000 * 60 * 60 * 24));
         document.getElementById('resDday').textContent = dday > 0 ? `D-${dday}` : (dday === 0 ? "D-Day" : `전역 후 ${Math.abs(dday)}일`);
 
-        // 진급일 계산 (일병: 입대+2, 상병: 입대+8, 병장: 입대+14 개월 후 다음달 1일)
+        // 진급일 계산
         const pfcDate = getPromotionDate(user.start, 2, 0); 
-        const cplDate = getPromotionDate(user.start, 8, user.pfc2cpl); // 일병>상병 보정
-        const sgtDate = getPromotionDate(user.start, 14, user.cpl2sgt); // 상병>병장 보정
-
+        const cplDate = getPromotionDate(user.start, 8, user.pfc2cpl);
+        const sgtDate = getPromotionDate(user.start, 14, user.cpl2sgt);
         const promoDates = [
             { name: "일병", date: pfcDate },
             { name: "상병", date: cplDate },
             { name: "병장", date: sgtDate },
             { name: "전역", date: end }
         ];
-
         let nextPromo = promoDates.find(p => p.date > now) || promoDates[3];
-        
-        document.getElementById('resNextPromoDate').textContent = `${nextPromo.name} (${nextPromo.date.toISOString().split('T')[0]})`;
+        document.getElementById('resNextPromoDate').textContent = nextPromo.date.toISOString().split('T')[0];
         const pDday = Math.ceil((nextPromo.date - now) / (1000 * 60 * 60 * 24));
         document.getElementById('resNextPromoDday').textContent = pDday > 0 ? `D-${pDday}` : "D-Day";
+
+        // 휴가 계산
+        const vacRangeEl = document.getElementById('resVacationRange');
+        const vacDdayEl = document.getElementById('resVacDday');
+        if (user.vacation && user.vacation.length === 2) {
+            const vStart = new Date(user.vacation[0]);
+            const vEnd = new Date(user.vacation[1]);
+            const vDays = Math.round((vEnd - vStart) / (1000 * 60 * 60 * 24)) + 1;
+            vacRangeEl.textContent = `${user.vacation[0]} ~ ${user.vacation[1]} (${vDays}일)`;
+            
+            const vDday = Math.ceil((vStart - now) / (1000 * 60 * 60 * 24));
+            if (vDday > 0) vacDdayEl.textContent = `D-${vDday}`;
+            else if (now >= vStart && now <= new Date(vEnd.getTime() + 86400000)) vacDdayEl.textContent = "휴가 중";
+            else vacDdayEl.textContent = "종료";
+        } else {
+            vacRangeEl.textContent = "-";
+            vacDdayEl.textContent = "-";
+        }
     }
 
     function updateAllPreviews() {

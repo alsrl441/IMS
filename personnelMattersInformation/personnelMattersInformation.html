@@ -69,71 +69,85 @@
                             </div>
                         </div>
 
-                        <!-- Info Grid Section -->
-                        <div class="profile-info-grid">
-                            <div class="info-column">
-                                <div class="info-row-minimal">
-                                    <label>이름</label>
-                                    <span id="resName" class="view-mode"></span>
-                                    <input type="text" id="editName" class="form-control-minimal edit-mode hidden">
-                                </div>
-                                <div class="info-row-minimal">
-                                    <label>소속</label>
-                                    <span id="resAffiliation" class="view-mode"></span>
-                                    <input type="text" id="editAffiliation" class="form-control-minimal edit-mode hidden">
-                                </div>
-                                <div class="info-row-minimal">
-                                    <label>보직</label>
-                                    <span id="resPosition" class="view-mode"></span>
-                                    <input type="text" id="editPosition" class="form-control-minimal edit-mode hidden">
-                                </div>
-                                <div class="info-row-minimal">
-                                    <label>취미</label>
-                                    <span id="resHobby" class="view-mode"></span>
-                                    <input type="text" id="editHobby" class="form-control-minimal edit-mode hidden">
-                                </div>
-                                <div class="info-row-minimal">
-                                    <label>특기</label>
-                                    <span id="resSpecialty" class="view-mode"></span>
-                                    <input type="text" id="editSpecialty" class="form-control-minimal edit-mode hidden">
+                        <!-- Info Sections -->
+                        <div class="profile-sections">
+                            <!-- 기본 정보 -->
+                            <div class="info-section">
+                                <h6 class="section-title"><i class="fas fa-user-circle"></i> 기본 정보</h6>
+                                <div class="info-grid-minimal">
+                                    <div class="info-row-minimal">
+                                        <label>이름</label>
+                                        <span id="resName" class="view-mode"></span>
+                                        <input type="text" id="editName" class="form-control-minimal edit-mode hidden">
+                                    </div>
+                                    <div class="info-row-minimal">
+                                        <label>소속</label>
+                                        <span id="resAffiliation" class="view-mode"></span>
+                                        <input type="text" id="editAffiliation" class="form-control-minimal edit-mode hidden">
+                                    </div>
+                                    <div class="info-row-minimal">
+                                        <label>보직</label>
+                                        <span id="resPosition" class="view-mode"></span>
+                                        <input type="text" id="editPosition" class="form-control-minimal edit-mode hidden">
+                                    </div>
                                 </div>
                             </div>
-                            <div class="info-column">
-                                <div class="info-row-minimal">
-                                    <label>입대일</label>
-                                    <span id="resStartDate" class="view-mode"></span>
-                                    <input type="date" id="editStartDate" class="form-control-minimal edit-mode hidden">
+
+                            <!-- 복무 정보 -->
+                            <div class="info-section">
+                                <h6 class="section-title"><i class="fas fa-calendar-alt"></i> 복무 정보</h6>
+                                <div class="info-grid-minimal">
+                                    <div class="info-row-minimal">
+                                        <label>입대일</label>
+                                        <span id="resStartDate" class="view-mode"></span>
+                                        <input type="date" id="editStartDate" class="form-control-minimal edit-mode hidden">
+                                    </div>
+                                    <div class="info-row-minimal">
+                                        <label>전입일</label>
+                                        <span id="resTransferDate" class="view-mode"></span>
+                                        <input type="date" id="editTransferDate" class="form-control-minimal edit-mode hidden">
+                                    </div>
+                                    <div class="info-row-minimal">
+                                        <label>전역일</label>
+                                        <span id="resEndDate" class="view-mode"></span>
+                                        <input type="date" id="editEndDate" class="form-control-minimal edit-mode hidden">
+                                    </div>
+                                    <div class="info-row-minimal highlight-dday view-mode">
+                                        <label>전역</label>
+                                        <span id="resDday"></span>
+                                    </div>
                                 </div>
-                                <div class="info-row-minimal">
-                                    <label>전역일</label>
-                                    <span id="resEndDate" class="view-mode"></span>
-                                    <input type="date" id="editEndDate" class="form-control-minimal edit-mode hidden">
-                                </div>
-                                <div class="info-row-minimal highlight-dday view-mode">
-                                    <label>전역 D-day</label>
-                                    <span id="resDday"></span>
-                                </div>
-                                <div class="info-row-minimal">
-                                    <label>일병 > 상병 보정</label>
-                                    <span id="resPfc2cpl" class="view-mode">0개월</span>
-                                    <input type="number" id="editPfc2cpl" class="form-control-minimal edit-mode hidden" placeholder="조기 +1, 누락 -1">
-                                </div>
-                                <div class="info-row-minimal">
-                                    <label>상병 > 병장 보정</label>
-                                    <span id="resCpl2sgt" class="view-mode">0개월</span>
-                                    <input type="number" id="editCpl2sgt" class="form-control-minimal edit-mode hidden" placeholder="조기 +1, 누락 -1">
-                                </div>
-                                <div class="info-row-minimal view-mode highlight-promotion">
-                                    <label>다음 진급일</label>
-                                    <span id="resNextPromoDate"></span>
-                                </div>
-                                <div class="info-row-minimal view-mode">
-                                    <label>진급 D-day</label>
-                                    <span id="resNextPromoDday"></span>
-                                </div>
-                                <div class="info-row-minimal view-mode">
-                                    <label>다음 휴가일</label>
-                                    <span id="resVacationRange"></span>
+                            </div>
+
+                            <!-- 진급 및 휴가 -->
+                            <div class="info-section">
+                                <h6 class="section-title"><i class="fas fa-medal"></i> 진급 및 휴가</h6>
+                                <div class="info-grid-minimal">
+                                    <div class="info-row-minimal edit-mode hidden">
+                                        <label>일병 > 상병 보정</label>
+                                        <input type="number" id="editPfc2cpl" class="form-control-minimal" placeholder="조기 +1, 누락 -1">
+                                    </div>
+                                    <div class="info-row-minimal edit-mode hidden">
+                                        <label>상병 > 병장 보정</label>
+                                        <input type="number" id="editCpl2sgt" class="form-control-minimal" placeholder="조기 +1, 누락 -1">
+                                    </div>
+                                    
+                                    <div class="info-row-minimal view-mode highlight-promotion">
+                                        <label>진급일</label>
+                                        <span id="resNextPromoDate"></span>
+                                    </div>
+                                    <div class="info-row-minimal view-mode">
+                                        <label>진급</label>
+                                        <span id="resNextPromoDday"></span>
+                                    </div>
+                                    <div class="info-row-minimal view-mode">
+                                        <label>휴가일</label>
+                                        <span id="resVacationRange"></span>
+                                    </div>
+                                    <div class="info-row-minimal view-mode">
+                                        <label>휴가</label>
+                                        <span id="resVacDday"></span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
