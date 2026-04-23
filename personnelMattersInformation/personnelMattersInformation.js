@@ -119,9 +119,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('resName').textContent = user.name;
         document.getElementById('resAffiliation').textContent = user.affiliation || "-";
         document.getElementById('resPosition').textContent = user.position || "-";
-        document.getElementById('resStartDate').textContent = user.start;
-        document.getElementById('resTransferDate').textContent = user.transfer || "-";
-        document.getElementById('resEndDate').textContent = user.end;
         resPhoto.src = user.photo || "../img/default-profile.png";
         currentPhotoBase64 = user.photo || "";
 
@@ -136,15 +133,19 @@ document.addEventListener('DOMContentLoaded', async () => {
             basicInfoGrid.appendChild(row);
         });
 
-        // 커스텀 일정 렌더링
+        // 커스텀 일정 렌더링 (2열 구조용 공간 확보)
         document.querySelectorAll('.custom-schedule-row').forEach(el => el.remove());
         scheduleEditContainer.innerHTML = '';
         (user.customSchedules || []).forEach(s => {
             addCustomScheduleRow(s.label, s.date);
-            const row = document.createElement('div');
-            row.className = 'info-row-minimal custom-schedule-row view-mode';
-            row.innerHTML = `<label id="label-cust-${s.label.replace(/\s/g, '')}">${s.label}</label><span id="val-cust-${s.label.replace(/\s/g, '')}">-</span>`;
-            scheduleInfoGrid.appendChild(row);
+            const rowL = document.createElement('div');
+            rowL.className = 'info-row-minimal custom-schedule-row view-mode';
+            rowL.innerHTML = `<label id="label-cust-${s.label.replace(/\s/g, '')}">${s.label}일</label><span id="val-cust-date-${s.label.replace(/\s/g, '')}">${s.date}</span>`;
+            const rowR = document.createElement('div');
+            rowR.className = 'info-row-minimal custom-schedule-row view-mode';
+            rowR.innerHTML = `<label>${s.label}</label><span id="val-cust-dday-${s.label.replace(/\s/g, '')}">-</span>`;
+            scheduleInfoGrid.appendChild(rowL);
+            scheduleInfoGrid.appendChild(rowR);
         });
 
         // 입력창 채우기
@@ -194,7 +195,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         toggleEditMode(true); document.getElementById('editName').focus();
     }
 
-    // Drag and Drop & Photo
+    // Photo & Drag Drop
     photoEditArea.addEventListener('dragover', (e) => { e.preventDefault(); photoEditArea.style.borderColor = "#212529"; });
     photoEditArea.addEventListener('dragleave', () => { photoEditArea.style.borderColor = "#eee"; });
     photoEditArea.addEventListener('drop', (e) => {
@@ -203,7 +204,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
     photoOverlay.addEventListener('click', () => photoInput.click());
     photoInput.addEventListener('change', (e) => { if (e.target.files[0]) handlePhoto(e.target.files[0]); });
-
     function handlePhoto(file) {
         const reader = new FileReader();
         reader.onload = (rev) => { currentPhotoBase64 = rev.target.result; resPhoto.src = currentPhotoBase64; };
@@ -228,19 +228,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             const d = row.querySelector('.custom-date').value;
             if (l && d) customSchedules.push({ label: l, date: d });
         });
-
         const id = isAdding ? Date.now().toString() : members[selectEl.value].id;
         const updatedUser = {
-            id, name,
-            affiliation: document.getElementById('editAffiliation').value.trim(),
+            id, name, affiliation: document.getElementById('editAffiliation').value.trim(),
             position: document.getElementById('editPosition').value.trim(),
-            start: document.getElementById('editStartDate').value,
-            transfer: document.getElementById('editTransferDate').value,
+            start: document.getElementById('editStartDate').value, transfer: document.getElementById('editTransferDate').value,
             end: document.getElementById('editEndDate').value,
             pfc2cpl: parseInt(document.getElementById('editPfc2cpl').value) || 0,
             cpl2sgt: parseInt(document.getElementById('editCpl2sgt').value) || 0,
-            photo: currentPhotoBase64,
-            vacation: isAdding ? [] : (members[selectEl.value].vacation || []),
+            photo: currentPhotoBase64, vacation: isAdding ? [] : (members[selectEl.value].vacation || []),
             customFields, customSchedules
         };
         try {
@@ -274,53 +270,56 @@ document.addEventListener('DOMContentLoaded', async () => {
         const now = new Date();
         const start = new Date(user.start); const end = new Date(user.end);
         
-        // 복무율
         let p = ((now - start) / (end - start)) * 100;
         if (p < 0) p = 0; if (p > 100) p = 100;
         document.getElementById('resPercent').textContent = p.toFixed(8) + "%";
         document.getElementById('progressBarFill').style.width = p + "%";
 
-        // 일정별 D-day 맵핑
-        document.getElementById('labelTransfer').textContent = `전입일 (${user.transfer || "-"})`;
-        document.getElementById('resTransferDate').textContent = getDday(user.transfer);
+        // 1행
+        document.getElementById('resStartDate').textContent = user.start;
+        document.getElementById('resTransferDate').textContent = user.transfer || "-";
         
-        document.getElementById('labelEnd').textContent = `전역일 (${user.end})`;
-        document.getElementById('resEndDate').textContent = getDday(user.end);
+        // 2행
+        document.getElementById('resEndDate').textContent = user.end;
+        document.getElementById('resDday').textContent = getDday(user.end);
 
+        // 3행
         const pfc = getPromotionDate(user.start, 2, 0);
         const cpl = getPromotionDate(user.start, 8, user.pfc2cpl);
         const sgt = getPromotionDate(user.start, 14, user.cpl2sgt);
         const promoDates = [{n:"일병",d:pfc},{n:"상병",d:cpl},{n:"병장",d:sgt},{n:"전역",d:end}];
         const nextP = promoDates.find(x => x.d > now) || promoDates[3];
-        document.getElementById('labelPromo').textContent = `${nextP.n} 진급 (${nextP.d.toISOString().split('T')[0]})`;
-        document.getElementById('resPromoStatus').textContent = getDday(nextP.d.toISOString().split('T')[0]);
+        document.getElementById('resPromoLabel').textContent = `${nextP.n} 진급일`;
+        document.getElementById('resPromoDate').textContent = nextP.d.toISOString().split('T')[0];
+        document.getElementById('resPromoDday').textContent = getDday(nextP.d.toISOString().split('T')[0]);
 
-        const vacEl = document.getElementById('resVacationStatus');
+        // 4행
+        const vRange = document.getElementById('resVacRange');
+        const vDday = document.getElementById('resVacDday');
         if (user.vacation && user.vacation.length === 2) {
             const vS = new Date(user.vacation[0]); const vE = new Date(user.vacation[1]);
             const days = Math.round((vE - vS) / 86400000) + 1;
-            document.getElementById('labelVacation').textContent = `휴가 (${user.vacation[0]} ~ ${user.vacation[1]}, ${days}일)`;
+            vRange.textContent = `${user.vacation[0]} ~ ${user.vacation[1]} (${days}일)`;
             const vD = Math.ceil((vS - now) / 86400000);
-            vacEl.textContent = vD > 0 ? `D-${vD}` : (now <= new Date(vE.getTime() + 86400000) ? "휴가 중" : "종료");
+            vDday.textContent = vD > 0 ? `D-${vD}` : (now <= new Date(vE.getTime() + 86400000) ? "휴가 중" : "종료");
         } else {
-            document.getElementById('labelVacation').textContent = "휴가일";
-            vacEl.textContent = "-";
+            vRange.textContent = "-"; vDday.textContent = "-";
         }
 
         // 커스텀 일정
         (user.customSchedules || []).forEach(s => {
-            const lEl = document.getElementById(`label-cust-${s.label.replace(/\s/g, '')}`);
-            const vEl = document.getElementById(`val-cust-${s.label.replace(/\s/g, '')}`);
-            if (lEl && vEl) {
-                lEl.textContent = `${s.label} (${s.date})`;
-                vEl.textContent = getDday(s.date);
+            const vDate = document.getElementById(`val-cust-date-${s.label.replace(/\s/g, '')}`);
+            const vDday = document.getElementById(`val-cust-dday-${s.label.replace(/\s/g, '')}`);
+            if (vDate && vDday) {
+                vDate.textContent = s.date;
+                vDday.textContent = getDday(s.date);
             }
         });
     }
 
-    function getPromotionDate(sStr, m, a) {
-        if (!sStr) return null;
-        let d = new Date(sStr); d.setMonth(d.getMonth() + m + 1); d.setDate(1);
+    function getPromotionDate(s, m, a) {
+        if (!s) return null;
+        let d = new Date(s); d.setMonth(d.getMonth() + m + 1); d.setDate(1);
         if (a) d.setMonth(d.getMonth() - a); return d;
     }
 
