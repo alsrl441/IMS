@@ -92,7 +92,7 @@ main {
     padding: 0 4rem;
     color: #4b5563;
     text-decoration: none;
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 600;
     transition: all 0.2s ease;
 }
@@ -152,12 +152,12 @@ main {
 
 .mega-menu-column {
     /* 각 메뉴 항목이 충분한 공간을 갖도록 너비 확장 */
-    width: 200px; 
+    width: 250px; 
     margin-right: 120px;
 }
 
 .mega-menu-column:nth-child(2) {
-    width: 250px; /* 업무 쪽은 항목이 많으므로 더 넓게 */
+    width: 300px; /* 업무 쪽은 항목이 많으므로 더 넓게 */
     margin-right: 130px;
 }
 
@@ -167,13 +167,14 @@ main {
 
 .mega-menu-item {
     display: block;
-    padding: 0.8rem 0; /* 상하 여백을 늘려 더 시원하게 */
+    padding: 0.6rem 0.8rem;
     color: #4b5563;
     text-decoration: none;
-    font-size: 1rem; /* 폰트 사이즈도 살짝 키움 */
+    font-size: 0.9rem;
     font-weight: 500;
     transition: all 0.2s;
     border-radius: 0.5rem;
+    white-space: nowrap;
 }
 
 .mega-menu-item:hover {
