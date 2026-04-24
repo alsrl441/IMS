@@ -96,9 +96,10 @@ main {
 .nav-link {
     display: flex;
     align-items: center;
+    justify-content: center;
     height: 100%;
     width: 100%;
-    padding: 0 2.5rem; /* 글자 시작 위치를 조절 */
+    padding: 0;
     color: #4b5563;
     text-decoration: none;
     font-size: 1rem;
@@ -173,7 +174,7 @@ main {
 
 .mega-menu-item {
     display: block;
-    padding: 0.6rem 2.5rem; /* 상단 .nav-link의 padding-left와 동일하게 맞춤 */
+    padding: 0.6rem 1rem;
     color: #4b5563;
     text-decoration: none;
     font-size: 0.95rem;
