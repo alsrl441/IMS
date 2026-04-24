@@ -31,18 +31,25 @@
 
     <main class="container py-4">
         <div class="search-layout">
-            <section class="search-box-section mb-5">
-                <div class="search-input-wrapper">
-                    <div class="search-input-container">
-                        <input type="text" id="tag-input" placeholder="검색어를 입력해주세요." autocomplete="off">
-                        <div id="autocomplete-list" class="autocomplete-items"></div>
+            <section class="content-section">
+                <div class="section-header">
+                    <h2 class="section-title">식별 선박 검색</h2>
+                </div>
+                <div class="section-body">
+                    <div class="search-box-section mb-4">
+                        <div class="search-input-wrapper">
+                            <div class="search-input-container">
+                                <input type="text" id="tag-input" placeholder="검색어를 입력해주세요." autocomplete="off">
+                                <div id="autocomplete-list" class="autocomplete-items"></div>
+                            </div>
+                        </div>
+                        <div id="selected-tags" class="selected-tags-container"></div>
+                    </div>
+
+                    <div id="ship-results" class="ship-results-list">
                     </div>
                 </div>
-                <div id="selected-tags" class="selected-tags-container"></div>
             </section>
-
-            <div id="ship-results" class="ship-results-grid">
-            </div>
 
             <div id="pagination-container" class="pagination-wrapper mt-4"></div>
         </div>
