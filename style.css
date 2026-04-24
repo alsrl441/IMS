@@ -117,72 +117,78 @@ main {
     background-color: var(--bs-primary);
 }
 
-/* Dropdown Menu (Level 2) */
-.dropdown-menu {
+/* Mega Menu Styles */
+.nav-item {
+    position: static; /* 메가 메뉴가 네비게이션 바 전체 너비를 쓰도록 설정 */
+}
+
+.mega-menu {
     position: absolute;
     top: 100%;
     left: 0;
-    z-index: 1000;
-    display: none;
-    min-width: 12rem;
-    padding: 0.5rem 0;
-    margin: 0;
+    width: 100%;
     background-color: var(--bs-white);
-    border: 1px solid var(--bs-gray-200);
-    border-top: none;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid var(--bs-gray-200);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
+    display: none;
+    padding: 2rem 0;
+    z-index: 1000;
+    animation: slideDown 0.2s ease-out;
 }
 
-.nav-item:hover > .dropdown-menu {
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.nav-item:hover .mega-menu {
     display: block;
 }
 
-.dropdown-item {
+.mega-menu-container {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    padding: 0.75rem 1.25rem;
+    gap: 4rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+.mega-menu-column {
+    flex: 1;
+    min-width: 150px;
+}
+
+.mega-menu-title {
+    font-size: 0.875rem;
+    font-weight: 800;
+    color: var(--bs-primary);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--bs-gray-100);
+}
+
+.mega-menu-item {
+    display: block;
+    padding: 0.5rem 0;
     color: #4b5563;
     text-decoration: none;
     font-size: 0.9375rem;
     font-weight: 500;
-    transition: all 0.2s;
+    transition: color 0.2s;
 }
 
-.dropdown-item:hover {
-    background-color: var(--bs-gray-100);
+.mega-menu-item:hover {
     color: var(--bs-primary);
 }
 
-/* Sub-dropdown Menu (Level 3) */
-.nav-item-sub {
-    position: relative;
-}
-
-.dropdown-submenu {
-    position: absolute;
-    top: 0;
-    left: 100%;
-    display: none;
-    min-width: 10rem;
-    padding: 0.5rem 0;
-    background-color: var(--bs-white);
-    border: 1px solid var(--bs-gray-200);
-    box-shadow: 5px 5px 15px rgba(0,0,0,0.1);
-}
-
-.nav-item-sub:hover > .dropdown-submenu {
-    display: block;
-}
-
-/* Hidden Playground Logic */
+/* Hidden Playground within Mega Menu */
 .game-link {
     opacity: 0 !important;
     transition: opacity 0.3s ease !important;
 }
 
-.dropdown-item:hover .game-link, .game-link:hover {
+.mega-menu-column:hover .game-link, .game-link:hover {
     opacity: 1 !important;
 }
 
