@@ -79,17 +79,26 @@ main {
 }
 
 .nav-item {
-    position: relative;
     height: 100%;
     display: flex;
     align-items: center;
+    width: 160px; /* 대시보드 */
+}
+
+.nav-item:nth-child(2) {
+    width: 250px; /* 업무 */
+}
+
+.nav-item:nth-child(3) {
+    width: 250px; /* 비업무 */
 }
 
 .nav-link {
     display: flex;
     align-items: center;
     height: 100%;
-    padding: 0 4rem;
+    width: 100%;
+    padding: 0 2.5rem; /* 글자 시작 위치를 조절 */
     color: #4b5563;
     text-decoration: none;
     font-size: 1rem;
@@ -151,23 +160,20 @@ main {
 }
 
 .mega-menu-column {
-    /* 각 메뉴 항목이 충분한 공간을 갖도록 너비 확장 */
-    width: 250px; 
-    margin-right: 120px;
+    width: 160px; /* 대시보드 열 */
 }
 
 .mega-menu-column:nth-child(2) {
-    width: 300px; /* 업무 쪽은 항목이 많으므로 더 넓게 */
-    margin-right: 130px;
+    width: 250px; /* 업무 열 */
 }
 
 .mega-menu-column:nth-child(3) {
-    width: 250px; /* 비업무 쪽 */
+    width: 250px; /* 비업무 열 */
 }
 
 .mega-menu-item {
     display: block;
-    padding: 0.6rem 1.25rem; /* 좌우 여백을 기본적으로 확보해서 안정감 부여 */
+    padding: 0.6rem 2.5rem; /* 상단 .nav-link의 padding-left와 동일하게 맞춤 */
     color: #4b5563;
     text-decoration: none;
     font-size: 0.95rem;
