@@ -370,11 +370,17 @@ main {
     width: 100%;
 }
 
+.meal-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .meal-search-pannel {
     display: flex;
-    gap: 10px;
+    gap: 5px;
     align-items: center;
-    margin-left: 10px;
+    transition: all 0.3s ease;
 }
 
 .meal-search-pannel.hidden {
