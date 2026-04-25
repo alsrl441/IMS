@@ -122,7 +122,7 @@ async function initFullMealSchedule() {
     const weekPicker = document.getElementById('week-picker');
     const displayEl = document.getElementById('weekly-meal-display');
     const mealModal = document.getElementById('meal-modal');
-    if (!displayEl) return; // 전체 관리 페이지 요소가 없으면 중단
+    if (!displayEl) return; 
 
     const btnAddMeal = document.getElementById('btn-add-meal');
     const closeModal = document.querySelector('.close-modal');
@@ -146,18 +146,22 @@ async function initFullMealSchedule() {
         const sunday = getSunday(selectedDate);
         const allMenus = await window.getDBData(STORE_NAME);
         
+        const days = ['일', '월', '화', '수', '목', '금', '토'];
         let html = `
             <table class="meal-table weekly">
                 <thead>
                     <tr>
                         <th style="width: 10%;">구분</th>
-                        <th class="sunday">일</th>
-                        <th>월</th>
-                        <th>화</th>
-                        <th>수</th>
-                        <th>목</th>
-                        <th>금</th>
-                        <th class="saturday">토</th>
+        `;
+
+        for (let i = 0; i < 7; i++) {
+            const d = new Date(sunday);
+            d.setDate(sunday.getDate() + i);
+            const dayClass = i === 0 ? 'sunday' : (i === 6 ? 'saturday' : '');
+            html += `<th class="${dayClass}">${days[i]} (${d.getMonth() + 1}/${d.getDate()})</th>`;
+        }
+
+        html += `
                     </tr>
                 </thead>
                 <tbody>
@@ -165,12 +169,11 @@ async function initFullMealSchedule() {
 
         const mealTypes = [
             { id: 'breakfast', label: '아침' },
-            { id: 'brunch', label: '브런치' },
             { id: 'lunch', label: '점심' },
             { id: 'dinner', label: '저녁' }
         ];
 
-        mealTypes.forEach(type => {
+        mealTypes.forEach((type, rowIndex) => {
             html += `<tr><td class="meal-type-label">${type.label}</td>`;
             for (let i = 0; i < 7; i++) {
                 const d = new Date(sunday);
@@ -178,31 +181,42 @@ async function initFullMealSchedule() {
                 const dateStr = formatDate(d);
                 const menu = allMenus.find(m => m.date === dateStr);
                 const isSunday = i === 0;
-                
-                let content = '-';
-                if (menu) {
-                    if (type.id === 'brunch') content = isSunday ? (menu.brunch || '-') : 'X';
-                    else if (type.id === 'breakfast') content = isSunday ? 'X' : (menu.breakfast || '-');
-                    else if (type.id === 'lunch') content = isSunday ? 'X' : (menu.lunch || '-');
-                    else content = menu.dinner || '-';
+
+                if (isSunday) {
+                    if (rowIndex === 0) {
+                        // 일요일 아침 행: 아침+점심 병합하여 브런치 표시
+                        html += `
+                            <td rowspan="2" class="clickable-cell sunday text-center" style="vertical-align: middle;" data-date="${dateStr}">
+                                <div class="meal-label" style="font-size: 0.8rem; color: #6c757d; margin-bottom: 5px;">[브런치]</div>
+                                <div class="meal-text">${menu?.brunch || '-'}</div>
+                            </td>
+                        `;
+                    } else if (rowIndex === 1) {
+                        // 일요일 점심 행: 건너뜀 (병합됨)
+                        continue;
+                    } else {
+                        // 일요일 저녁 행
+                        html += `
+                            <td class="clickable-cell sunday" data-date="${dateStr}">
+                                <div class="meal-text">${menu?.dinner || '-'}</div>
+                            </td>
+                        `;
+                    }
                 } else {
-                    if (type.id === 'brunch' && !isSunday) content = 'X';
-                    if (isSunday && (type.id === 'breakfast' || type.id === 'lunch')) content = 'X';
-                }
-                html += `<td class="clickable-cell ${isSunday ? 'sunday' : (i === 6 ? 'saturday' : '')}" data-date="${dateStr}">
+                    // 평일
+                    const content = menu ? (menu[type.id] || '-') : '-';
+                    const cellClass = i === 6 ? 'saturday' : '';
+                    html += `
+                        <td class="clickable-cell ${cellClass}" data-date="${dateStr}">
                             <div class="meal-text">${content}</div>
-                         </td>`;
+                        </td>
+                    `;
+                }
             }
             html += '</tr>';
         });
 
-        html += '<tr class="date-row"><td>날짜</td>';
-        for (let i = 0; i < 7; i++) {
-            const d = new Date(sunday);
-            d.setDate(sunday.getDate() + i);
-            html += `<td class="text-center small">${d.getMonth() + 1}/${d.getDate()}</td>`;
-        }
-        html += '</tr></tbody></table>';
+        html += '</tbody></table>';
         displayEl.innerHTML = html;
 
         document.querySelectorAll('.clickable-cell').forEach(cell => {
