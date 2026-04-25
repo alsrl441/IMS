@@ -213,7 +213,44 @@
     color: #212529;
 }
 
-.v-middle { vertical-align: middle !important; }
+.btn-sm {
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+}
+
+.btn-primary {
+    background-color: #0d6efd;
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background-color: #0b5ed7;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(13, 110, 253, 0.2);
+}
+
+.btn-success {
+    background-color: #198754;
+    color: #fff;
+}
+
+.btn-success:hover {
+    background-color: #157347;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(25, 135, 84, 0.2);
+}
+
+.btn-secondary {
+    background-color: transparent;
+    color: #6c757d;
+    border: none;
+    padding: 6px 10px;
+}
 .text-center { text-align: center !important; }
 .w-100 { width: 100% !important; }
 .font-weight-600 { font-weight: 600 !important; }
