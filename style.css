@@ -344,3 +344,48 @@ main {
         flex-direction: column;
     }
 }
+
+/* 식단표 대시보드 스타일 */
+.meal-container {
+    border: 1px solid var(--bs-gray-300);
+    border-radius: var(--bs-border-radius);
+    padding: 2rem;
+    background-color: var(--bs-white);
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+#meal-display {
+    margin: 0;
+    font-family: var(--font-family);
+    font-size: 1.25rem;
+    font-weight: 500;
+    line-height: 2;
+    white-space: pre-line;
+    text-align: center;
+    color: #374151;
+    width: 100%;
+}
+
+.meal-search-pannel {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-left: 10px;
+}
+
+.meal-search-pannel.hidden {
+    display: none;
+}
+
+.clickable {
+    cursor: pointer;
+    user-select: none;
+}
+
+.clickable:hover {
+    filter: brightness(0.9);
+}

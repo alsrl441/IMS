@@ -53,6 +53,12 @@ function updateMealOptions(dateStr) {
     if (hasValue) searchMealSelect.value = currentVal;
 }
 
+function formatMealText(text) {
+    if (!text || text === "정보 없음") return "식단 정보가 없습니다.";
+    // 콤마 뒤 공백 제거 후 콤마를 줄바꿈으로 변경
+    return text.split(',').map(item => item.trim()).join('\n');
+}
+
 async function setAutoMeal() {
     const now = new Date();
     const timeVal = now.getHours() * 100 + now.getMinutes();
@@ -94,7 +100,7 @@ async function setAutoMeal() {
     const mealData = await getMealData(targetDateStr);
     if (mealData) {
         if (mealTypeEl) mealTypeEl.innerText = displayLabel;
-        if (mealDisplayEl) mealDisplayEl.innerText = mealData[mealKey] || "식단 정보가 없습니다.";
+        if (mealDisplayEl) mealDisplayEl.innerText = formatMealText(mealData[mealKey]);
     } else {
         if (mealTypeEl) mealTypeEl.innerText = "정보 없음";
         if (mealDisplayEl) mealDisplayEl.innerText = "식단 정보가 없습니다.";
@@ -114,8 +120,7 @@ async function searchMeal() {
     const mealNames = { breakfast: "아침", lunch: "점심", dinner: "저녁", brunch: "브런치" };
     if (mealTypeEl) mealTypeEl.innerText = `${dateStr} ${mealNames[mealKey] || ""}`;
     
-    const mealText = mealData?.[mealKey] ? mealData[mealKey].replace(/, /g, '\n').replace(/,/g, '\n') : "식단 정보가 없습니다.";
-    if (mealDisplayEl) mealDisplayEl.innerText = mealText;
+    if (mealDisplayEl) mealDisplayEl.innerText = formatMealText(mealData?.[mealKey]);
 }
 
 async function initMeal() {
@@ -129,11 +134,20 @@ async function initMeal() {
     }
 
     if (mealTypeEl) {
-        mealTypeEl.addEventListener('click', () => {
+        mealTypeEl.addEventListener('click', (e) => {
+            e.stopPropagation();
             const ui = document.getElementById('meal-search-ui');
             if (ui) ui.classList.toggle('hidden');
         });
     }
+
+    // 다른 곳 클릭하면 검색창 닫기
+    document.addEventListener('click', (e) => {
+        const ui = document.getElementById('meal-search-ui');
+        if (ui && !ui.contains(e.target) && e.target !== mealTypeEl) {
+            ui.classList.add('hidden');
+        }
+    });
 
     if (searchDateInput) searchDateInput.addEventListener('change', searchMeal);
     if (searchMealSelect) searchMealSelect.addEventListener('change', searchMeal);
