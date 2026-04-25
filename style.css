@@ -130,7 +130,6 @@ main {
     border-bottom: 1px solid var(--bs-gray-200);
     box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
     display: none;
-    padding: 2rem 0;
     z-index: 1000;
 }
 
@@ -143,27 +142,15 @@ main {
     display: flex;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 1rem 1.5rem;
+    padding: 2rem 1.5rem; /* navbar-container와 동일한 좌우 패딩 1.5rem 유지 */
 }
 
 .mega-menu-column {
-    width: 200px;
-}
-
-.mega-menu-item {
-    display: block;
-    padding: 0.6rem 1rem;
-    color: #4b5563;
-    text-decoration: none;
-    font-size: 0.95rem;
-    font-weight: 500;
-    transition: all 0.15s ease-in-out;
-    border-radius: 0.5rem;
-    white-space: nowrap;
+    width: 200px; /* 각 nav-item의 200px와 일치 */
 }
 
 .mega-menu-column:nth-child(3) {
-    width: 250px; /* 비업무 열 */
+    width: 250px; /* 비업무 열은 여유 있게 유지 */
 }
 
 .mega-menu-item {
@@ -180,8 +167,7 @@ main {
 
 .mega-menu-item:hover {
     color: var(--bs-primary);
-    background-color: #f3f4f6; /* 호버 시 배경색만 변경 */
-    /* padding-left 를 제거해서 텍스트 위치 고정 */
+    background-color: #f3f4f6;
 }
 
 /* Hidden Playground 유지 */
