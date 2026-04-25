@@ -122,8 +122,8 @@ async function initFullMealSchedule() {
                         html += `
                             <td rowspan="2" class="sunday text-center" style="vertical-align: middle;">
                                 ${isEditMode ? 
-                                    `<div class="small text-muted mb-1">[브런치]</div><textarea class="edit-input" data-date="${dateStr}" data-type="brunch" rows="4">${content}</textarea>` : 
-                                    `<div class="meal-label" style="font-size: 0.8rem; color: #6c757d; margin-bottom: 5px;">[브런치]</div><div class="meal-text">${formatMealText(content)}</div>`
+                                    `<textarea class="edit-input" data-date="${dateStr}" data-type="brunch" rows="4">${content}</textarea>` : 
+                                    `<div class="meal-text">${formatMealText(content)}</div>`
                                 }
                             </td>
                         `;
