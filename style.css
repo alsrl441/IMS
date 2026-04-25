@@ -147,10 +147,19 @@ main {
 
 .mega-menu-column {
     width: 200px; /* 각 nav-item의 200px와 일치 */
+    padding: 0 1.5rem; /* 구분선과 텍스트 사이 간격 확보 */
+}
+
+.mega-menu-column:not(:first-child) {
+    border-left: 1px solid var(--bs-gray-200);
 }
 
 .mega-menu-column:nth-child(3) {
     width: 250px; /* 비업무 열은 여유 있게 유지 */
+}
+
+.mega-menu-column:first-child {
+    padding-left: 0; /* 첫 번째 컬럼은 왼쪽 패딩 제거하여 상단 메뉴와 시작점 맞춤 */
 }
 
 .mega-menu-item {
