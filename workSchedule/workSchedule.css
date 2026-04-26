@@ -1,8 +1,6 @@
-/* 대시보드 전용 스타일 */
 #work-display {
     font-size: 0.9375rem;
 }
-
 .work-table {
     width: 100%;
     border-collapse: collapse;
@@ -10,7 +8,6 @@
     background-color: #fff;
     border: 1px solid #dee2e6;
 }
-
 .work-table th, .work-table td {
     border: 1px solid #dee2e6;
     padding: 8px 6px;
@@ -19,60 +16,48 @@
     vertical-align: middle;
     word-break: keep-all;
 }
-
 .work-table .group-header {
     width: 80px;
     font-weight: 700;
     background-color: #f8f9fa;
 }
-
 .work-table .sub-group {
     width: 100px;
     font-weight: 600;
 }
-
 .monthly-table {
     table-layout: fixed;
 }
-
 .monthly-table th, .monthly-table td {
     padding: 8px 4px;
     font-size: 13px;
 }
-
 .monthly-table .group-header {
     width: 60px;
     font-weight: 700;
 }
-
 .monthly-table .sub-group {
     width: 85px;
     font-weight: 600;
 }
-
 .monthly-table th {
     background-color: #f8f9fa;
     font-size: 12px;
     padding: 10px 0;
 }
-
 .table-date-header {
     background-color: #f8f9fa !important;
     font-size: 12px !important;
     font-weight: 700 !important;
 }
-
 .text-primary { color: #0d6efd !important; }
 .text-danger { color: #dc3545 !important; }
-
 .monthly-table .table-date-header {
     font-size: 14px !important;
 }
-
 .names-cell {
     padding: 0 !important;
 }
-
 .names-cell .p1, .names-cell .p2 {
     padding: 4px 0;
     height: 35px;
@@ -82,17 +67,14 @@
     font-size: 14px;
     color: #212529;
 }
-
 .monthly-table .names-cell .p1, 
 .monthly-table .names-cell .p2 {
     height: 35px;
     font-size: 13px;
 }
-
 .names-cell .p1 {
     border-bottom: 1px solid rgba(0,0,0,0.03);
 }
-
 .more-btn {
     text-decoration: none !important;
     color: #212529 !important;
@@ -101,34 +83,28 @@
     padding: 0 5px;
     font-weight: 400;
 }
-
 .more-btn:hover {
     color: #212529 !important;
     text-decoration: none !important;
 }
-
 .no-data {
     padding: 20px;
     color: #6c757d;
     text-align: center;
 }
-
 .table-light-bg { background-color: #f8f9fa !important; }
 .table-white-bg { background-color: #ffffff !important; }
 .table-fdfdfd-bg { background-color: #fdfdfd !important; }
-
 .table-date-header span {
     font-size: 0.8rem;
     font-weight: 400;
 }
-
 .summary-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 15px;
     margin-bottom: 30px;
 }
-
 .summary-item {
     padding: 15px;
     border-radius: 8px;
@@ -136,18 +112,15 @@
     border: 1px solid #dee2e6;
     background-color: #f8f9fa;
 }
-
 .summary-item .summary-label {
     font-size: 0.8rem;
     color: #6c757d;
     margin-bottom: 5px;
 }
-
 .summary-item .summary-value {
     font-size: 1.2rem;
     font-weight: 700;
 }
-
 .summary-item.mvp {
     background-color: #fff3cd;
     border-color: #ffeeba;
@@ -156,7 +129,6 @@
 .summary-item.mvp .summary-value {
     color: #856404;
 }
-
 .summary-item.bee {
     background-color: #d1ecf1;
     border-color: #bee5eb;
@@ -165,59 +137,47 @@
 .summary-item.bee .summary-value {
     color: #0c5460;
 }
-
 .stats-table {
     width: 100%;
     border-collapse: collapse;
     min-width: 800px;
 }
-
 .stats-table thead {
     background-color: #f8f9fa;
 }
-
 .stats-table th, .stats-table td {
     padding: 10px 8px;
     border: 1px solid #dee2e6;
     text-align: center;
 }
-
 .stats-table .name-cell {
     font-weight: bold;
 }
-
 .stats-table .hours-cell {
     font-weight: bold;
     color: #212529;
 }
-
 .stats-table .dev-cell {
     font-weight: 600;
 }
-
 .monthly-table-wrapper {
     overflow-x: auto;
     margin-bottom: 20px;
 }
-
 .monthly-table {
     width: 100%;
     border-collapse: collapse;
     min-width: 1000px;
 }
-
 .monthly-table .names-cell div {
     padding: 2px 0;
 }
-
 .monthly-table .names-cell .p1 {
     font-weight: 500;
 }
-
 .monthly-table .names-cell .p2 {
     color: #212529;
 }
-
 .btn-sm {
     padding: 6px 16px;
     border-radius: 6px;
@@ -227,29 +187,24 @@
     transition: all 0.2s;
     border: 1px solid transparent;
 }
-
 .btn-primary {
     background-color: #0d6efd;
     color: #fff;
 }
-
 .btn-primary:hover {
     background-color: #0b5ed7;
     transform: translateY(-1px);
     box-shadow: 0 4px 6px rgba(13, 110, 253, 0.2);
 }
-
 .btn-success {
     background-color: #198754;
     color: #fff;
 }
-
 .btn-success:hover {
     background-color: #157347;
     transform: translateY(-1px);
     box-shadow: 0 4px 6px rgba(25, 135, 84, 0.2);
 }
-
 .btn-secondary {
     background-color: transparent;
     color: #6c757d;
@@ -259,12 +214,9 @@
 .text-center { text-align: center !important; }
 .w-100 { width: 100% !important; }
 .font-weight-600 { font-weight: 600 !important; }
-
-/* Edit Mode Styles */
 .monthly-table-wrapper.edit-mode td.names-cell {
     background-color: #f0f7ff;
 }
-
 .edit-work-input {
     width: 100%;
     height: 35px;
@@ -278,24 +230,20 @@
     display: block;
     transition: all 0.2s;
 }
-
 .edit-work-input:last-child {
     border-bottom: none;
 }
-
 .edit-work-input:focus {
     background-color: #fff;
     box-shadow: inset 0 0 0 2px #0d6efd;
     z-index: 1;
     position: relative;
 }
-
 .font-weight-bold { font-weight: 700; }
 .text-dark { color: #212529 !important; }
 .mb-4 { margin-bottom: 1.5rem; }
 .mb-5 { margin-bottom: 3rem; }
 .mt-5 { margin-top: 3rem; }
-
 body.bg-light main.container {
     max-width: 1600px !important;
     padding-left: 20px;

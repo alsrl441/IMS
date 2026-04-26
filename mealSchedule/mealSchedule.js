@@ -5,7 +5,7 @@ const formatDate = (date) => {
 };
 
 function formatMealText(text) {
-    if (!text || text === "정보 없음") return "";
+    if (!text || text === "") return "";
     return String(text).split(',').map(item => item.trim()).join('\n');
 }
 
