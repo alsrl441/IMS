@@ -191,49 +191,53 @@ async function updateShipInDB(key, updatedData) {
 }
 
 async function toggleTagEdit(shipIdx) {
-    editingTagsShipIdx = (editingTagsShipIdx === shipIdx) ? null : shipIdx;
+    if (editingTagsShipIdx === shipIdx) {
+        const input = document.getElementById(`inline-tag-input-${shipIdx}`);
+        if (input && input.value.trim()) {
+            await saveInlineTagValue(shipIdx, input.value.trim());
+        }
+        editingTagsShipIdx = null;
+    } else {
+        editingTagsShipIdx = shipIdx;
+    }
     renderShips();
+}
+
+async function saveInlineTagValue(shipIdx, rawValue) {
+    if (!rawValue) return;
+    const ship = shipData[shipIdx];
+    if (!ship.tags) ship.tags = [];
+    
+    const newTags = rawValue.split(',').map(t => t.trim()).filter(t => t);
+    let addedCount = 0;
+    
+    newTags.forEach(tag => {
+        if (!ship.tags.includes(tag)) {
+            ship.tags.push(tag);
+            addedCount++;
+        }
+    });
+
+    if (addedCount > 0) {
+        await updateShipInDB(ship._dbKey, ship);
+    }
 }
 
 async function addTagInline(event, shipIdx) {
     if (event.key === 'Enter') {
-        if (event.isComposing) return; // 한글 조합 중 엔터 무시
-        
         const input = event.target;
         const rawValue = input.value.trim();
-        console.log(`[addTagInline] Enter 입력 - value: ${rawValue}, shipIdx: ${shipIdx}`);
         
         if (rawValue) {
-            const ship = shipData[shipIdx];
-            if (!ship.tags) ship.tags = [];
-            
-            // 콤마로 구분하여 여러 태그 추가 가능하게 함
-            const newTags = rawValue.split(',').map(t => t.trim()).filter(t => t);
-            let addedCount = 0;
-            
-            newTags.forEach(tag => {
-                if (!ship.tags.includes(tag)) {
-                    ship.tags.push(tag);
-                    addedCount++;
+            await saveInlineTagValue(shipIdx, rawValue);
+            renderShips();
+            setTimeout(() => {
+                const newInput = document.getElementById(`inline-tag-input-${shipIdx}`);
+                if (newInput) {
+                    newInput.focus();
+                    newInput.value = '';
                 }
-            });
-
-            if (addedCount > 0) {
-                console.log(`[addTagInline] ${addedCount}개의 태그 추가됨:`, ship.tags);
-                const success = await updateShipInDB(ship._dbKey, ship);
-                if (success) {
-                    renderShips();
-                    setTimeout(() => {
-                        const newInput = document.getElementById(`inline-tag-input-${shipIdx}`);
-                        if (newInput) {
-                            newInput.focus();
-                            newInput.value = ''; // 입력창 비우기
-                        }
-                    }, 0);
-                }
-            } else {
-                input.value = ''; // 중복된 경우에도 비움
-            }
+            }, 0);
         }
     }
 }
