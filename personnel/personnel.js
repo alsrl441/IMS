@@ -22,6 +22,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const addScheduleBtn = document.getElementById('addCustomScheduleBtn');
     const scheduleEditContainer = document.getElementById('customSchedulesEditContainer');
     const scheduleInfoGrid = document.getElementById('scheduleInfoGrid');
+
+    const addVacationBtn = document.getElementById('addVacationBtn');
+    const vacationEditContainer = document.getElementById('vacationEditContainer');
     
     let timerId = null; 
     let members = [];
@@ -157,6 +160,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('editEndDate').value = user.end;
         document.getElementById('editPfc2cpl').value = user.pfc2cpl || 0;
         document.getElementById('editCpl2sgt').value = user.cpl2sgt || 0;
+
+        vacationEditContainer.innerHTML = '';
+        const vList = (user.vacation && Array.isArray(user.vacation[0])) ? user.vacation : (user.vacation && user.vacation.length === 2 ? [user.vacation] : []);
+        vList.forEach(v => addVacationEditRow(v[0], v[1]));
     }
 
     function addCustomFieldRow(key = "", value = "") {
@@ -177,14 +184,26 @@ document.addEventListener('DOMContentLoaded', async () => {
         scheduleEditContainer.appendChild(row);
     }
 
+    function addVacationEditRow(start = "", end = "") {
+        const row = document.createElement('div'); row.className = 'custom-edit-row';
+        row.innerHTML = `
+            <input type="date" class="form-control-minimal vac-start" value="${start}">
+            <span style="font-size: 0.8rem; color: #999;">~</span>
+            <input type="date" class="form-control-minimal vac-end" value="${end}">
+            <button class="btn-remove-custom"><i class="fas fa-trash"></i></button>`;
+        row.querySelector('.btn-remove-custom').onclick = () => row.remove();
+        vacationEditContainer.appendChild(row);
+    }
+
     addFieldBtn.addEventListener('click', () => addCustomFieldRow());
     addScheduleBtn.addEventListener('click', () => addCustomScheduleRow());
+    addVacationBtn.addEventListener('click', () => addVacationEditRow());
 
     function startAddMember() {
         isAdding = true; selectEl.value = ""; handleMemberSelect("");
         displayEl.classList.remove('hidden'); noDataEl.classList.add('hidden'); previewEl.classList.add('hidden');
         document.querySelectorAll('.edit-mode input').forEach(input => { if (input.type === 'number') input.value = 0; else input.value = ""; });
-        fieldEditContainer.innerHTML = ''; scheduleEditContainer.innerHTML = '';
+        fieldEditContainer.innerHTML = ''; scheduleEditContainer.innerHTML = ''; vacationEditContainer.innerHTML = '';
         resPhoto.src = "../img/default-profile.png"; currentPhotoBase64 = "";
         toggleEditMode(true); document.getElementById('editName').focus();
     }
@@ -218,6 +237,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             const l = row.querySelector('.custom-label').value.trim(); const d = row.querySelector('.custom-date').value;
             if (l && d) customSchedules.push({ label: l, date: d });
         });
+
+        const vacation = [];
+        vacationEditContainer.querySelectorAll('.custom-edit-row').forEach(row => {
+            const s = row.querySelector('.vac-start').value;
+            const e = row.querySelector('.vac-end').value;
+            if (s && e) vacation.push([s, e]);
+        });
+
         const id = isAdding ? Date.now().toString() : members[selectEl.value].id;
         const updatedUser = {
             id, name, affiliation: document.getElementById('editAffiliation').value.trim(),
@@ -226,7 +253,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             end: document.getElementById('editEndDate').value,
             pfc2cpl: parseInt(document.getElementById('editPfc2cpl').value) || 0,
             cpl2sgt: parseInt(document.getElementById('editCpl2sgt').value) || 0,
-            photo: currentPhotoBase64, vacation: isAdding ? [] : (members[selectEl.value].vacation || []),
+            photo: currentPhotoBase64, vacation,
             customFields, customSchedules
         };
         try {
@@ -280,15 +307,41 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('resPromoDate').textContent = nextP.d.toISOString().split('T')[0];
         document.getElementById('resPromoDday').textContent = getDday(nextP.d.toISOString().split('T')[0]);
 
-        // 4행
-        if (user.vacation && user.vacation.length === 2) {
-            const vS = new Date(user.vacation[0]); const vE = new Date(user.vacation[1]);
-            const days = Math.round((vE - vS) / 86400000) + 1;
-            document.getElementById('resVacRange').textContent = `${user.vacation[0]} (${days}일)`;
-            const vD = Math.ceil((vS - now) / 86400000);
-            document.getElementById('resVacDday').textContent = vD > 0 ? `D-${vD}` : (now <= new Date(vE.getTime() + 86400000) ? "휴가 중" : "종료");
+        // 4행: 휴가 계산 (지나지 않은 가장 최근 휴가)
+        const vList = (user.vacation && Array.isArray(user.vacation[0])) ? user.vacation : (user.vacation && user.vacation.length === 2 ? [user.vacation] : []);
+        
+        if (vList.length > 0) {
+            const today = new Date(); today.setHours(0,0,0,0);
+            
+            // 아직 종료되지 않은 휴가들만 필터링
+            const validVacations = vList.filter(v => {
+                const end = new Date(v[1]); end.setHours(23,59,59,999);
+                return end >= today;
+            });
+
+            if (validVacations.length > 0) {
+                // 시작일 기준 오름차순 정렬하여 가장 가까운 것 선택
+                validVacations.sort((a, b) => new Date(a[0]) - new Date(b[0]));
+                const activeVac = validVacations[0];
+                const vS = new Date(activeVac[0]); vS.setHours(0,0,0,0);
+                const vE = new Date(activeVac[1]); vE.setHours(0,0,0,0);
+                const days = Math.round((vE - vS) / 86400000) + 1;
+                
+                document.getElementById('resVacRange').textContent = `${activeVac[0]} (${days}일)`;
+                
+                if (today < vS) {
+                    const diff = Math.ceil((vS - today) / 86400000);
+                    document.getElementById('resVacDday').textContent = `D-${diff}`;
+                } else {
+                    document.getElementById('resVacDday').textContent = "휴가 중";
+                }
+            } else {
+                document.getElementById('resVacRange').textContent = "예정 없음";
+                document.getElementById('resVacDday').textContent = "-";
+            }
         } else {
-            document.getElementById('resVacRange').textContent = "-"; document.getElementById('resVacDday').textContent = "-";
+            document.getElementById('resVacRange').textContent = "-";
+            document.getElementById('resVacDday').textContent = "-";
         }
 
         // 커스텀
