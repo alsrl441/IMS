@@ -44,6 +44,8 @@ async function saveShipMainInfo(idx) {
     const newNumber = card.querySelector('#edit-number').value.trim();
     const newOwner = card.querySelector('#edit-owner').value.trim();
     const newTel = card.querySelector('#edit-tel').value.trim();
+    const newTagsVal = card.querySelector('#edit-main-tags').value.trim();
+    const newTags = newTagsVal ? newTagsVal.split(',').map(t => t.trim()).filter(t => t) : [];
 
     if (!newName) {
         alert("선명은 필수 입력 항목입니다.");
@@ -57,6 +59,7 @@ async function saveShipMainInfo(idx) {
     ship.number = newNumber;
     ship.owner = newOwner;
     ship.tel = newTel;
+    ship.tags = newTags;
 
     const success = await updateShipInDB(ship._dbKey, ship);
     if (success) {
@@ -250,6 +253,7 @@ function renderHistoryForm(shipIdx, historyIdx = null) {
                 <div class="edit-group"><label>인원</label><input type="text" id="edit-crew" value="${h.crewCount}"></div>
                 <div class="edit-group"><label>인수인계</label><textarea id="edit-handover" rows="3" style="font-size: 0.8rem;">${h.handoverDetails || 'X'}</textarea></div>
                 <div class="edit-group"><label>외부명칭 / 깃발</label><input type="text" id="edit-external" value="${h.externalName || 'X'}"></div>
+                <div class="edit-group"><label>특징</label><input type="text" id="edit-tags" value="${(h.tags || []).join(', ')}" placeholder="콤마(,)로 구분"></div>
                 <div class="edit-group"><label>어선법 위반 여부</label><input type="text" id="edit-violation" value="${h.violation || 'X'}"></div>
                 <div class="edit-group"><label>근무자 / 수화자</label>
                     <div class="d-flex gap-1">
@@ -386,6 +390,14 @@ async function saveHistoryData(shipIdx, historyIdx) {
     
     if (isEdit) ship.history[historyIdx] = newHistory;
     else ship.history.push(newHistory);
+
+    // 선박 메인 태그에도 추가 (기존에 없던 것만)
+    if (!ship.tags) ship.tags = [];
+    tagsArr.forEach(t => {
+        if (!ship.tags.includes(t)) {
+            ship.tags.push(t);
+        }
+    });
     
     ship.history.sort((a, b) => b.date.localeCompare(a.date));
     await updateShipInDB(ship._dbKey, ship);
@@ -691,6 +703,10 @@ function renderShips() {
                                 <div class="edit-group edit-row">
                                     <label>연락처</label>
                                     <input type="text" id="edit-tel" value="${ship.tel || ''}" placeholder="-">
+                                </div>
+                                <div class="edit-group edit-row">
+                                    <label>특징</label>
+                                    <input type="text" id="edit-main-tags" value="${(ship.tags || []).join(', ')}" placeholder="콤마(,)로 구분">
                                 </div>
                                 <div class="history-actions" style="margin-top: 4px; padding-top: 0; justify-content: flex-end; gap: 4px;">
                                     <button class="btn-custom btn-save" onclick="event.stopPropagation(); saveShipMainInfo(${shipIdx})" style="padding: 2px 8px; font-size: 0.7rem;">확인</button>
