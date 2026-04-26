@@ -48,10 +48,6 @@ async function saveShipMainInfo(idx) {
     const newNumber = card.querySelector('#edit-number').value.trim();
     const newOwner = card.querySelector('#edit-owner').value.trim();
     const newTel = card.querySelector('#edit-tel').value.trim();
-    const newTagsVal = card.querySelector('#edit-main-tags').value.trim();
-    const newTags = newTagsVal ? newTagsVal.split(',').map(t => t.trim()).filter(t => t) : [];
-
-    console.log(`[saveShipMainInfo] 추출된 태그:`, newTags);
 
     if (!newName) {
         alert("선명은 필수 입력 항목입니다.");
@@ -65,7 +61,6 @@ async function saveShipMainInfo(idx) {
     ship.number = newNumber;
     ship.owner = newOwner;
     ship.tel = newTel;
-    ship.tags = newTags;
 
     console.log(`[saveShipMainInfo] DB 업데이트 전 선박 데이터:`, ship);
 
@@ -752,10 +747,6 @@ function renderShips() {
                                 <div class="edit-group edit-row">
                                     <label>연락처</label>
                                     <input type="text" id="edit-tel" value="${ship.tel || ''}" placeholder="-">
-                                </div>
-                                <div class="edit-group edit-row">
-                                    <label>특징</label>
-                                    <input type="text" id="edit-main-tags" value="${(ship.tags || []).join(', ')}" placeholder="콤마(,)로 구분">
                                 </div>
                                 <div class="history-actions" style="margin-top: 4px; padding-top: 0; justify-content: flex-end; gap: 4px;">
                                     <button class="btn-custom btn-save" onclick="event.stopPropagation(); saveShipMainInfo(${shipIdx})" style="padding: 2px 8px; font-size: 0.7rem;">확인</button>
