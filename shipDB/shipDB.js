@@ -35,8 +35,12 @@ function cancelEditShip() {
 }
 
 async function saveShipMainInfo(idx) {
+    console.log(`[saveShipMainInfo] 시작 - index: ${idx}`);
     const card = document.querySelector(`.ship-card[data-idx="${idx}"]`);
-    if (!card) return;
+    if (!card) {
+        console.error(`[saveShipMainInfo] 카드를 찾을 수 없음: .ship-card[data-idx="${idx}"]`);
+        return;
+    }
 
     const newName = card.querySelector('#edit-name').value.trim();
     const newType = card.querySelector('#edit-type').value.trim();
@@ -46,6 +50,8 @@ async function saveShipMainInfo(idx) {
     const newTel = card.querySelector('#edit-tel').value.trim();
     const newTagsVal = card.querySelector('#edit-main-tags').value.trim();
     const newTags = newTagsVal ? newTagsVal.split(',').map(t => t.trim()).filter(t => t) : [];
+
+    console.log(`[saveShipMainInfo] 추출된 태그:`, newTags);
 
     if (!newName) {
         alert("선명은 필수 입력 항목입니다.");
@@ -61,10 +67,15 @@ async function saveShipMainInfo(idx) {
     ship.tel = newTel;
     ship.tags = newTags;
 
+    console.log(`[saveShipMainInfo] DB 업데이트 전 선박 데이터:`, ship);
+
     const success = await updateShipInDB(ship._dbKey, ship);
     if (success) {
+        console.log(`[saveShipMainInfo] DB 업데이트 성공`);
         editingShipIdx = null;
         renderShips();
+    } else {
+        console.error(`[saveShipMainInfo] DB 업데이트 실패`);
     }
 }
 
@@ -153,6 +164,7 @@ async function loadShipsFromDB() {
 }
 
 async function updateShipInDB(key, updatedData) {
+    console.log(`[updateShipInDB] 호출됨 - key: ${key}`, updatedData);
     await window.ensureStore(TARGET_STORE_NAME);
     const dataToSave = { ...updatedData };
     delete dataToSave._dbKey;
@@ -167,7 +179,18 @@ async function updateShipInDB(key, updatedData) {
             } else {
                 store.put(dataToSave, key);
             }
-            tx.oncomplete = () => resolve(true);
+            tx.oncomplete = () => {
+                console.log(`[updateShipInDB] IndexedDB 저장 완료`);
+                resolve(true);
+            };
+            tx.onerror = (err) => {
+                console.error(`[updateShipInDB] IndexedDB 저장 에러:`, err);
+                resolve(false);
+            };
+        };
+        request.onerror = (err) => {
+            console.error(`[updateShipInDB] IndexedDB 오픈 에러:`, err);
+            resolve(false);
         };
     });
 }
@@ -181,17 +204,23 @@ async function addTagInline(event, shipIdx) {
     if (event.key === 'Enter') {
         const input = event.target;
         const newTag = input.value.trim();
+        console.log(`[addTagInline] Enter 입력 - tag: ${newTag}, shipIdx: ${shipIdx}`);
         if (newTag) {
             const ship = shipData[shipIdx];
             if (!ship.tags) ship.tags = [];
             if (!ship.tags.includes(newTag)) {
                 ship.tags.push(newTag);
-                await updateShipInDB(ship._dbKey, ship);
-                renderShips();
-                setTimeout(() => {
-                    const newInput = document.getElementById(`inline-tag-input-${shipIdx}`);
-                    if (newInput) newInput.focus();
-                }, 0);
+                console.log(`[addTagInline] 태그 추가됨:`, ship.tags);
+                const success = await updateShipInDB(ship._dbKey, ship);
+                if (success) {
+                    renderShips();
+                    setTimeout(() => {
+                        const newInput = document.getElementById(`inline-tag-input-${shipIdx}`);
+                        if (newInput) newInput.focus();
+                    }, 0);
+                }
+            } else {
+                console.log(`[addTagInline] 중복된 태그 무시: ${newTag}`);
             }
         }
     }
@@ -199,9 +228,19 @@ async function addTagInline(event, shipIdx) {
 
 async function deleteTagInline(shipIdx, tagIdx) {
     const ship = shipData[shipIdx];
+    const removedTag = ship.tags[tagIdx];
+    console.log(`[deleteTagInline] 삭제 시도 - shipIdx: ${shipIdx}, tagIdx: ${tagIdx}, tag: ${removedTag}`);
+    
     ship.tags.splice(tagIdx, 1);
-    await updateShipInDB(ship._dbKey, ship);
-    renderShips();
+    console.log(`[deleteTagInline] 삭제 후 태그 목록:`, ship.tags);
+    
+    const success = await updateShipInDB(ship._dbKey, ship);
+    if (success) {
+        console.log(`[deleteTagInline] 삭제 반영 성공`);
+        renderShips();
+    } else {
+        console.error(`[deleteTagInline] 삭제 반영 실패`);
+    }
 }
 
 function renderHistoryForm(shipIdx, historyIdx = null) {
@@ -359,12 +398,15 @@ function setupHistoryImageHandlers() {
 }
 
 async function saveHistoryData(shipIdx, historyIdx) {
+    console.log(`[saveHistoryData] 시작 - shipIdx: ${shipIdx}, historyIdx: ${historyIdx}`);
     const ship = shipData[shipIdx];
     const isEdit = historyIdx !== null;
     
     const tagsEl = document.getElementById('edit-tags');
     const tagsVal = tagsEl ? tagsEl.value : "";
     const tagsArr = tagsVal ? tagsVal.split(',').map(t => t.trim()).filter(t => t) : (isEdit ? ship.history[historyIdx].tags : [""]);
+
+    console.log(`[saveHistoryData] 추출된 특징(tags):`, tagsArr);
 
     const newHistory = {
         date: document.getElementById('edit-date').value,
@@ -395,19 +437,26 @@ async function saveHistoryData(shipIdx, historyIdx) {
     if (!ship.tags) ship.tags = [];
     tagsArr.forEach(t => {
         if (!ship.tags.includes(t)) {
+            console.log(`[saveHistoryData] 메인 태그에 새 특징 추가: ${t}`);
             ship.tags.push(t);
         }
     });
     
     ship.history.sort((a, b) => b.date.localeCompare(a.date));
-    await updateShipInDB(ship._dbKey, ship);
+    console.log(`[saveHistoryData] 최종 저장될 ship 데이터:`, ship);
     
-    sortShipData();
-    renderShips();
-    
-    const newIdx = shipData.findIndex(s => s._dbKey === ship._dbKey);
-    toggleCard(newIdx);
-    showHistoryDetail(newIdx, 0);
+    const success = await updateShipInDB(ship._dbKey, ship);
+    if (success) {
+        console.log(`[saveHistoryData] 저장 성공`);
+        sortShipData();
+        renderShips();
+        
+        const newIdx = shipData.findIndex(s => s._dbKey === ship._dbKey);
+        toggleCard(newIdx);
+        showHistoryDetail(newIdx, 0);
+    } else {
+        console.error(`[saveHistoryData] 저장 실패`);
+    }
 }
 
 function addHistory(shipIdx) {
