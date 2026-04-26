@@ -1,17 +1,14 @@
 const STORE_NAME = "mealSchedule";
 
-// 공통 날짜 포맷 헬퍼
 const formatDate = (date) => {
     return date.toISOString().split('T')[0];
 };
 
-// 콤마를 줄바꿈으로 변환하는 헬퍼
 function formatMealText(text) {
     if (!text || text === "정보 없음") return "";
     return String(text).split(',').map(item => item.trim()).join('\n');
 }
 
-// --- 대시보드 로직 ---
 async function initDashboardMeal() {
     const mealTypeEl = document.getElementById('meal-type');
     const mealDisplayEl = document.getElementById('meal-display');
@@ -64,7 +61,6 @@ async function initDashboardMeal() {
     await setAutoMeal();
 }
 
-// --- 전체 관리 페이지 로직 ---
 async function initFullMealSchedule() {
     const weekPicker = document.getElementById('week-picker');
     const displayEl = document.getElementById('weekly-meal-display');
@@ -173,7 +169,6 @@ async function initFullMealSchedule() {
 
         for (const date in dataByDate) {
             const data = dataByDate[date];
-            // 데이터가 완전히 비어있는지 확인 (date 제외)
             const hasData = Object.keys(data).some(key => key !== 'date' && data[key] !== '');
             if (hasData) {
                 await window.putDBData(STORE_NAME, data);

@@ -1,5 +1,3 @@
-/* mealSchedule.css */
-
 .meal-table {
     width: 100%;
     border-collapse: separate;
@@ -55,7 +53,6 @@
 .meal-table .sunday { color: #dc3545; }
 .meal-table .saturday { color: #0d6efd; }
 
-/* Edit Mode Styles */
 .edit-input {
     width: 100%;
     height: 100%;
@@ -90,7 +87,6 @@
     font-weight: 500;
 }
 
-/* Header Actions & Controls */
 .header-actions {
     display: flex;
     align-items: center;
@@ -165,7 +161,6 @@
     cursor: not-allowed;
 }
 
-/* Responsive Table Wrapper */
 .table-responsive {
     overflow-x: auto;
     padding-bottom: 10px;
@@ -183,7 +178,6 @@
     text-transform: uppercase;
 }
 
-/* 대시보드 전용 스타일 */
 .meal-container {
     border: 1px solid #dee2e6;
     border-radius: 0.375rem;
