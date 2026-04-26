@@ -447,7 +447,7 @@ async function saveHistoryData(shipIdx, historyIdx) {
         toggleCard(newIdx);
         showHistoryDetail(newIdx, 0);
     } else {
-        console.error(`[saveHistoryData] 저장 실패`);
+        
     }
 }
 
@@ -833,4 +833,4 @@ function renderPagination(totalItems) {
     }
 }
 
-document.addEventListener('DOMContentLoaded', initShipSearch);
+document.addEventListener('DOMContentLoaded', initShipSearch););
