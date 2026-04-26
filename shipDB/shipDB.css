@@ -106,35 +106,26 @@
     border: 1px solid #dee2e6;
     border-radius: 12px;
     background-color: white;
-    overflow: hidden;
-}
-
+    overflow: hidden;}
 .ship-card {
     background: white;
     border: none;
     border-bottom: 1px solid #eee;
     margin-bottom: 0;
     overflow: hidden;
-    border-radius: 0;
-}
-
+    border-radius: 0;}
 .ship-card:last-child {
-    border-bottom: none;
-}
-
+    border-bottom: none;}
 .ship-card-main {
     display: flex;
     height: 240px; 
-    padding: 10px 0;
-}
-
+    padding: 10px 0;}
 .ship-info-primary {
     flex: 0 0 280px;
     padding: 15px 30px;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-}
+    justify-content: center;}
 .ship-name-row {
     display: flex;
     align-items: center;
@@ -224,8 +215,7 @@
     background: #fff;
     padding-right: 8px;}
 .tag-delete-btn {
-    display: none;
-}
+    display: none;}
 .tag-badge.edit-mode .tag-delete-btn {display: flex;}
 .inline-tag-input {
     border: 1px solid #0d6efd;
@@ -521,7 +511,6 @@
 .d-flex { display: flex; }
 .gap-2 { gap: 8px; }
 .full-width { grid-column: span 2; }
-/* 펼치기/접기 버튼 스타일 및 애니메이션 */
 .expand-btn {
     cursor: pointer;
     padding: 5px;
@@ -529,18 +518,13 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: transform 0.3s ease;
-}
-
+    transition: transform 0.3s ease;}
 .expand-btn span {
     display: inline-block;
     transition: transform 0.3s ease;
     transform: rotate(0deg);
     font-size: 1rem;
-    color: #adb5bd;
-}
-
+    color: #adb5bd;}
 .ship-card.is-expanded .expand-btn span {
     transform: rotate(180deg);
-    color: #0d6efd;
-}
+    color: #0d6efd;}
