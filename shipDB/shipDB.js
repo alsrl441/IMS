@@ -35,12 +35,8 @@ function cancelEditShip() {
 }
 
 async function saveShipMainInfo(idx) {
-    console.log(`[saveShipMainInfo] 시작 - index: ${idx}`);
     const card = document.querySelector(`.ship-card[data-idx="${idx}"]`);
-    if (!card) {
-        console.error(`[saveShipMainInfo] 카드를 찾을 수 없음: .ship-card[data-idx="${idx}"]`);
-        return;
-    }
+    if (!card) return;
 
     const newName = card.querySelector('#edit-name').value.trim();
     const newType = card.querySelector('#edit-type').value.trim();
@@ -62,15 +58,10 @@ async function saveShipMainInfo(idx) {
     ship.owner = newOwner;
     ship.tel = newTel;
 
-    console.log(`[saveShipMainInfo] DB 업데이트 전 선박 데이터:`, ship);
-
     const success = await updateShipInDB(ship._dbKey, ship);
     if (success) {
-        console.log(`[saveShipMainInfo] DB 업데이트 성공`);
         editingShipIdx = null;
         renderShips();
-    } else {
-        console.error(`[saveShipMainInfo] DB 업데이트 실패`);
     }
 }
 
@@ -94,50 +85,38 @@ async function loadShipsFromDB() {
                         "number": "0000000-0000000",
                         "owner": "홍길동",
                         "tel": "010-0000-0000",
-                        "tags": [
-                            "특징 1",
-                            "특징 2",
-                            "특징 3"
-                        ],
-                        "history": [
-                            {
-                                "date": "2026-01-01",
-                                "coord": "000 000",
-                                "directionAtInquiry": "동진",
-                                "distance": "1.9km",
-                                "traceNumber": "145-1",
-                                "firstOutport": "해태발",
-                                "firstTime": "23:00",
-                                "firstAzEl": "1234 56",
-                                "firstPos": "송공항 남서쪽 1.9km",
-                                "lastTime": "23:05",
-                                "lastAzEl": "4567 89",
-                                "lastPos": "송공항",
-                                "tags": [
-                                    "선미 검은색 모터",
-                                    "조타실 상부 항해등"
-                                ],
-                                "moveDirOverall": "북동진",
-                                "terminationReason": "입항",
-                                "movementPath": "송공항 남서쪽 1.9km에서 북동진하여 송공항에 입항.",
-                                "crewCount": "1",
-                                "externalName": "X",
-                                "handoverDetails": "145 R/S에서 인수받은 선박.",
-                                "shipImage": "",
-                                "pathImage": "",
-                                "violation": "O (초록색 어선 번호판을 부착한 선박은 신호를 켜야 할 의무가 있음.)",
-                                "worker": "상병 김철수",
-                                "telephonee": "일병 홍길동",
-                                "timestamp": 0,
-                                "cameraNum": "송공항 CCTV"
-                            }
-                        ]
+                        "tags": ["특징 1", "특징 2", "특징 3"],
+                        "history": [{
+                            "date": "2026-01-01",
+                            "coord": "000 000",
+                            "directionAtInquiry": "동진",
+                            "distance": "1.9km",
+                            "traceNumber": "145-1",
+                            "firstOutport": "해태발",
+                            "firstTime": "23:00",
+                            "firstAzEl": "1234 56",
+                            "firstPos": "송공항 남서쪽 1.9km",
+                            "lastTime": "23:05",
+                            "lastAzEl": "4567 89",
+                            "lastPos": "송공항",
+                            "tags": ["선미 검은색 모터", "조타실 상부 항해등"],
+                            "moveDirOverall": "북동진",
+                            "terminationReason": "입항",
+                            "movementPath": "송공항 남서쪽 1.9km에서 북동진하여 송공항에 입항.",
+                            "crewCount": "1",
+                            "externalName": "X",
+                            "handoverDetails": "145 R/S에서 인수받은 선박.",
+                            "shipImage": "",
+                            "pathImage": "",
+                            "violation": "O (초록색 어선 번호판을 부착한 선박은 신호를 켜야 할 의무가 있음.)",
+                            "worker": "상병 김철수",
+                            "telephonee": "일병 홍길동",
+                            "timestamp": 0,
+                            "cameraNum": "송공항 CCTV"
+                        }]
                     };
-                    if (store.keyPath) {
-                        store.put(initialShipTemplate);
-                    } else {
-                        store.put(initialShipTemplate, "template_key");
-                    }
+                    if (store.keyPath) store.put(initialShipTemplate);
+                    else store.put(initialShipTemplate, "template_key");
                 }
 
                 const results = [];
@@ -159,7 +138,6 @@ async function loadShipsFromDB() {
 }
 
 async function updateShipInDB(key, updatedData) {
-    console.log(`[updateShipInDB] 호출됨 - key: ${key}`, updatedData);
     await window.ensureStore(TARGET_STORE_NAME);
     const dataToSave = { ...updatedData };
     delete dataToSave._dbKey;
@@ -169,24 +147,12 @@ async function updateShipInDB(key, updatedData) {
             const db = e.target.result;
             const tx = db.transaction(TARGET_STORE_NAME, "readwrite");
             const store = tx.objectStore(TARGET_STORE_NAME);
-            if (store.keyPath) {
-                store.put(dataToSave);
-            } else {
-                store.put(dataToSave, key);
-            }
-            tx.oncomplete = () => {
-                console.log(`[updateShipInDB] IndexedDB 저장 완료`);
-                resolve(true);
-            };
-            tx.onerror = (err) => {
-                console.error(`[updateShipInDB] IndexedDB 저장 에러:`, err);
-                resolve(false);
-            };
+            if (store.keyPath) store.put(dataToSave);
+            else store.put(dataToSave, key);
+            tx.oncomplete = () => resolve(true);
+            tx.onerror = () => resolve(false);
         };
-        request.onerror = (err) => {
-            console.error(`[updateShipInDB] IndexedDB 오픈 에러:`, err);
-            resolve(false);
-        };
+        request.onerror = () => resolve(false);
     });
 }
 
@@ -219,7 +185,6 @@ async function addTagInline(event, shipIdx) {
     if (event.key === 'Enter') {
         const input = event.target;
         const rawValue = input.value.trim();
-        
         if (rawValue) {
             await saveInlineTagValue(shipIdx, rawValue);
             renderShips();
@@ -236,19 +201,9 @@ async function addTagInline(event, shipIdx) {
 
 async function deleteTagInline(shipIdx, tagIdx) {
     const ship = shipData[shipIdx];
-    const removedTag = ship.tags[tagIdx];
-    console.log(`[deleteTagInline] 삭제 시도 - shipIdx: ${shipIdx}, tagIdx: ${tagIdx}, tag: ${removedTag}`);
-    
     ship.tags.splice(tagIdx, 1);
-    console.log(`[deleteTagInline] 삭제 후 태그 목록:`, ship.tags);
-    
     const success = await updateShipInDB(ship._dbKey, ship);
-    if (success) {
-        console.log(`[deleteTagInline] 삭제 반영 성공`);
-        renderShips();
-    } else {
-        console.error(`[deleteTagInline] 삭제 반영 실패`);
-    }
+    if (success) renderShips();
 }
 
 function renderHistoryForm(shipIdx, historyIdx = null) {
@@ -259,14 +214,10 @@ function renderHistoryForm(shipIdx, historyIdx = null) {
         firstTime: "00:00", firstPos: "", firstAzEl: "",
         lastTime: "00:00", lastPos: "", lastAzEl: "",
         moveDirOverall: "", terminationReason: "종료",
-        crewCount: "식별불가", 
-        traceNumber: "-", firstOutport: "-",
-        violation: "X",
-        worker: "", telephonee: "",
+        crewCount: "식별불가", traceNumber: "-", firstOutport: "-",
+        violation: "X", worker: "", telephonee: "",
         externalName: "X", handoverDetails: "X",
-        shipImage: "",
-        pathImage: "",
-        tags: [""]
+        shipImage: "", pathImage: "", tags: [""]
     };
 
     const card = document.querySelector(`.ship-card[data-idx="${shipIdx}"]`);
@@ -310,105 +261,24 @@ function renderHistoryForm(shipIdx, historyIdx = null) {
             </div>
             <div class="edit-column" style="flex: 1; display: flex; flex-direction: column; gap: 10px;">
                 <div class="edit-group"><label>이동 경로</label><textarea id="edit-path-text" rows="3" style="font-size: 0.8rem;">${h.movementPath || ''}</textarea></div>
-                
                 <div class="edit-group"><label>선박 이미지</label>
                     <div class="history-drop-zone" id="edit-ship-drop-zone" style="height: 100px; border: 2px dashed #ddd; border-radius: 4px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; background: #f9f9f9; cursor: pointer;">
                         <img id="edit-ship-preview" src="${h.shipImage}" style="max-height: 100%; max-width: 100%; object-fit: contain;">
                     </div>
                 </div>
-
                 <div class="edit-group"><label>항로 이미지</label>
                     <div class="history-drop-zone" id="edit-path-drop-zone" style="height: 100px; border: 2px dashed #ddd; border-radius: 4px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; background: #f9f9f9; cursor: pointer;">
                         <img id="edit-path-preview" src="${h.pathImage}" style="max-height: 100%; max-width: 100%; object-fit: contain;">
                     </div>
                 </div>
             </div>
-        </div>
-    `;
-    
+        </div>`;
     setTimeout(() => setupHistoryImageHandlers(), 0);
 }
 
-function compressImage(file, maxWidth = 800, maxHeight = 600) {
-    return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = (event) => {
-            const img = new Image();
-            img.src = event.target.result;
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                let width = img.width;
-                let height = img.height;
-
-                if (width > height) {
-                    if (width > maxWidth) {
-                        height *= maxWidth / width;
-                        width = maxWidth;
-                    }
-                } else {
-                    if (height > maxHeight) {
-                        width *= maxHeight / height;
-                        height = maxHeight;
-                    }
-                }
-
-                canvas.width = width;
-                canvas.height = height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, width, height);
-                const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
-                resolve(dataUrl);
-            };
-        };
-    });
-}
-
-function setupHistoryImageHandlers() {
-    const zones = [
-        { dropZone: 'edit-ship-drop-zone', preview: 'edit-ship-preview' },
-        { dropZone: 'edit-path-drop-zone', preview: 'edit-path-preview' }
-    ];
-
-    zones.forEach(zone => {
-        const dropZone = document.getElementById(zone.dropZone);
-        const preview = document.getElementById(zone.preview);
-
-        if (!dropZone || !preview) return;
-
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropZone.style.borderColor = '#0d6efd';
-            dropZone.style.background = '#eff6ff';
-        });
-
-        dropZone.addEventListener('dragleave', () => {
-            dropZone.style.borderColor = '#ddd';
-            dropZone.style.background = '#f9f9f9';
-        });
-
-        dropZone.addEventListener('drop', async (e) => {
-            e.preventDefault();
-            dropZone.style.borderColor = '#ddd';
-            dropZone.style.background = '#f9f9f9';
-            
-            const files = e.dataTransfer.files;
-            if (files && files.length > 0) {
-                const file = files[0];
-                if (file.type.startsWith('image/')) {
-                    const compressedData = await compressImage(file);
-                    preview.src = compressedData;
-                }
-            }
-        });
-    });
-}
-
 async function saveHistoryData(shipIdx, historyIdx) {
-    console.log(`[saveHistoryData] 시작 - shipIdx: ${shipIdx}, historyIdx: ${historyIdx}`);
     const ship = shipData[shipIdx];
     const isEdit = historyIdx !== null;
-    
     const newHistory = {
         date: document.getElementById('edit-date').value,
         firstTime: document.getElementById('edit-first-time').value,
@@ -417,7 +287,7 @@ async function saveHistoryData(shipIdx, historyIdx) {
         lastTime: document.getElementById('edit-last-time').value,
         lastPos: document.getElementById('edit-last-pos').value,
         lastAzEl: document.getElementById('edit-last-azel').value,
-        tags: isEdit ? ship.history[historyIdx].tags : [""], // 기존 태그 유지 또는 빈 값
+        tags: isEdit ? ship.history[historyIdx].tags : [""],
         movementPath: document.getElementById('edit-path-text').value,
         crewCount: document.getElementById('edit-crew').value || "식별불가",
         violation: document.getElementById('edit-violation').value,
@@ -430,43 +300,67 @@ async function saveHistoryData(shipIdx, historyIdx) {
         pathImage: document.getElementById('edit-path-preview').src,
         timestamp: isEdit ? (ship.history[historyIdx].timestamp || new Date().getTime()) : new Date().getTime()
     };
-    
     if (isEdit) ship.history[historyIdx] = newHistory;
     else ship.history.push(newHistory);
-    
     ship.history.sort((a, b) => b.date.localeCompare(a.date));
-    console.log(`[saveHistoryData] 최종 저장될 ship 데이터:`, ship);
-    
     const success = await updateShipInDB(ship._dbKey, ship);
     if (success) {
-        console.log(`[saveHistoryData] 저장 성공`);
         sortShipData();
         renderShips();
-        
         const newIdx = shipData.findIndex(s => s._dbKey === ship._dbKey);
         toggleCard(newIdx);
         showHistoryDetail(newIdx, 0);
-    } else {
-        
     }
 }
 
-function addHistory(shipIdx) {
-    renderHistoryForm(shipIdx);
+function compressImage(file, maxWidth = 800, maxHeight = 600) {
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width, height = img.height;
+                if (width > height) { if (width > maxWidth) { height *= maxWidth / width; width = maxWidth; } }
+                else { if (height > maxHeight) { width *= maxHeight / height; height = maxHeight; } }
+                canvas.width = width; canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                resolve(canvas.toDataURL('image/jpeg', 0.7));
+            };
+        };
+    });
 }
 
-function editHistory(shipIdx, historyIdx) {
-    renderHistoryForm(shipIdx, historyIdx);
+function setupHistoryImageHandlers() {
+    const zones = [{ dropZone: 'edit-ship-drop-zone', preview: 'edit-ship-preview' }, { dropZone: 'edit-path-drop-zone', preview: 'edit-path-preview' }];
+    zones.forEach(zone => {
+        const dropZone = document.getElementById(zone.dropZone);
+        const preview = document.getElementById(zone.preview);
+        if (!dropZone || !preview) return;
+        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = '#0d6efd'; dropZone.style.background = '#eff6ff'; });
+        dropZone.addEventListener('dragleave', () => { dropZone.style.borderColor = '#ddd'; dropZone.style.background = '#f9f9f9'; });
+        dropZone.addEventListener('drop', async (e) => {
+            e.preventDefault(); dropZone.style.borderColor = '#ddd'; dropZone.style.background = '#f9f9f9';
+            const files = e.dataTransfer.files;
+            if (files && files.length > 0) {
+                const file = files[0];
+                if (file.type.startsWith('image/')) preview.src = await compressImage(file);
+            }
+        });
+    });
 }
 
+function addHistory(shipIdx) { renderHistoryForm(shipIdx); }
+function editHistory(shipIdx, historyIdx) { renderHistoryForm(shipIdx, historyIdx); }
 async function deleteHistory(shipIdx, historyIdx) {
     const ship = shipData[shipIdx];
     if (confirm(`${ship.history[historyIdx].date} 기록을 삭제하시겠습니까?`)) {
         ship.history.splice(historyIdx, 1);
         await updateShipInDB(ship._dbKey, ship);
-        
-        sortShipData();
-        renderShips();
+        sortShipData(); renderShips();
     }
 }
 
@@ -480,10 +374,7 @@ async function deleteShip(shipIdx) {
             const tx = db.transaction(TARGET_STORE_NAME, "readwrite");
             const store = tx.objectStore(TARGET_STORE_NAME);
             store.delete(ship._dbKey);
-            tx.oncomplete = () => {
-                alert("선박 정보가 삭제되었습니다.");
-                initShipSearch(); 
-            };
+            tx.oncomplete = () => { alert("선박 정보가 삭제되었습니다."); initShipSearch(); };
         };
     }
 }
@@ -499,11 +390,9 @@ function sortShipData() {
 async function initShipSearch() {
     shipData = await loadShipsFromDB();
     sortShipData();
-
     const input = document.getElementById('tag-input');
     const autocompleteList = document.getElementById('autocomplete-list');
     if (!input) return;
-
     if (shipData.length === 0) {
         document.getElementById('ship-results').innerHTML = '<div class="text-center py-5 text-muted">등록된 선박 정보가 없습니다.</div>';
         return;
@@ -512,9 +401,7 @@ async function initShipSearch() {
     shipData.forEach(ship => {
         ['name', 'tonnage', 'type', 'number', 'tags'].forEach(field => {
             let val = ship[field];
-            if (field === 'tonnage' && val && !String(val).toLowerCase().endsWith('t')) {
-                val = String(val) + 't';
-            }
+            if (field === 'tonnage' && val && !String(val).toLowerCase().endsWith('t')) val = String(val) + 't';
             if (Array.isArray(val)) val.forEach(v => { if (v) termsSet.add(String(v).trim()); });
             else if (val) termsSet.add(String(val).trim());
         });
@@ -522,29 +409,16 @@ async function initShipSearch() {
     const allTerms = Array.from(termsSet);
 
     document.addEventListener('keydown', (e) => {
-        const activeElement = document.activeElement;
-        const isInput = activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA';
-        if (isInput) return;
-
-        if (e.key === 'ArrowLeft') {
-            if (currentPage > 1) {
-                currentPage--;
-                renderShips();
-            }
-        } else if (e.key === 'ArrowRight') {
-            const totalItems = getFilteredShips().length;
-            const totalPages = Math.ceil(totalItems / itemsPerPage);
-            if (currentPage < totalPages) {
-                currentPage++;
-                renderShips();
-            }
+        if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') return;
+        if (e.key === 'ArrowLeft' && currentPage > 1) { currentPage--; renderShips(); }
+        else if (e.key === 'ArrowRight') {
+            const totalPages = Math.ceil(getFilteredShips().length / itemsPerPage);
+            if (currentPage < totalPages) { currentPage++; renderShips(); }
         }
     });
 
     input.addEventListener('input', function() {
-        let val = this.value;
-        autocompleteList.innerHTML = '';
-        currentFocus = -1;
+        let val = this.value; autocompleteList.innerHTML = ''; currentFocus = -1;
         if (!val) { autocompleteList.style.display = 'none'; return; }
         let filtered = allTerms.filter(t => String(t).toLowerCase().includes(val.toLowerCase()) && !selectedTags.includes(t));
         autocompleteList.style.display = filtered.length > 0 ? 'block' : 'none';
@@ -557,22 +431,14 @@ async function initShipSearch() {
     });
 
     input.addEventListener('keydown', function(e) {
-        if (e.isComposing) return; // 한글 조합 중 엔터 무시
-
+        if (e.isComposing) return;
         let x = autocompleteList.getElementsByTagName('div');
         if (e.keyCode === 40) { currentFocus++; addActive(x); }
         else if (e.keyCode === 38) { currentFocus--; addActive(x); }
         else if (e.keyCode === 13 || e.keyCode === 9) {
             e.preventDefault();
-            if (currentFocus > -1 && x[currentFocus]) { 
-                x[currentFocus].click(); 
-            }
-            else if (this.value.trim()) { 
-                addTag(this.value.trim()); 
-                this.value = ''; 
-                autocompleteList.innerHTML = ''; 
-                autocompleteList.style.display = 'none'; 
-            }
+            if (currentFocus > -1 && x[currentFocus]) x[currentFocus].click();
+            else if (this.value.trim()) { addTag(this.value.trim()); this.value = ''; autocompleteList.innerHTML = ''; autocompleteList.style.display = 'none'; }
         }
     });
 
@@ -583,7 +449,6 @@ async function initShipSearch() {
         if (currentFocus < 0) currentFocus = (x.length - 1);
         x[currentFocus].classList.add("autocomplete-active");
     }
-
     renderShips();
 }
 
@@ -591,18 +456,13 @@ function addTag(tag) { if (!selectedTags.includes(tag)) { selectedTags.push(tag)
 function removeTag(tag) { selectedTags = selectedTags.filter(t => t !== tag); currentPage = 1; renderSelectedTags(); renderShips(); }
 function renderSelectedTags() {
     const container = document.getElementById('selected-tags');
-    if (container) {
-        container.innerHTML = selectedTags.map(tag => `
-            <span class="tag-badge">${tag}<span class="remove-tag" onclick="removeTag('${tag}')">&times;</span></span>
-        `).join('');
-    }
+    if (container) container.innerHTML = selectedTags.map(tag => `<span class="tag-badge">${tag}<span class="remove-tag" onclick="removeTag('${tag}')">&times;</span></span>`).join('');
 }
 
 function changeShipImage(shipIdx, delta) {
-    const ship = shipData[shipIdx];
-    if (!ship || !ship.history.length) return;
-    let currentIdx = shipSliderState[shipIdx] || 0;
-    currentIdx = (currentIdx + delta + ship.history.length) % ship.history.length;
+    const ship = shipData[shipIdx]; if (!ship || !ship.history.length) return;
+    let currentIdx = (shipSliderState[shipIdx] || 0) + delta;
+    currentIdx = (currentIdx + ship.history.length) % ship.history.length;
     shipSliderState[shipIdx] = currentIdx;
     const card = document.querySelector(`.ship-card[data-idx="${shipIdx}"]`);
     const track = card.querySelector('.slider-track');
@@ -615,75 +475,52 @@ function toggleCard(shipIdx) {
     const isExpanded = card.classList.contains('is-expanded');
     document.querySelectorAll('.ship-card').forEach(c => c.classList.remove('is-expanded'));
     if (!isExpanded) { card.classList.add('is-expanded'); showHistoryDetail(shipIdx, 0); }
-    else card.classList.remove('is-expanded');
 }
 
 function showHistoryDetail(shipIdx, historyIdx) {
-    const ship = shipData[shipIdx];
-    const h = ship.history[historyIdx];
+    const ship = shipData[shipIdx], h = ship.history[historyIdx];
     const card = document.querySelector(`.ship-card[data-idx="${shipIdx}"]`);
     if (!card || !h) return;
     editingTagsShipIdx = null;
-    
-    const traceNo = h.traceNumber || "-";
-
     const displayCrew = (h.crewCount && !isNaN(h.crewCount)) ? h.crewCount + '명' : (h.crewCount || '식별불가');
-
     card.querySelectorAll('.history-date-item').forEach((item, idx) => item.classList.toggle('active', idx === historyIdx));
-    
     card.querySelector('.history-detail-view').innerHTML = `
         <div class="history-layout-container fade-in">
-            <!-- 중간: 식별 정보 -->
             <div class="history-middle">
                 <div class="history-mid-left">
                     <div class="h-item"><label>최초 식별 시간</label><span>${h.firstTime}</span></div>
                     <div class="h-item"><label>최초 식별 위치</label><span>${h.firstAzEl || '-'} [${h.firstPos || '-'}]</span></div>
                     <div class="h-item"><label>최종 식별 시간</label><span>${h.lastTime}</span></div>
                     <div class="h-item"><label>최종 식별 위치</label><span>${h.lastAzEl || '-'} [${h.lastPos || '-'}]</span></div>
-                    <div class="h-item"><label>추적번호</label><span>${traceNo}</span></div>
+                    <div class="h-item"><label>추적번호</label><span>${h.traceNumber || "-"}</span></div>
                     <div class="h-item"><label>인원</label><span>${displayCrew}</span></div>
-                    
                     <div class="history-actions" style="margin-top: auto; display: flex; gap: 8px;">
                         <button class="btn-custom" style="width: 50px; height: 30px; padding: 0; font-size: 0.8rem; background-color: #0d6efd; color: white; border: none; border-radius: 4px;" onclick="editHistory(${shipIdx}, ${historyIdx})">수정</button>
                         <button class="btn-custom" style="width: 50px; height: 30px; padding: 0; font-size: 0.8rem; background-color: #dc3545; color: white; border: none; border-radius: 4px;" onclick="deleteHistory(${shipIdx}, ${historyIdx})">삭제</button>
                     </div>
                 </div>
                 <div class="history-mid-right">
-                    <div class="h-item h-item-block">
-                        <label>인수인계</label>
-                        <div class="scroll-box">${h.handoverDetails || 'X'}</div>
-                    </div>
-                    <div class="h-item h-item-block">
-                        <label>어선법 위반 여부</label>
-                        <div class="scroll-box">${h.violation || 'X'}</div>
-                    </div>
+                    <div class="h-item h-item-block"><label>인수인계</label><div class="scroll-box">${h.handoverDetails || 'X'}</div></div>
+                    <div class="h-item h-item-block"><label>어선법 위반 여부</label><div class="scroll-box">${h.violation || 'X'}</div></div>
                     <div class="h-item"><label>외부명칭 / 깃발</label><span>${h.externalName || 'X'}</span></div>
                     <div class="h-item"><label>근무자</label><span>${h.worker || ''}</span></div>
                     <div class="h-item"><label>수화자</label><span>${h.telephonee || ''}</span></div>
                 </div>
             </div>
-
-            <!-- 우측: 항로 정보 -->
             <div class="history-side-right">
-                <div class="path-img-container">
-                    <img src="${h.pathImage}" class="path-img fade-in">
-                </div>
+                <div class="path-img-container"><img src="${h.pathImage}" class="path-img fade-in"></div>
                 <div class="path-text-display">${h.movementPath || ''}</div>
             </div>
-        </div>
-    `;
+        </div>`;
 }
 
 function getFilteredShips() {
     return shipData.filter(s => {
         if (selectedTags.length === 0) return true;
         return selectedTags.every(t => 
-            (s.name && s.name.includes(t)) || 
-            (s.tonnage && (s.tonnage.includes(t) || (s.tonnage + 't').includes(t))) || 
-            (s.type && s.type.includes(t)) || 
-            (s.number && s.number.includes(t)) || 
-            (s.owner && s.owner.includes(t)) ||
-            (s.tags && s.tags.includes(t))
+            (s.name && s.name.includes(t)) || (s.tonnage && (s.tonnage.includes(t) || (s.tonnage + 't').includes(t))) || 
+            (s.type && s.type.includes(t)) || (s.number && s.number.includes(t)) || 
+            (s.owner && s.owner.includes(t)) || (s.tags && s.tags.includes(t))
         );
     });
 }
@@ -692,40 +529,23 @@ function renderShips() {
     const results = document.getElementById('ship-results');
     const paginationContainer = document.getElementById('pagination-container');
     if (!results) return;
-
-    const filtered = getFilteredShips();
-
-    const totalItems = filtered.length;
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const paged = filtered.slice(startIndex, startIndex + itemsPerPage);
-
+    const filtered = getFilteredShips(), totalItems = filtered.length;
+    const paged = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
     if (totalItems === 0) {
         results.innerHTML = '<div class="text-center py-5"><p class="text-secondary">검색 결과가 없습니다.</p></div>';
-        if (paginationContainer) paginationContainer.innerHTML = '';
-        return;
+        if (paginationContainer) paginationContainer.innerHTML = ''; return;
     }
-
     results.innerHTML = paged.map(ship => {
-        const shipIdx = shipData.findIndex(s => s._dbKey === ship._dbKey);
-        const currentImgIdx = shipSliderState[shipIdx] || 0;
-        const isEditing = editingShipIdx === shipIdx;
-
+        const shipIdx = shipData.findIndex(s => s._dbKey === ship._dbKey), currentImgIdx = shipSliderState[shipIdx] || 0, isEditing = editingShipIdx === shipIdx;
         const displayTonnage = (ship.tonnage && !isNaN(ship.tonnage)) ? ship.tonnage + 't' : (ship.tonnage || '-');
-        
         const displayContact = ship.tel ? `${ship.tel} ${ship.owner ? '(' + ship.owner + ')' : ''}` : (ship.owner || '-');
-
-        return `
-            <div class="ship-card" data-idx="${shipIdx}">
+        return `<div class="ship-card" data-idx="${shipIdx}">
                 <div class="ship-card-main">
                     <div class="ship-info-primary">
                         <div class="ship-name-row">
                             <div class="expand-btn" onclick="toggleCard(${shipIdx})"><span>&#9013;</span></div>
-                            ${isEditing ? 
-                                `<div class="edit-group" style="flex:1; margin-bottom:0;"><input type="text" id="edit-name" value="${ship.name}" placeholder="선명 입력" style="font-weight:700;"></div>` : 
-                                `<h4>${ship.name}</h4>`
-                            }
-                            ${!isEditing ? `
-                            <div class="ship-actions-wrapper">
+                            ${isEditing ? `<div class="edit-group" style="flex:1; margin-bottom:0;"><input type="text" id="edit-name" value="${ship.name}" placeholder="선명 입력" style="font-weight:700;"></div>` : `<h4>${ship.name}</h4>`}
+                            ${!isEditing ? `<div class="ship-actions-wrapper">
                                 <button class="btn-actions" onclick="event.stopPropagation(); toggleActionsDropdown(${shipIdx})" title="작업">⋮</button>
                                 <div id="actions-dropdown-${shipIdx}" class="actions-dropdown">
                                     <button class="actions-dropdown-item" onclick="event.stopPropagation(); editShipMainInfo(${shipIdx})">수정</button>
@@ -734,46 +554,21 @@ function renderShips() {
                             </div>` : ''}
                         </div>
                         <div class="ship-meta-group" style="${isEditing ? 'gap: 2px;' : ''}">
-                            ${isEditing ? `
-                                <div class="edit-group edit-row">
-                                    <label>선종</label>
-                                    <input type="text" id="edit-type" value="${ship.type || ''}" placeholder="-">
-                                </div>
-                                <div class="edit-group edit-row">
-                                    <label>톤수</label>
-                                    <input type="text" id="edit-tonnage" value="${ship.tonnage || ''}" placeholder="-">
-                                </div>
-                                <div class="edit-group edit-row">
-                                    <label>어선번호</label>
-                                    <input type="text" id="edit-number" value="${ship.number || ''}" placeholder="-">
-                                </div>
-                                <div class="edit-group edit-row">
-                                    <label>선주</label>
-                                    <input type="text" id="edit-owner" value="${ship.owner || ''}" placeholder="-">
-                                </div>
-                                <div class="edit-group edit-row">
-                                    <label>연락처</label>
-                                    <input type="text" id="edit-tel" value="${ship.tel || ''}" placeholder="-">
-                                </div>
+                            ${isEditing ? `<div class="edit-group edit-row"><label>선종</label><input type="text" id="edit-type" value="${ship.type || ''}" placeholder="-"></div>
+                                <div class="edit-group edit-row"><label>톤수</label><input type="text" id="edit-tonnage" value="${ship.tonnage || ''}" placeholder="-"></div>
+                                <div class="edit-group edit-row"><label>어선번호</label><input type="text" id="edit-number" value="${ship.number || ''}" placeholder="-"></div>
+                                <div class="edit-group edit-row"><label>선주</label><input type="text" id="edit-owner" value="${ship.owner || ''}" placeholder="-"></div>
+                                <div class="edit-group edit-row"><label>연락처</label><input type="text" id="edit-tel" value="${ship.tel || ''}" placeholder="-"></div>
                                 <div class="history-actions" style="margin-top: 4px; padding-top: 0; justify-content: flex-end; gap: 4px;">
                                     <button class="btn-custom btn-save" onclick="event.stopPropagation(); saveShipMainInfo(${shipIdx})" style="padding: 2px 8px; font-size: 0.7rem;">확인</button>
                                     <button class="btn-custom btn-edit" onclick="event.stopPropagation(); cancelEditShip()" style="padding: 2px 8px; font-size: 0.7rem;">취소</button>
-                                </div>
-                            ` : `
-                                <p class="ship-detail"><strong>선종</strong> ${ship.type || '-'}</p>
-                                <p class="ship-detail"><strong>톤수</strong> ${displayTonnage}</p>
-                                <p class="ship-detail"><strong>어선번호</strong> ${ship.number || '-'}</p>
-                                <p class="ship-detail"><strong>연락처</strong> ${displayContact}</p>
-                            `}
+                                </div>` : `<p class="ship-detail"><strong>선종</strong> ${ship.type || '-'}</p><p class="ship-detail"><strong>톤수</strong> ${displayTonnage}</p><p class="ship-detail"><strong>어선번호</strong> ${ship.number || '-'}</p><p class="ship-detail"><strong>연락처</strong> ${displayContact}</p>`}
                         </div>
                     </div>
                     <div class="ship-info-tags">
                         <div class="ship-tags">
                             ${(ship.tags || []).map((t, tIdx) => `<span class="tag-badge ${editingTagsShipIdx === shipIdx ? 'edit-mode' : ''}">${t}<span class="tag-delete-btn" onclick="event.stopPropagation(); deleteTagInline(${shipIdx}, ${tIdx})">&times;</span></span>`).join('')}
-                            ${editingTagsShipIdx === shipIdx ? 
-                                `<input type="text" id="inline-tag-input-${shipIdx}" class="inline-tag-input" onkeydown="addTagInline(event, ${shipIdx})" autofocus>
-                                 <button class="btn-custom btn-save py-0" onclick="toggleTagEdit(${shipIdx})" style="font-size: 0.7rem;">완료</button>` : 
-                                `<button class="btn-custom btn-edit py-0" onclick="toggleTagEdit(${shipIdx})" style="font-size: 0.7rem;">수정</button>`}
+                            ${editingTagsShipIdx === shipIdx ? `<input type="text" id="inline-tag-input-${shipIdx}" class="inline-tag-input" onkeydown="addTagInline(event, ${shipIdx})" autofocus><button class="btn-custom btn-save py-0" onclick="toggleTagEdit(${shipIdx})" style="font-size: 0.7rem;">완료</button>` : `<button class="btn-custom btn-edit py-0" onclick="toggleTagEdit(${shipIdx})" style="font-size: 0.7rem;">수정</button>`}
                         </div>
                     </div>
                     <div class="ship-photo-slider">
@@ -787,50 +582,30 @@ function renderShips() {
                 </div>
                 <div class="ship-card-expanded">
                     <div class="history-date-list">
-                        ${(ship.history || []).map((h, i) => `<div class="history-date-item" onclick="showHistoryDetail(${shipIdx}, ${i})">${h.date} (${h.firstTime})</div>`).join('')}
+                        ${(ship.history || []).map((h, i) => `<div class="history-date-item" onclick="showHistoryDetail(${shipIdx}, i)">${h.date} (${h.firstTime})</div>`).join('')}
                         <div class="history-date-item text-primary" onclick="addHistory(${shipIdx})" style="font-weight: 700;">+ 추가</div>
                     </div>
-                    <div class="history-detail-view-wrapper">
-                        <div class="history-detail-view"></div>
-                    </div>
+                    <div class="history-detail-view-wrapper"><div class="history-detail-view"></div></div>
                 </div>
             </div>`;
     }).join('');
-
     renderPagination(totalItems);
 }
 
 function renderPagination(totalItems) {
-    const container = document.getElementById('pagination-container');
-    if (!container) return;
-    const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
-    container.innerHTML = '';
-
+    const container = document.getElementById('pagination-container'); if (!container) return;
+    const totalPages = Math.ceil(totalItems / itemsPerPage) || 1; container.innerHTML = '';
     const createBtn = (text, page, isActive = false, isDisabled = false) => {
-        const btn = document.createElement('button');
-        btn.innerText = text;
-        btn.classList.add('page-btn');
-        if (isActive) btn.classList.add('active');
-        if (isDisabled) btn.disabled = true;
-        btn.onclick = () => {
-            currentPage = page;
-            renderShips();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        };
+        const btn = document.createElement('button'); btn.innerText = text; btn.classList.add('page-btn');
+        if (isActive) btn.classList.add('active'); if (isDisabled) btn.disabled = true;
+        btn.onclick = () => { currentPage = page; renderShips(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
         return btn;
     };
-
-    let startPage = Math.max(1, currentPage - 2);
-    let endPage = Math.min(totalPages, startPage + 4);
-    if (endPage - startPage < 4) startPage = Math.max(1, endPage - 4);
-
     if (totalPages > 1) {
         container.appendChild(createBtn('<', Math.max(1, currentPage - 1), false, currentPage === 1));
-        for (let i = startPage; i <= endPage; i++) {
-            container.appendChild(createBtn(i, i, i === currentPage));
-        }
+        for (let i = Math.max(1, currentPage - 2); i <= Math.min(totalPages, Math.max(1, currentPage - 2) + 4); i++) container.appendChild(createBtn(i, i, i === currentPage));
         container.appendChild(createBtn('>', Math.min(totalPages, currentPage + 1), false, currentPage === totalPages));
     }
 }
 
-document.addEventListener('DOMContentLoaded', initShipSearch););
+document.addEventListener('DOMContentLoaded', initShipSearch);
