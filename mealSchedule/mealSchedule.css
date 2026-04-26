@@ -198,9 +198,10 @@
 
 #meal-display {
     margin: 0;
-    font-size: 1.25rem;
+    font-size: 17px;
     font-weight: 500;
-    line-height: 2;
+    line-height: 2.2;
+    letter-spacing: 0.3px;
     white-space: pre-line;
     text-align: center;
     color: #374151;
@@ -210,5 +211,5 @@
 .meal-controls {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
 }
