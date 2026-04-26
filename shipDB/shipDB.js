@@ -208,17 +208,9 @@ async function saveInlineTagValue(shipIdx, rawValue) {
     const ship = shipData[shipIdx];
     if (!ship.tags) ship.tags = [];
     
-    const newTags = rawValue.split(',').map(t => t.trim()).filter(t => t);
-    let addedCount = 0;
-    
-    newTags.forEach(tag => {
-        if (!ship.tags.includes(tag)) {
-            ship.tags.push(tag);
-            addedCount++;
-        }
-    });
-
-    if (addedCount > 0) {
+    const newTag = rawValue.trim();
+    if (newTag && !ship.tags.includes(newTag)) {
+        ship.tags.push(newTag);
         await updateShipInDB(ship._dbKey, ship);
     }
 }

@@ -182,9 +182,37 @@ function toggleViolationDetail() {
     if (violationSelect.value === "X") detailInput.value = "";
 }
 
+let currentTraceTags = [];
+
+function addTraceTag() {
+    const input = document.getElementById('trace-tag-input');
+    const val = input.value.trim();
+    if (val && !currentTraceTags.includes(val)) {
+        currentTraceTags.push(val);
+        renderTraceTags();
+        input.value = '';
+        input.focus();
+    }
+}
+
+function removeTraceTag(tag) {
+    currentTraceTags = currentTraceTags.filter(t => t !== tag);
+    renderTraceTags();
+}
+
+function renderTraceTags() {
+    const container = document.getElementById('trace-tags-container');
+    if (!container) return;
+    container.innerHTML = currentTraceTags.map(tag => `
+        <span class="tag-badge">${tag}<span class="remove-tag" onclick="removeTraceTag('${tag}')">&times;</span></span>
+    `).join('');
+}
+
 function resetForm() {
     if (confirm("입력 중인 내용을 초기화할까요?")) {
         document.getElementById('trace-form').reset();
+        currentTraceTags = [];
+        renderTraceTags();
         toggleTraceMode();
         toggleViolationDetail();
         toggleTraceNum();
@@ -238,8 +266,7 @@ async function saveTraceLog() {
     const violationDetail = document.getElementById('violation-detail').value.trim();
     const fullViolationText = (violationStatus === "O") ? `O (${violationDetail})` : "X";
 
-    const tagString = document.getElementById('tags').value;
-    const tags = tagString ? tagString.split(',').map(t => t.trim()).filter(t => t) : [];
+    const tags = [...currentTraceTags];
 
     const identificationDate = new Date().toISOString().split('T')[0];
     const terminationReason = document.getElementById('termination-reason').value;
@@ -343,6 +370,8 @@ async function saveTraceLog() {
         document.getElementById('trace-form').reset();
         document.getElementById('ship-preview').src = "";
         document.getElementById('path-preview').src = "";
+        currentTraceTags = [];
+        renderTraceTags();
         toggleTraceMode();
         toggleViolationDetail();
         toggleTraceNum();
