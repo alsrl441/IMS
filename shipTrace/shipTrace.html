@@ -243,13 +243,13 @@
                     </div>
 
                     <div class="form-group-section">
-                        <h6 class="section-label">선체 특징</h6>
-                        <div id="trace-tags-container" class="selected-tags-container" style="margin-bottom: 10px; min-height: 30px;">
-                            <!-- 태그 배지들이 여기에 표시됩니다 -->
-                        </div>
+                        <h6 class="section-label">특이사항</h6>
                         <div class="input-group">
-                            <input type="text" id="trace-tag-input" placeholder="특징 입력 후 엔터" onkeydown="if(event.key==='Enter'){event.preventDefault(); addTraceTag();}" style="flex: 1;">
+                            <input type="text" id="trace-tag-input" placeholder="선박 기타/외형적 특이사항" onkeydown="if(event.key==='Enter'){event.preventDefault(); addTraceTag();}" style="flex: 1;">
                             <button type="button" class="btn-now" onclick="addTraceTag()" style="border-radius: 0 8px 8px 0;">추가</button>
+                        </div>
+                        <div id="trace-tags-container" class="selected-tags-container" style="margin-top: 10px; min-height: 30px;">
+                            <!-- 태그 배지들이 여기에 표시됩니다 -->
                         </div>
                     </div>
 

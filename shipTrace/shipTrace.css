@@ -312,3 +312,42 @@ textarea {
 @media (max-width: 768px) {
     .grid-layout.cols-2 {grid-template-columns: 1fr;}
     .input-field.span-2 {grid-column: span 1;}}
+/* 특이사항 태그 스타일 개선 */
+.selected-tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.tag-badge {
+    background-color: #f1f3f5;
+    color: #495057;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid #dee2e6;
+}
+
+.remove-tag {
+    cursor: pointer;
+    color: white !important;
+    background-color: #ff6b6b;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    line-height: 1;
+    transition: background-color 0.2s;
+    margin-left: 4px;
+}
+
+.remove-tag:hover {
+    background-color: #fa5252;
+}
