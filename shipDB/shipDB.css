@@ -521,3 +521,26 @@
 .d-flex { display: flex; }
 .gap-2 { gap: 8px; }
 .full-width { grid-column: span 2; }
+/* 펼치기/접기 버튼 스타일 및 애니메이션 */
+.expand-btn {
+    cursor: pointer;
+    padding: 5px;
+    margin-right: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease;
+}
+
+.expand-btn span {
+    display: inline-block;
+    transition: transform 0.3s ease;
+    transform: rotate(0deg);
+    font-size: 1rem;
+    color: #adb5bd;
+}
+
+.ship-card.is-expanded .expand-btn span {
+    transform: rotate(180deg);
+    color: #0d6efd;
+}
