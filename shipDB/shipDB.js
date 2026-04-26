@@ -304,7 +304,6 @@ function renderHistoryForm(shipIdx, historyIdx = null) {
                 <div class="edit-group"><label>인원</label><input type="text" id="edit-crew" value="${h.crewCount}"></div>
                 <div class="edit-group"><label>인수인계</label><textarea id="edit-handover" rows="3" style="font-size: 0.8rem;">${h.handoverDetails || 'X'}</textarea></div>
                 <div class="edit-group"><label>외부명칭 / 깃발</label><input type="text" id="edit-external" value="${h.externalName || 'X'}"></div>
-                <div class="edit-group"><label>특징</label><input type="text" id="edit-tags" value="${(h.tags || []).join(', ')}" placeholder="콤마(,)로 구분"></div>
                 <div class="edit-group"><label>어선법 위반 여부</label><input type="text" id="edit-violation" value="${h.violation || 'X'}"></div>
                 <div class="edit-group"><label>근무자 / 수화자</label>
                     <div class="d-flex gap-1">
@@ -414,12 +413,6 @@ async function saveHistoryData(shipIdx, historyIdx) {
     const ship = shipData[shipIdx];
     const isEdit = historyIdx !== null;
     
-    const tagsEl = document.getElementById('edit-tags');
-    const tagsVal = tagsEl ? tagsEl.value : "";
-    const tagsArr = tagsVal ? tagsVal.split(',').map(t => t.trim()).filter(t => t) : (isEdit ? ship.history[historyIdx].tags : [""]);
-
-    console.log(`[saveHistoryData] 추출된 특징(tags):`, tagsArr);
-
     const newHistory = {
         date: document.getElementById('edit-date').value,
         firstTime: document.getElementById('edit-first-time').value,
@@ -428,7 +421,7 @@ async function saveHistoryData(shipIdx, historyIdx) {
         lastTime: document.getElementById('edit-last-time').value,
         lastPos: document.getElementById('edit-last-pos').value,
         lastAzEl: document.getElementById('edit-last-azel').value,
-        tags: tagsArr,
+        tags: isEdit ? ship.history[historyIdx].tags : [""], // 기존 태그 유지 또는 빈 값
         movementPath: document.getElementById('edit-path-text').value,
         crewCount: document.getElementById('edit-crew').value || "식별불가",
         violation: document.getElementById('edit-violation').value,
@@ -444,15 +437,6 @@ async function saveHistoryData(shipIdx, historyIdx) {
     
     if (isEdit) ship.history[historyIdx] = newHistory;
     else ship.history.push(newHistory);
-
-    // 선박 메인 태그에도 추가 (기존에 없던 것만)
-    if (!ship.tags) ship.tags = [];
-    tagsArr.forEach(t => {
-        if (!ship.tags.includes(t)) {
-            console.log(`[saveHistoryData] 메인 태그에 새 특징 추가: ${t}`);
-            ship.tags.push(t);
-        }
-    });
     
     ship.history.sort((a, b) => b.date.localeCompare(a.date));
     console.log(`[saveHistoryData] 최종 저장될 ship 데이터:`, ship);
