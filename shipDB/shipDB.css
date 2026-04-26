@@ -86,21 +86,22 @@
     border: 1px solid #dee2e6;}
 .remove-tag, .tag-delete-btn {
     cursor: pointer;
-    color: white !important;
-    background-color: #ff6b6b;
-    width: 18px;
-    height: 18px;
+    color: #dc3545 !important;
+    background: none;
+    border: none;
+    padding: 0;
+    margin-left: 6px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    line-height: 1;
+    transition: transform 0.15s, color 0.15s;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 4px;
-    font-size: 0.9rem;
-    line-height: 1;
-    transition: background-color 0.2s;
-    margin-left: 4px;
     text-decoration: none;}
 .remove-tag:hover, .tag-delete-btn:hover {
-    background-color: #fa5252;}
+    color: #a52834 !important;
+    transform: scale(1.2);}
 .ship-results-list {
     border: 1px solid #dee2e6;
     border-radius: 12px;

@@ -334,20 +334,21 @@ textarea {
 
 .remove-tag {
     cursor: pointer;
-    color: white !important;
-    background-color: #ff6b6b;
-    width: 18px;
-    height: 18px;
+    color: #dc3545 !important;
+    background: none;
+    border: none;
+    padding: 0;
+    margin-left: 6px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    line-height: 1;
+    transition: transform 0.15s, color 0.15s;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 4px;
-    font-size: 0.9rem;
-    line-height: 1;
-    transition: background-color 0.2s;
-    margin-left: 4px;
 }
 
 .remove-tag:hover {
-    background-color: #fa5252;
+    color: #a52834 !important;
+    transform: scale(1.2);
 }
