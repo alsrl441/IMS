@@ -582,7 +582,7 @@ function renderShips() {
                 </div>
                 <div class="ship-card-expanded">
                     <div class="history-date-list">
-                        ${(ship.history || []).map((h, i) => `<div class="history-date-item" onclick="showHistoryDetail(${shipIdx}, i)">${h.date} (${h.firstTime})</div>`).join('')}
+                        ${(ship.history || []).map((h, i) => `<div class="history-date-item" onclick="showHistoryDetail(${shipIdx}, ${i})">${h.date} (${h.firstTime})</div>`).join('')}
                         <div class="history-date-item text-primary" onclick="addHistory(${shipIdx})" style="font-weight: 700;">+ 추가</div>
                     </div>
                     <div class="history-detail-view-wrapper"><div class="history-detail-view"></div></div>
