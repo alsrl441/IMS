@@ -176,6 +176,138 @@ async function updateWorkSchedule() {
             monthPicker.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
         }
 
+        const renderPersonalStatus = async (monthData, year, month) => {
+            const display = document.getElementById('personal-status-display');
+            if (!display) return;
+
+            // 1. 인원 데이터 가져오기 (personnel)
+            const MEMBER_STORE = "members";
+            await window.ensureStore(MEMBER_STORE, "id");
+            const members = await window.getDBData(MEMBER_STORE);
+            if (!members || members.length === 0) {
+                display.innerHTML = '<div class="text-center py-4 text-muted">등록된 인원 정보가 없습니다.</div>';
+                return;
+            }
+
+            // 계급 순서 정의 (필요시 사용)
+            const rankOrder = ["이병", "일병", "상병", "병장", "하사", "중사", "상사", "소위", "중위", "대위"];
+            const getRank = (name) => {
+                const m = members.find(mem => mem.name === name);
+                if (!m) return "";
+                // 인사정보에서 계급을 가져오는 로직 (현재는 affiliation이나 position에 있을 수 있음, 
+                // 만약 없다면 기본값 혹은 계산된 계급 사용)
+                // 여기서는 요청하신 대로 관등성명 출력을 위해 이름을 우선 사용하고,
+                // 실제 personnel 데이터의 진급일 기준 계산 로직이 필요할 수 있음.
+                const now = new Date();
+                const start = new Date(m.start);
+                const pfc = getPromotionDate(m.start, 2, 0);
+                const cpl = getPromotionDate(m.start, 8, m.pfc2cpl);
+                const sgt = getPromotionDate(m.start, 14, m.cpl2sgt);
+                
+                if (now < pfc) return "이병";
+                if (now < cpl) return "일병";
+                if (now < sgt) return "상병";
+                if (now < new Date(m.end)) return "병장";
+                return "전역";
+            };
+
+            const getPromotionDate = (s, m, a) => {
+                if (!s) return null; let d = new Date(s); d.setMonth(d.getMonth() + m + 1); d.setDate(1);
+                if (a) d.setMonth(d.getMonth() - a); return d;
+            };
+
+            const daysInMonth = monthData.length;
+            const daysOfWeek = ["일", "월", "화", "수", "목", "금", "토"];
+
+            // 헤더 생성
+            let headerHtml = `<tr><th class="name-col">성명</th>`;
+            monthData.forEach(day => {
+                const d = new Date(day.date);
+                const dayName = daysOfWeek[d.getDay()];
+                const isHoliday = day.isHoliday || d.getDay() === 0 || d.getDay() === 6;
+                headerHtml += `<th class="${isHoliday ? 'is-holiday text-danger' : ''} ${day.date === getFormattedDate(new Date()) ? 'is-today' : ''}">
+                    ${d.getDate()}<br><small>${dayName}</small>
+                </th>`;
+            });
+            headerHtml += `</tr>`;
+
+            let bodyHtml = "";
+            
+            // 모든 인원 순회
+            members.sort((a, b) => a.name.localeCompare(b.name)).forEach(member => {
+                let rowHtml = `<tr><td class="name-col">${member.name}</td>`;
+                const vacation = member.vacation || []; // ["2024-04-04", "2024-04-10"]
+                
+                for (let i = 0; i < daysInMonth; i++) {
+                    const currentDateStr = monthData[i].date;
+                    const currentDate = new Date(currentDateStr);
+                    
+                    // 1. 휴가 체크
+                    if (vacation.length === 2 && currentDateStr >= vacation[0] && currentDateStr <= vacation[1]) {
+                        // 휴가 시작일인 경우에만 병합 셀 렌더링
+                        if (currentDateStr === vacation[0] || i === 0 || (new Date(monthData[i-1].date) < new Date(vacation[0]))) {
+                            const vStart = new Date(vacation[0]);
+                            const vEnd = new Date(vacation[1]);
+                            
+                            // 이번 달 내에서의 휴가 종료일 계산
+                            const lastDateInMonth = new Date(year, month, 0);
+                            const actualEnd = vEnd > lastDateInMonth ? lastDateInMonth : vEnd;
+                            const actualStart = vStart < new Date(year, month-1, 1) ? new Date(year, month-1, 1) : vStart;
+                            
+                            // 병합할 셀 개수 계산
+                            let colSpan = 0;
+                            for (let j = i; j < daysInMonth; j++) {
+                                if (monthData[j].date <= vacation[1]) colSpan++;
+                                else break;
+                            }
+                            
+                            const duration = Math.round((vEnd - vStart) / 86400000) + 1;
+                            const rank = getRank(member.name);
+                            const label = `${rank} ${member.name} ${vStart.getMonth()+1}.${vStart.getDate()} - ${vEnd.getMonth()+1}.${vEnd.getDate()} (${duration}일)`;
+                            
+                            rowHtml += `<td colspan="${colSpan}" class="vacation-cell">${label}</td>`;
+                            i += (colSpan - 1); // 병합한 만큼 인덱스 건너뜀
+                            continue;
+                        }
+                    }
+
+                    // 2. 근무 체크
+                    const dayData = monthData[i];
+                    let workLabel = "★"; // 기본은 비번
+                    let workClass = "off-day";
+
+                    const findWork = (day) => {
+                        for (const c of day.cctv) {
+                            if (c.p1 === member.name || c.p2 === member.name) return c.shift;
+                        }
+                        for (const t of day.tod) {
+                            if (t.p1 === member.name || t.p2 === member.name) return t.location;
+                        }
+                        return null;
+                    };
+
+                    const shift = findWork(dayData);
+                    if (shift) {
+                        if (shift.includes("06-14")) { workLabel = "6"; workClass = "work-6"; }
+                        else if (shift.includes("14-22")) { workLabel = "14"; workClass = "work-14"; }
+                        else if (shift.includes("22-06")) { workLabel = "22"; workClass = "work-22"; }
+                        else { workLabel = "근무"; workClass = "work-other"; }
+                    }
+
+                    rowHtml += `<td class="${workClass}">${workLabel}</td>`;
+                }
+                bodyHtml += rowHtml + `</tr>`;
+            });
+
+            display.innerHTML = `
+                <div class="monthly-table-wrapper">
+                    <table class="work-table table-bordered personal-table">
+                        <thead>${headerHtml}</thead>
+                        <tbody>${bodyHtml}</tbody>
+                    </table>
+                </div>`;
+        };
+
         const renderMonthlyView = async () => {
             const [selectedYear, selectedMonth] = monthPicker.value.split('-').map(Number);
             const allSchedules = await getAllSchedules();
@@ -349,6 +481,9 @@ async function updateWorkSchedule() {
             const minScore = scoreList.length ? Math.min(...scoreList) : 0;
             const maxUsers = Object.keys(stats).filter(n => stats[n].score === maxScore);
             const minUsers = Object.keys(stats).filter(n => stats[n].score === minScore);
+
+            // 개인별 월간 현황표 렌더링
+            await renderPersonalStatus(currentMonthData, selectedYear, selectedMonth);
 
             let statsRows = "";
             Object.keys(stats).sort().forEach(name => {

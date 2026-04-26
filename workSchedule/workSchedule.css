@@ -249,3 +249,71 @@ body.bg-light main.container {
     padding-left: 20px;
     padding-right: 20px;
 }
+
+/* 개인별 월간 현황표 스타일 */
+.personal-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.personal-table th, .personal-table td {
+    border: 1px solid #dee2e6;
+    padding: 6px 4px !important;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 0.85rem;
+    min-width: 40px;
+    height: 45px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.personal-table .name-col {
+    width: 100px;
+    min-width: 100px;
+    font-weight: bold;
+    background-color: #f8f9fa;
+    position: sticky;
+    left: 0;
+    z-index: 10;
+}
+
+.personal-table .vacation-cell {
+    background-color: #e7f3ff;
+    color: #0d6efd;
+    font-weight: 600;
+    text-align: center;
+    padding-left: 10px !important;
+    white-space: nowrap;
+    border-radius: 4px;
+}
+
+.personal-table .off-day {
+    color: #ffc107;
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+.personal-table .work-6 { color: #28a745; font-weight: bold; }
+.personal-table .work-14 { color: #007bff; font-weight: bold; }
+.personal-table .work-22 { color: #6f42c1; font-weight: bold; }
+
+.personal-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 11;
+    background-color: #f8f9fa;
+}
+
+.personal-table thead th.name-col {
+    z-index: 12;
+}
+
+.personal-table .is-today {
+    background-color: #fff9db;
+}
+
+.personal-table .is-holiday {
+    background-color: #fff5f5;
+}
