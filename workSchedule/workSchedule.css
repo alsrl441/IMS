@@ -3,16 +3,23 @@
 }
 /* 테이블 너비 및 스크롤 설정 수정 */
 .monthly-table-wrapper {
-    overflow-x: visible; /* 횡스크롤 제거 */
+    max-width: 100%;
+    overflow-x: auto; /* 기능은 유지 */
     margin-bottom: 30px;
+    -ms-overflow-style: none; /* IE, Edge */
+    scrollbar-width: none; /* Firefox */
+}
+.monthly-table-wrapper::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera - 스크롤바 숨김 */
 }
 .work-table {
     width: 100%;
+    min-width: 1200px; /* 최소 너비 확보로 데이터 가독성 유지 */
     border-collapse: collapse;
     margin-bottom: 24px;
     background-color: #fff;
     border: 1px solid #dee2e6;
-    table-layout: auto; /* 고정 레이아웃 해제하여 너비 확보 */
+    table-layout: fixed;
 }
 .work-table th, .work-table td {
     border: 1px solid #dee2e6;
