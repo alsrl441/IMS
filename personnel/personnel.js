@@ -200,7 +200,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     addVacationBtn.addEventListener('click', () => addVacationEditRow());
 
     function startAddMember() {
-        isAdding = true; selectEl.value = ""; handleMemberSelect("");
+        selectEl.value = ""; handleMemberSelect("");
+        isAdding = true;
         displayEl.classList.remove('hidden'); noDataEl.classList.add('hidden'); previewEl.classList.add('hidden');
         document.querySelectorAll('.edit-mode input').forEach(input => { if (input.type === 'number') input.value = 0; else input.value = ""; });
         fieldEditContainer.innerHTML = ''; scheduleEditContainer.innerHTML = ''; vacationEditContainer.innerHTML = '';
