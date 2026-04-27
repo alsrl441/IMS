@@ -1,97 +1,62 @@
 #work-display {
     font-size: 0.9375rem;
 }
+/* 테이블 너비 및 스크롤 설정 수정 */
+.monthly-table-wrapper {
+    overflow-x: visible; /* 횡스크롤 제거 */
+    margin-bottom: 30px;
+}
 .work-table {
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 24px;
     background-color: #fff;
     border: 1px solid #dee2e6;
-    table-layout: fixed; /* 고정 레이아웃으로 통일 */
+    table-layout: auto; /* 고정 레이아웃 해제하여 너비 확보 */
 }
 .work-table th, .work-table td {
     border: 1px solid #dee2e6;
-    padding: 10px 6px;
+    padding: 0; /* 패딩 제거하여 입력창과 일치시킴 */
     text-align: center;
     font-size: 13px;
     vertical-align: middle;
     word-break: keep-all;
-    height: 48px; /* 행 높이 통일 */
-}
-.work-table thead th {
-    background-color: #f8f9fa;
-    font-weight: 700;
-    color: #495057;
-    font-size: 12px;
-}
-.work-table .group-header {
-    width: 70px;
-    font-weight: 700;
-    background-color: #fdfdfd;
-}
-.work-table .sub-group {
-    width: 90px;
-    font-weight: 600;
-    background-color: #fdfdfd;
-}
-.name-col, .name-cell {
-    font-weight: 700;
-    background-color: #f8f9fa !important;
-    color: #212529;
+    height: 70px; /* p1, p2 합산 높이 고려 */
 }
 
-/* 월간 근무표 특정 스타일 */
-.monthly-table {
-    min-width: 1200px;
+/* 입력창 스타일을 일반 텍스트처럼 변경 (엑셀 방식) */
+.names-cell .p1, .names-cell .p2, .edit-work-input {
+    width: 100%;
+    height: 35px;
+    padding: 0 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    border: none;
+    background-color: transparent;
+    outline: none;
+    text-align: center;
 }
-.monthly-table th {
-    padding: 12px 4px;
+.names-cell .p1, .edit-work-input:first-child {
+    border-bottom: 1px solid #f0f0f0;
+}
+.edit-work-input:focus {
+    background-color: #fff !important;
+    box-shadow: inset 0 0 0 2px #0d6efd;
+    position: relative;
+    z-index: 10;
 }
 
-/* 개인별 현황표 특정 스타일 */
-.personal-table {
-    min-width: 1200px;
+/* 개인별 현황표 패딩 복구 (수정 불가 영역) */
+.personal-table td {
+    padding: 6px 4px;
+    height: 48px;
 }
 .personal-table .name-col {
     width: 100px;
     position: sticky;
     left: 0;
     z-index: 10;
-    border-right: 2px solid #dee2e6;
-}
-.personal-table thead th {
-    position: sticky;
-    top: 0;
-    z-index: 11;
-}
-.personal-table thead th.name-col {
-    z-index: 12;
-}
-
-/* 상태별 색상 통일 */
-.is-holiday { background-color: #fff5f5 !important; }
-.text-danger { color: #dc3545 !important; }
-.text-primary { color: #0d6efd !important; }
-.is-today { background-color: #fff9db !important; }
-
-/* 근무 및 휴가 스타일 */
-.vacation-cell {
-    background-color: #e7f3ff !important;
-    color: #0d6efd;
-    font-weight: 700;
-    font-size: 12px;
-    text-align: center;
-    border-radius: 4px;
-}
-.off-day { color: #fab005; font-weight: 800; font-size: 1.1rem; }
-.work-6 { color: #40c057; font-weight: 700; }
-.work-14 { color: #228be6; font-weight: 700; }
-.work-22 { color: #7950f2; font-weight: 700; }
-.work-other { color: #495057; font-weight: 700; }
-
-.monthly-table-wrapper {
-    overflow-x: auto;
-    margin-bottom: 30px;
-    border-radius: 8px;
-    border: 1px solid #dee2e6;
+    background-color: #f8f9fa !important;
 }
