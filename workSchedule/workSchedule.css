@@ -14,7 +14,7 @@
 }
 .work-table {
     width: 100%;
-    min-width: 1200px; /* 최소 너비 확보로 데이터 가독성 유지 */
+    min-width: 2800px; /* 너비를 대폭 늘려 가독성 확보 */
     border-collapse: collapse;
     margin-bottom: 24px;
     background-color: #fff;
