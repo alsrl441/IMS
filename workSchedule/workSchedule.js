@@ -224,9 +224,14 @@ async function updateWorkSchedule() {
             monthData.forEach(day => {
                 const d = new Date(day.date);
                 const dayName = daysOfWeek[d.getDay()];
-                const isHoliday = day.isHoliday || d.getDay() === 0 || d.getDay() === 6;
-                headerHtml += `<th class="${isHoliday ? 'is-holiday text-danger' : ''} ${day.date === getFormattedDate(new Date()) ? 'is-today' : ''}">
-                    ${d.getDate()}<br><small>${dayName}</small>
+                const isSun = d.getDay() === 0;
+                const isSat = d.getDay() === 6;
+                const isHoliday = day.isHoliday || isSun || isSat;
+                const isRedDay = isSun || day.isHoliday;
+                const dayClass = isRedDay ? "text-danger" : (isSat ? "text-primary" : "");
+                
+                headerHtml += `<th class="${isHoliday ? 'is-holiday' : ''} ${day.date === getFormattedDate(new Date()) ? 'is-today' : ''} ${dayClass}">
+                    ${d.getMonth()+1}/${d.getDate()}<br><small>(${dayName})</small>
                 </th>`;
             });
             headerHtml += `</tr>`;
@@ -236,44 +241,28 @@ async function updateWorkSchedule() {
             // 모든 인원 순회
             members.sort((a, b) => a.name.localeCompare(b.name)).forEach(member => {
                 let rowHtml = `<tr><td class="name-col">${member.name}</td>`;
-                const vacation = member.vacation || []; // ["2024-04-04", "2024-04-10"]
+                const vacation = member.vacation || [];
                 
                 for (let i = 0; i < daysInMonth; i++) {
                     const currentDateStr = monthData[i].date;
-                    const currentDate = new Date(currentDateStr);
                     
                     // 1. 휴가 체크
                     if (vacation.length === 2 && currentDateStr >= vacation[0] && currentDateStr <= vacation[1]) {
-                        // 휴가 시작일인 경우에만 병합 셀 렌더링
                         if (currentDateStr === vacation[0] || i === 0 || (new Date(monthData[i-1].date) < new Date(vacation[0]))) {
-                            const vStart = new Date(vacation[0]);
-                            const vEnd = new Date(vacation[1]);
-                            
-                            // 이번 달 내에서의 휴가 종료일 계산
-                            const lastDateInMonth = new Date(year, month, 0);
-                            const actualEnd = vEnd > lastDateInMonth ? lastDateInMonth : vEnd;
-                            const actualStart = vStart < new Date(year, month-1, 1) ? new Date(year, month-1, 1) : vStart;
-                            
-                            // 병합할 셀 개수 계산
                             let colSpan = 0;
                             for (let j = i; j < daysInMonth; j++) {
                                 if (monthData[j].date <= vacation[1]) colSpan++;
                                 else break;
                             }
-                            
-                            const duration = Math.round((vEnd - vStart) / 86400000) + 1;
-                            const rank = getRank(member.name);
-                            const label = `${rank} ${member.name} ${vStart.getMonth()+1}.${vStart.getDate()} - ${vEnd.getMonth()+1}.${vEnd.getDate()} (${duration}일)`;
-                            
-                            rowHtml += `<td colspan="${colSpan}" class="vacation-cell">${label}</td>`;
-                            i += (colSpan - 1); // 병합한 만큼 인덱스 건너뜀
+                            rowHtml += `<td colspan="${colSpan}" class="vacation-cell">휴가</td>`;
+                            i += (colSpan - 1);
                             continue;
                         }
                     }
 
                     // 2. 근무 체크
                     const dayData = monthData[i];
-                    let workLabel = "★"; // 기본은 비번
+                    let workLabel = "★"; 
                     let workClass = "off-day";
 
                     const findWork = (day) => {
@@ -361,19 +350,21 @@ async function updateWorkSchedule() {
                 const d = new Date(dayData.date);
                 const isSun = d.getDay() === 0;
                 const isSat = d.getDay() === 6;
-                const isHoliday = dayData.isHoliday;
+                const isHoliday = dayData.isHoliday || isSun || isSat;
                 
                 let dayType = "weekday";
-                if (isSun || isHoliday) dayType = "holiday";
+                if (isSun || dayData.isHoliday) dayType = "holiday";
                 else if (isSat) dayType = "saturday";
 
-                if (isSun || isSat || isHoliday) totalWE++; else totalWD++;
+                if (isSun || isSat || dayData.isHoliday) totalWE++; else totalWD++;
 
                 const dayName = daysOfWeek[d.getDay()];
-                const isRedDay = (isSun || isHoliday);
+                const isRedDay = (isSun || dayData.isHoliday);
                 const dayClass = isRedDay ? "text-danger" : (isSat ? "text-primary" : "");
                 
-                headerHtml += `<th class="${dayClass} table-light-bg" style="min-width:80px; text-align:center;">${d.getMonth()+1}/${d.getDate()}<br><small>(${dayName})</small></th>`;
+                headerHtml += `<th class="${isHoliday ? 'is-holiday' : ''} ${dayClass} table-light-bg" style="min-width:80px; text-align:center;">
+                    ${d.getMonth()+1}/${d.getDate()}<br><small>(${dayName})</small>
+                </th>`;
 
                 // CCTV 통계 계산
                 const cctvWeights = WORK_WEIGHTS[dayType].cctv;
