@@ -3,24 +3,35 @@
 }
 /* 테이블 너비 및 스크롤 설정 수정 */
 .monthly-table-wrapper {
-    max-width: 100%;
-    overflow-x: auto; /* 기능은 유지 */
+    width: 100%;
+    overflow-x: hidden; /* 횡스크롤 원천 차단 */
     margin-bottom: 30px;
-    -ms-overflow-style: none; /* IE, Edge */
-    scrollbar-width: none; /* Firefox */
-}
-.monthly-table-wrapper::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Opera - 스크롤바 숨김 */
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
 }
 .work-table {
     width: 100%;
-    min-width: 2800px; /* 너비를 대폭 늘려 가독성 확보 */
     border-collapse: collapse;
-    margin-bottom: 24px;
+    margin-bottom: 0;
     background-color: #fff;
-    border: 1px solid #dee2e6;
-    table-layout: fixed;
+    table-layout: fixed; /* 고정 레이아웃으로 화면에 맞춤 */
 }
+.work-table th, .work-table td {
+    border: 1px solid #dee2e6;
+    padding: 0;
+    text-align: center;
+    font-size: 11px; /* 많은 열을 수용하기 위해 폰트 크기 축소 */
+    vertical-align: middle;
+    word-break: break-all;
+    height: 70px;
+}
+.work-table .group-header {
+    width: 50px; /* 카테고리 열 너비 축소 */
+}
+.work-table .sub-group {
+    width: 70px;
+}
+
 .work-table th, .work-table td {
     border: 1px solid #dee2e6;
     padding: 0; /* 패딩 제거하여 입력창과 일치시킴 */
