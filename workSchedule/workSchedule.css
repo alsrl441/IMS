@@ -20,37 +20,21 @@
     border: 1px solid #dee2e6;
     padding: 0;
     text-align: center;
-    font-size: 11px; /* 많은 열을 수용하기 위해 폰트 크기 축소 */
+    font-size: 11px;
     vertical-align: middle;
     word-break: break-all;
-    height: 70px;
-}
-.work-table .group-header {
-    width: 50px; /* 카테고리 열 너비 축소 */
-}
-.work-table .sub-group {
-    width: 70px;
+    height: 50px; /* 전체 높이 축소 */
 }
 
-.work-table th, .work-table td {
-    border: 1px solid #dee2e6;
-    padding: 0; /* 패딩 제거하여 입력창과 일치시킴 */
-    text-align: center;
-    font-size: 13px;
-    vertical-align: middle;
-    word-break: keep-all;
-    height: 70px; /* p1, p2 합산 높이 고려 */
-}
-
-/* 입력창 스타일을 일반 텍스트처럼 변경 (엑셀 방식) */
+/* 입력창 및 텍스트 표시 스타일 축소 */
 .names-cell .p1, .names-cell .p2, .edit-work-input {
     width: 100%;
-    height: 35px;
-    padding: 0 8px;
+    height: 25px; /* 각 칸 높이 축소 */
+    padding: 0 4px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 13px;
+    font-size: 11px;
     border: none;
     background-color: transparent;
     outline: none;
@@ -66,10 +50,11 @@
     z-index: 10;
 }
 
-/* 개인별 현황표 패딩 복구 (수정 불가 영역) */
+/* 개인별 현황표 패딩 및 높이 축소 */
 .personal-table td {
-    padding: 6px 4px;
-    height: 48px;
+    padding: 2px;
+    height: 32px;
+    font-size: 11px;
 }
 .personal-table .name-col {
     width: 100px;
