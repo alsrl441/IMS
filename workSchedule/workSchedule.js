@@ -555,6 +555,67 @@ async function updateWorkSchedule() {
             }
         };
 
+        // 방향키 네비게이션 추가
+        monthlyDisplay.addEventListener('keydown', (e) => {
+            if (!e.target.classList.contains('edit-work-input')) return;
+            const input = e.target;
+            const td = input.parentElement;
+            const tr = td.parentElement;
+            const inputsInTd = Array.from(td.querySelectorAll('.edit-work-input'));
+            const inputIdx = inputsInTd.indexOf(input); // 0 (사수) 또는 1 (부사수)
+            
+            const trs = Array.from(monthlyDisplay.querySelectorAll('tbody tr'));
+            const trIdx = trs.indexOf(tr);
+            const tdsInTr = Array.from(tr.querySelectorAll('td.names-cell'));
+            const tdIdx = tdsInTr.indexOf(td);
+
+            let targetInput = null;
+
+            switch (e.key) {
+                case 'ArrowRight':
+                    if (tdIdx < tdsInTr.length - 1) {
+                        targetInput = tdsInTr[tdIdx + 1].querySelectorAll('.edit-work-input')[inputIdx];
+                    }
+                    break;
+                case 'ArrowLeft':
+                    if (tdIdx > 0) {
+                        targetInput = tdsInTr[tdIdx - 1].querySelectorAll('.edit-work-input')[inputIdx];
+                    }
+                    break;
+                case 'ArrowDown':
+                    if (inputIdx === 0) {
+                        targetInput = inputsInTd[1];
+                    } else if (trIdx < trs.length - 1) {
+                        const nextTrTds = Array.from(trs[trIdx + 1].querySelectorAll('td.names-cell'));
+                        targetInput = nextTrTds[tdIdx].querySelectorAll('.edit-work-input')[0];
+                    }
+                    break;
+                case 'ArrowUp':
+                    if (inputIdx === 1) {
+                        targetInput = inputsInTd[0];
+                    } else if (trIdx > 0) {
+                        const prevTrTds = Array.from(trs[trIdx - 1].querySelectorAll('td.names-cell'));
+                        targetInput = prevTrTds[tdIdx].querySelectorAll('.edit-work-input')[1];
+                    }
+                    break;
+                case 'Enter':
+                    e.preventDefault();
+                    if (inputIdx === 0) {
+                        targetInput = inputsInTd[1];
+                    } else if (trIdx < trs.length - 1) {
+                        const nextTrTds = Array.from(trs[trIdx + 1].querySelectorAll('td.names-cell'));
+                        targetInput = nextTrTds[tdIdx].querySelectorAll('.edit-work-input')[0];
+                    }
+                    break;
+            }
+
+            if (targetInput) {
+                e.preventDefault();
+                targetInput.focus();
+                targetInput.select();
+            }
+        });
+
         btnToggleEditWork?.addEventListener('click', async () => {
             if (isEditMode) {
                 await saveAllWorkChanges();
