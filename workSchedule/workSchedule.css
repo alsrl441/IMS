@@ -1,10 +1,10 @@
 #work-display {
     font-size: 0.9375rem;
 }
-/* 테이블 너비 및 스크롤 설정 수정 */
+
 .monthly-table-wrapper {
     width: 100%;
-    overflow-x: hidden; /* 횡스크롤 원천 차단 */
+    overflow-x: hidden; 
     margin-bottom: 30px;
     border-radius: 8px;
     border: 1px solid #dee2e6;
@@ -14,7 +14,7 @@
     border-collapse: collapse;
     margin-bottom: 0;
     background-color: #fff;
-    table-layout: fixed; /* 고정 레이아웃으로 화면에 맞춤 */
+    table-layout: fixed;
 }
 .work-table th, .work-table td {
     border: 1px solid #dee2e6;
@@ -23,13 +23,12 @@
     font-size: 11px;
     vertical-align: middle;
     word-break: break-all;
-    height: 50px; /* 전체 높이 축소 */
+    height: 50px; 
 }
 
-/* 입력창 및 텍스트 표시 스타일 축소 */
 .names-cell .p1, .names-cell .p2, .edit-work-input {
     width: 100%;
-    height: 25px; /* 각 칸 높이 축소 */
+    height: 25px; 
     padding: 0 4px;
     display: flex;
     align-items: center;
@@ -50,7 +49,6 @@
     z-index: 10;
 }
 
-/* 개인별 현황표 패딩 및 높이 축소 */
 .personal-table td {
     padding: 2px;
     height: 32px;
