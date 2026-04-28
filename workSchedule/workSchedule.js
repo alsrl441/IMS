@@ -207,7 +207,7 @@ async function updateWorkSchedule() {
 
             const renderTodRow = (idx, label) => {
                 let row = `<tr>`;
-                if (idx === 0) row += `<td rowspan="3" class="group-header table-fdfdfd-bg v-middle" style="background-color: #fdfdfd;">TOD</td>`;
+                if (idx === 0) row += `<td rowspan="3" class="group-header table-fdfdfd-bg v-middle" style="background-color: #fdfdfd;">T<br>O<br>D</td>`;
                 row += `<td class="sub-group table-fdfdfd-bg" style="background-color: #fdfdfd;">${label}</td>`;
                 
                 currentMonthData.forEach(day => {
