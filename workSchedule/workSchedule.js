@@ -83,7 +83,7 @@ async function updateWorkSchedule() {
                     </thead>
                     <tbody>
                         <tr>
-                            <td rowspan="3" class="group-header table-fdfdfd-bg v-middle">항포구</td>
+                            <td rowspan="3" class="group-header table-fdfdfd-bg v-middle">항<br>포<br>구</td>
                             <td class="sub-group">${data.cctv[0]?.shift || "06-14"}</td>
                             <td>${formatName(data.cctv[0]?.p1)}</td>
                             <td>${formatName(data.cctv[0]?.p2)}</td>
@@ -186,7 +186,7 @@ async function updateWorkSchedule() {
 
             const renderCctvRow = (idx, label) => {
                 let row = `<tr>`;
-                if (idx === 0) row += `<td rowspan="3" class="group-header table-fdfdfd-bg v-middle" style="background-color: #fdfdfd;">항포구</td>`;
+                if (idx === 0) row += `<td rowspan="3" class="group-header table-fdfdfd-bg v-middle" style="background-color: #fdfdfd;">항<br>포<br>구</td>`;
                 row += `<td class="sub-group table-fdfdfd-bg" style="background-color: #fdfdfd;">${label}</td>`;
 
                 currentMonthData.forEach(day => {
