@@ -118,7 +118,7 @@ async function initFullMealSchedule() {
                         html += `
                             <td rowspan="2" class="sunday text-center" style="vertical-align: middle;">
                                 ${isEditMode ? 
-                                    `<textarea class="edit-input" data-date="${dateStr}" data-type="brunch" rows="4">${content}</textarea>` : 
+                                    `<textarea class="edit-meal-input" data-date="${dateStr}" data-type="brunch">${content}</textarea>` : 
                                     `<div class="meal-text">${formatMealText(content)}</div>`
                                 }
                             </td>
@@ -129,7 +129,7 @@ async function initFullMealSchedule() {
                         html += `
                             <td class="sunday">
                                 ${isEditMode ? 
-                                    `<textarea class="edit-input" data-date="${dateStr}" data-type="dinner" rows="2">${content}</textarea>` : 
+                                    `<textarea class="edit-meal-input" data-date="${dateStr}" data-type="dinner">${content}</textarea>` : 
                                     `<div class="meal-text">${formatMealText(content)}</div>`
                                 }
                             </td>
@@ -140,7 +140,7 @@ async function initFullMealSchedule() {
                     html += `
                         <td class="${i === 6 ? 'saturday' : ''}">
                             ${isEditMode ? 
-                                `<textarea class="edit-input" data-date="${dateStr}" data-type="${type.id}" rows="2">${content}</textarea>` : 
+                                `<textarea class="edit-meal-input" data-date="${dateStr}" data-type="${type.id}">${content}</textarea>` : 
                                 `<div class="meal-text">${formatMealText(content)}</div>`
                             }
                         </td>
@@ -155,7 +155,7 @@ async function initFullMealSchedule() {
     };
 
     const saveAllChanges = async () => {
-        const inputs = document.querySelectorAll('.edit-input');
+        const inputs = document.querySelectorAll('.edit-meal-input');
         const dataByDate = {};
         const allMenus = await window.getDBData(STORE_NAME);
 
@@ -181,6 +181,74 @@ async function initFullMealSchedule() {
             }
         }
     };
+
+    // 방향키 네비게이션
+    displayEl.addEventListener('keydown', (e) => {
+        if (!e.target.classList.contains('edit-meal-input')) return;
+        const input = e.target;
+        const td = input.parentElement;
+        const tr = td.parentElement;
+        
+        const trs = Array.from(displayEl.querySelectorAll('tbody tr'));
+        const trIdx = trs.indexOf(tr);
+        const tdsInTr = Array.from(tr.querySelectorAll('td'));
+        const tdIdx = tdsInTr.indexOf(td);
+
+        let targetInput = null;
+
+        switch (e.key) {
+            case 'ArrowRight':
+                if (tdIdx < tdsInTr.length - 1) {
+                    targetInput = tdsInTr[tdIdx + 1].querySelector('.edit-meal-input');
+                }
+                break;
+            case 'ArrowLeft':
+                if (tdIdx > 0) {
+                    targetInput = tdsInTr[tdIdx - 1].querySelector('.edit-meal-input');
+                }
+                break;
+            case 'ArrowDown':
+                if (trIdx < trs.length - 1) {
+                    // 일요일 브런치(rowspan=2)에서 아래로 갈 때 처리
+                    if (trIdx === 0 && tdIdx === 1) {
+                        targetInput = trs[2].querySelectorAll('td')[1]?.querySelector('.edit-meal-input');
+                    } else {
+                        targetInput = trs[trIdx + 1].querySelectorAll('td')[tdIdx]?.querySelector('.edit-meal-input') || 
+                                      trs[trIdx + 1].querySelectorAll('td')[tdIdx - 1]?.querySelector('.edit-meal-input');
+                    }
+                }
+                break;
+            case 'ArrowUp':
+                if (trIdx > 0) {
+                    // 일요일 저녁에서 위로 갈 때 처리
+                    if (trIdx === 2 && tdIdx === 1) {
+                        targetInput = trs[0].querySelectorAll('td')[1]?.querySelector('.edit-meal-input');
+                    } else {
+                        targetInput = trs[trIdx - 1].querySelectorAll('td')[tdIdx]?.querySelector('.edit-meal-input') || 
+                                      trs[trIdx - 1].querySelectorAll('td')[tdIdx + 1]?.querySelector('.edit-meal-input');
+                    }
+                }
+                break;
+            case 'Enter':
+                if (!e.shiftKey) { // Shift+Enter는 개행, Enter는 아래로 이동
+                    e.preventDefault();
+                    if (trIdx < trs.length - 1) {
+                        if (trIdx === 0 && tdIdx === 1) {
+                            targetInput = trs[2].querySelectorAll('td')[1]?.querySelector('.edit-meal-input');
+                        } else {
+                            targetInput = trs[trIdx + 1].querySelectorAll('td')[tdIdx]?.querySelector('.edit-meal-input') || 
+                                          trs[trIdx + 1].querySelectorAll('td')[tdIdx - 1]?.querySelector('.edit-meal-input');
+                        }
+                    }
+                }
+                break;
+        }
+
+        if (targetInput) {
+            e.preventDefault();
+            targetInput.focus();
+        }
+    });
 
     btnToggleEdit?.addEventListener('click', async () => {
         if (isEditMode) {
