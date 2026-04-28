@@ -14,9 +14,20 @@
     border-collapse: collapse;
     margin-bottom: 0;
     background-color: #fff;
+    table-layout: fixed;
 }
 .monthly-table {
-    min-width: 1500px;
+    width: auto;
+    min-width: 100%;
+}
+.monthly-table .group-header {
+    width: 50px;
+}
+.monthly-table .sub-group {
+    width: 70px;
+}
+.monthly-table th:not([colspan]), .monthly-table td.names-cell {
+    width: 80px;
 }
 .work-table th, .work-table td {
     border: 1px solid #dee2e6;
