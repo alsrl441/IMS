@@ -138,6 +138,7 @@ async function updateWorkSchedule() {
 
     if (monthlyDisplay && monthPicker) {
         let isEditMode = false;
+        let holidayOverrides = {}; // 수정 모드 중 변경된 공휴일 상태 저장
 
         if (!monthPicker.value) {
             monthPicker.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
@@ -154,10 +155,11 @@ async function updateWorkSchedule() {
                 const dateStr = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
                 const dbData = allSchedules.find(day => day.date === dateStr);
                 
+                let dayObj;
                 if (dbData) {
-                    currentMonthData.push(dbData);
+                    dayObj = JSON.parse(JSON.stringify(dbData));
                 } else {
-                    currentMonthData.push({
+                    dayObj = {
                         date: dateStr,
                         cctv: [
                             { shift: "06-14", p1: "", p2: "" },
@@ -170,8 +172,14 @@ async function updateWorkSchedule() {
                             { location: "외기 핵취", p1: "", p2: "" }
                         ],
                         isHoliday: false
-                    });
+                    };
                 }
+
+                // 수정 모드 중 변경된 사항 반영
+                if (holidayOverrides[dateStr] !== undefined) {
+                    dayObj.isHoliday = holidayOverrides[dateStr];
+                }
+                currentMonthData.push(dayObj);
             }
 
             const daysOfWeek = ["일", "월", "화", "수", "목", "금", "토"];
@@ -188,7 +196,11 @@ async function updateWorkSchedule() {
                 if (isRedDay) textColor = "#dc3545";
                 else if (isSat) textColor = "#0d6efd";
                 
-                headerHtml += `<th class="table-light-bg" style="text-align:center; background-color: #f8f9fa; color: ${textColor};">
+                const editStyle = isEditMode ? "cursor: pointer; text-decoration: underline;" : "";
+                headerHtml += `<th class="table-light-bg date-header ${isEditMode ? 'editable' : ''}" 
+                    data-date="${dayData.date}" 
+                    data-isholiday="${dayData.isHoliday}"
+                    style="text-align:center; background-color: #f8f9fa; color: ${textColor}; ${editStyle}">
                     ${d.getMonth()+1}/${d.getDate()}<br><small>(${daysOfWeek[d.getDay()]})</small>
                 </th>`;
             });
@@ -255,6 +267,7 @@ async function updateWorkSchedule() {
         const saveAllWorkChanges = async () => {
             const inputs = document.querySelectorAll('.edit-work-input');
             const dataByDate = {};
+            const allSchedules = await getAllSchedules();
 
             inputs.forEach(input => {
                 const date = input.dataset.date;
@@ -264,15 +277,16 @@ async function updateWorkSchedule() {
                 const val = input.value.trim();
 
                 if (!dataByDate[date]) {
+                    const existing = allSchedules.find(d => d.date === date);
                     dataByDate[date] = {
                         date,
-                        isHoliday: false,
-                        cctv: [
+                        isHoliday: holidayOverrides[date] !== undefined ? holidayOverrides[date] : (existing ? existing.isHoliday : false),
+                        cctv: existing ? JSON.parse(JSON.stringify(existing.cctv)) : [
                             { shift: "06-14", p1: "", p2: "" },
                             { shift: "14-22", p1: "", p2: "" },
                             { shift: "22-06", p1: "", p2: "" }
                         ],
-                        tod: [
+                        tod: existing ? JSON.parse(JSON.stringify(existing.tod)) : [
                             { location: "고하도", p1: "", p2: "" },
                             { location: "외기 평시", p1: "", p2: "" },
                             { location: "외기 핵취", p1: "", p2: "" }
@@ -282,22 +296,36 @@ async function updateWorkSchedule() {
                 dataByDate[date][group][idx][p] = val;
             });
 
-            const allSchedules = await getAllSchedules();
+            // 입력 필드에는 없지만 공휴일만 변경된 날짜 처리
+            for (const date in holidayOverrides) {
+                if (!dataByDate[date]) {
+                    const existing = allSchedules.find(d => d.date === date);
+                    if (existing) {
+                        dataByDate[date] = JSON.parse(JSON.stringify(existing));
+                        dataByDate[date].isHoliday = holidayOverrides[date];
+                    } else {
+                        dataByDate[date] = {
+                            date,
+                            isHoliday: holidayOverrides[date],
+                            cctv: [{shift:"06-14",p1:"",p2:""},{shift:"14-22",p1:"",p2:""},{shift:"22-06",p1:"",p2:""}],
+                            tod: [{location:"고하도",p1:"",p2:""},{location:"외기 평시",p1:"",p2:""},{location:"외기 핵취",p1:"",p2:""}]
+                        };
+                    }
+                }
+            }
+
             const db = await window.getDB();
             const tx = db.transaction(STORE_NAME, "readwrite");
             const store = tx.objectStore(STORE_NAME);
 
             for (const date in dataByDate) {
-                const existing = allSchedules.find(d => d.date === date);
-                if (existing) {
-                    dataByDate[date].isHoliday = existing.isHoliday;
-                }
                 store.put(dataByDate[date]);
             }
 
             return new Promise((resolve, reject) => {
                 tx.oncomplete = () => {
                     db.close();
+                    holidayOverrides = {}; // 초기화
                     resolve();
                 };
                 tx.onerror = () => {
@@ -306,6 +334,61 @@ async function updateWorkSchedule() {
                 };
             });
         };
+
+        // 날짜 클릭 메뉴 처리
+        let activeMenu = null;
+        monthlyDisplay.addEventListener('click', (e) => {
+            const th = e.target.closest('.date-header.editable');
+            if (activeMenu) {
+                activeMenu.remove();
+                activeMenu = null;
+            }
+            if (!th) return;
+
+            const date = th.dataset.date;
+            const currentIsHoliday = th.dataset.isholiday === 'true';
+
+            const menu = document.createElement('div');
+            menu.style.cssText = `
+                position: fixed;
+                top: ${e.clientY}px;
+                left: ${e.clientX}px;
+                background: white;
+                border: 1px solid #ccc;
+                box-shadow: 2px 2px 8px rgba(0,0,0,0.15);
+                z-index: 1000;
+                border-radius: 4px;
+                padding: 4px 0;
+            `;
+            
+            const item = document.createElement('div');
+            item.innerText = currentIsHoliday ? "평일로 변경" : "공휴일로 변경";
+            item.style.cssText = "padding: 8px 16px; cursor: pointer; font-size: 14px;";
+            item.onmouseover = () => item.style.backgroundColor = "#f0f0f0";
+            item.onmouseout = () => item.style.backgroundColor = "transparent";
+            item.onclick = () => {
+                holidayOverrides[date] = !currentIsHoliday;
+                renderMonthlyView();
+                menu.remove();
+                activeMenu = null;
+            };
+            
+            menu.appendChild(item);
+            document.body.appendChild(menu);
+            activeMenu = menu;
+
+            // 메뉴 외부 클릭 시 닫기
+            setTimeout(() => {
+                const closeMenu = (ev) => {
+                    if (!menu.contains(ev.target)) {
+                        menu.remove();
+                        activeMenu = null;
+                        document.removeEventListener('click', closeMenu);
+                    }
+                };
+                document.addEventListener('click', closeMenu);
+            }, 0);
+        });
 
         // 방향키 네비게이션
         monthlyDisplay.addEventListener('keydown', (e) => {
