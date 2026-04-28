@@ -285,6 +285,7 @@ main {
 .sep {
     color: #d1d5db;
 }
+
 /* Common UI Elements */
 .btn {
     display: inline-flex;
@@ -313,7 +314,7 @@ main {
 .btn-primary:hover {
     background-color: #0b5ed7;
     transform: translateY(-1px);
-    box-shadow: 0 4px 6px rgba(13, 110, 253, 0.2);
+    box-shadow: 0 4px 6px rgba(13, 110, 253, 0.25);
 }
 
 .btn-success {
@@ -324,7 +325,7 @@ main {
 .btn-success:hover {
     background-color: #157347;
     transform: translateY(-1px);
-    box-shadow: 0 4px 6px rgba(25, 135, 84, 0.2);
+    box-shadow: 0 4px 6px rgba(25, 135, 84, 0.25);
 }
 
 .btn-secondary {
@@ -367,7 +368,6 @@ main {
 }
 
 .badge-primary {
-...
     background-color: var(--bs-primary);
     color: white;
     padding: 0.25rem 0.75rem;
@@ -392,4 +392,3 @@ main {
         flex-direction: column;
     }
 }
-
