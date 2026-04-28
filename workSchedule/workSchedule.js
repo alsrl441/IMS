@@ -58,25 +58,32 @@ async function updateWorkSchedule() {
     if (workDisplay) {
         const tomorrowObj = new Date(now.getTime() + 86400000);
         const tomorrowStr = getFormattedDate(tomorrowObj);
-        
         const renderTable = async (dateStr, label) => {
             const data = await getDaySchedule(dateStr);
             const displayDate = dateStr.substring(5);
-            
+            const d = new Date(dateStr);
+            const isSun = d.getDay() === 0;
+            const isSat = d.getDay() === 6;
+            const isHoliday = data && data.isHoliday;
+
+            let textColor = "#212529";
+            if (isSun || isHoliday) textColor = "#dc3545";
+            else if (isSat) textColor = "#0d6efd";
+
             if (!data) return `<div class="no-data" style="padding: 20px; text-align: center; color: #666;">${displayDate} (${label}) 데이터 없음</div>`;
-            
+
             const formatName = (name) => (name === "-" || !name ? "" : name);
 
             return `
                 <table class="work-table table table-bordered mb-4">
                     <thead>
                         <tr class="table-light-bg">
-                            <th colspan="4" class="table-date-header text-dark" style="background-color: #f8f9fa; padding: 8px;">
+                            <th colspan="4" class="table-date-header" style="background-color: #f8f9fa; padding: 8px; color: ${textColor};">
                                 ${displayDate} (${label})
                             </th>
                         </tr>
                         <tr class="table-white-bg">
-                            <th colspan="2" style="width:40%;">구분</th>
+        ...                            <th colspan="2" style="width:40%;">구분</th>
                             <th style="width:30%;">사수</th>
                             <th style="width:30%;">부사수</th>
                         </tr>
@@ -175,11 +182,20 @@ async function updateWorkSchedule() {
                 const d = new Date(dayData.date);
                 const isSun = d.getDay() === 0;
                 const isSat = d.getDay() === 6;
-                const isHoliday = dayData.isHoliday || isSun || isSat;
-                const isRedDay = (isSun || dayData.isHoliday);
-                const dayClass = isRedDay ? "text-danger" : (isSat ? "text-primary" : "");
+                const isRedDay = isSun || dayData.isHoliday;
                 
-                headerHtml += `<th class="${isHoliday ? 'is-holiday' : ''} ${dayClass} table-light-bg" style="text-align:center; background-color: #f8f9fa;">
+                let textColor = "#212529";
+                let bgColor = "#f8f9fa";
+                
+                if (isRedDay) {
+                    textColor = "#dc3545";
+                    bgColor = "rgba(220, 53, 69, 0.05)";
+                } else if (isSat) {
+                    textColor = "#0d6efd";
+                    bgColor = "rgba(13, 110, 253, 0.05)";
+                }
+                
+                headerHtml += `<th class="table-light-bg" style="text-align:center; background-color: ${bgColor}; color: ${textColor};">
                     ${d.getMonth()+1}/${d.getDate()}<br><small>(${daysOfWeek[d.getDay()]})</small>
                 </th>`;
             });
