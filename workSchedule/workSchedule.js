@@ -185,17 +185,10 @@ async function updateWorkSchedule() {
                 const isRedDay = isSun || dayData.isHoliday;
                 
                 let textColor = "#212529";
-                let bgColor = "#f8f9fa";
+                if (isRedDay) textColor = "#dc3545";
+                else if (isSat) textColor = "#0d6efd";
                 
-                if (isRedDay) {
-                    textColor = "#dc3545";
-                    bgColor = "rgba(220, 53, 69, 0.05)";
-                } else if (isSat) {
-                    textColor = "#0d6efd";
-                    bgColor = "rgba(13, 110, 253, 0.05)";
-                }
-                
-                headerHtml += `<th class="table-light-bg" style="text-align:center; background-color: ${bgColor}; color: ${textColor};">
+                headerHtml += `<th class="table-light-bg" style="text-align:center; background-color: #f8f9fa; color: ${textColor};">
                     ${d.getMonth()+1}/${d.getDate()}<br><small>(${daysOfWeek[d.getDay()]})</small>
                 </th>`;
             });
