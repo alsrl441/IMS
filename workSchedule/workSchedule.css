@@ -4,7 +4,7 @@
 
 .monthly-table-wrapper {
     width: 100%;
-    overflow-x: hidden; 
+    overflow-x: auto; 
     margin-bottom: 30px;
     border-radius: 8px;
     border: 1px solid #dee2e6;
@@ -14,7 +14,9 @@
     border-collapse: collapse;
     margin-bottom: 0;
     background-color: #fff;
-    table-layout: fixed;
+}
+.monthly-table {
+    min-width: 1500px;
 }
 .work-table th, .work-table td {
     border: 1px solid #dee2e6;
