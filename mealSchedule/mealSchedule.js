@@ -92,8 +92,8 @@ async function initFullMealSchedule() {
 
         for (let i = 0; i < 7; i++) {
             const d = new Date(sunday);
-            d.setDate(sunday.getDate() + i);
-            html += `<th class="${i === 0 ? 'sunday' : (i === 6 ? 'saturday' : '')}">${days[i]} (${d.getMonth() + 1}/${d.getDate()})</th>`;
+            const dayClass = i === 0 ? 'sunday' : (i === 6 ? 'saturday' : '');
+            html += `<th class="${dayClass}">${days[i]} (${d.getMonth() + 1}/${d.getDate()})</th>`;
         }
         html += `</tr></thead><tbody>`;
 
@@ -157,20 +157,24 @@ async function initFullMealSchedule() {
     const saveAllChanges = async () => {
         const inputs = document.querySelectorAll('.edit-input');
         const dataByDate = {};
+        const allMenus = await window.getDBData(STORE_NAME);
 
         inputs.forEach(input => {
             const date = input.dataset.date;
             const type = input.dataset.type;
             const val = input.value.trim();
 
-            if (!dataByDate[date]) dataByDate[date] = { date };
+            if (!dataByDate[date]) {
+                const existing = allMenus.find(m => m.date === date);
+                dataByDate[date] = existing ? JSON.parse(JSON.stringify(existing)) : { date };
+            }
             dataByDate[date][type] = val;
         });
 
         for (const date in dataByDate) {
             const data = dataByDate[date];
-            const hasData = Object.keys(data).some(key => key !== 'date' && data[key] !== '');
-            if (hasData) {
+            const hasContent = Object.keys(data).some(key => key !== 'date' && data[key] !== '');
+            if (hasContent) {
                 await window.putDBData(STORE_NAME, data);
             } else {
                 await window.deleteDBData(STORE_NAME, date);
