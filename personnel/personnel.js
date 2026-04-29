@@ -119,12 +119,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function updateStaticProfile(user) {
-        document.getElementById('resNickName').textContent = user.name;
-        document.getElementById('resSubInfo').textContent = `${user.affiliation || "-"} · ${user.position || "-"}`;
+        document.getElementById('resNickName').textContent = user.nickname || user.name;
+        document.getElementById('resSubInfo').textContent = `${user.name} · ${user.affiliation || "-"} · ${user.position || "-"}`;
         resPhoto.src = user.photo || "../img/default-profile.png";
         currentPhotoBase64 = user.photo || "";
 
-        // 커스텀 항목 (추가 정보)
+        // 추가 정보
         document.querySelectorAll('.custom-field-item').forEach(el => el.remove());
         fieldEditContainer.innerHTML = '';
         (user.customFields || []).forEach(f => {
@@ -135,23 +135,27 @@ document.addEventListener('DOMContentLoaded', async () => {
             basicInfoGrid.appendChild(item);
         });
 
-        // 커스텀 일정 (주요 일정)
+        // 추가 일정
         document.querySelectorAll('.custom-schedule-item').forEach(el => el.remove());
         scheduleEditContainer.innerHTML = '';
         (user.customSchedules || []).forEach(s => {
-            addCustomScheduleRow(s.label, s.date);
+            addCustomScheduleRow(s.label, s.date, s.showDday);
             const itemDate = document.createElement('div');
             itemDate.className = 'info-item custom-schedule-item view-mode';
             itemDate.innerHTML = `<label>${s.label}일자</label><span class="value" id="val-cust-date-${s.label.replace(/\s/g, '')}">${s.date}</span>`;
-            const itemDday = document.createElement('div');
-            itemDday.className = 'info-item custom-schedule-item view-mode highlight';
-            itemDday.innerHTML = `<label>${s.label}</label><span class="value" id="val-cust-dday-${s.label.replace(/\s/g, '')}">-</span>`;
             scheduleInfoGrid.appendChild(itemDate);
-            scheduleInfoGrid.appendChild(itemDday);
+            
+            if (s.showDday !== false) {
+                const itemDday = document.createElement('div');
+                itemDday.className = 'info-item custom-schedule-item view-mode highlight';
+                itemDday.innerHTML = `<label>${s.label}</label><span class="value" id="val-cust-dday-${s.label.replace(/\s/g, '')}">-</span>`;
+                scheduleInfoGrid.appendChild(itemDday);
+            }
         });
 
         // 입력 채우기
         document.getElementById('editName').value = user.name;
+        document.getElementById('editNickName').value = user.nickname || "";
         document.getElementById('editAffiliation').value = user.affiliation || "";
         document.getElementById('editPosition').value = user.position || "";
         document.getElementById('editStartDate').value = user.start;
@@ -174,10 +178,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         fieldEditContainer.appendChild(row);
     }
 
-    function addCustomScheduleRow(label = "", date = "") {
+    function addCustomScheduleRow(label = "", date = "", showDday = true) {
         const row = document.createElement('div'); row.className = 'custom-edit-row';
-        row.innerHTML = `<input type="text" class="form-control-custom custom-label" placeholder="일정명" value="${label}" style="width: 100px;">
+        row.innerHTML = `
+            <input type="text" class="form-control-custom custom-label" placeholder="일정명" value="${label}" style="width: 100px;">
             <input type="date" class="form-control-custom custom-date" value="${date}" style="flex: 1;">
+            <div style="display:flex; align-items:center; gap:5px; min-width:80px;">
+                <input type="checkbox" class="custom-show-dday" ${showDday !== false ? 'checked' : ''} style="width:16px; height:16px; cursor:pointer;">
+                <label style="font-size:0.75rem; color:#666; margin-bottom:0; cursor:pointer;">D-Day</label>
+            </div>
             <button class="btn-remove-custom" style="border:none; background:none; color:#fa5252;"><i class="fas fa-minus-circle"></i></button>`;
         row.querySelector('.btn-remove-custom').onclick = () => row.remove();
         scheduleEditContainer.appendChild(row);
@@ -202,7 +211,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         selectEl.value = ""; handleMemberSelect("");
         isAdding = true;
         displayEl.classList.remove('hidden'); noDataEl.classList.add('hidden'); previewEl.classList.add('hidden');
-        document.querySelectorAll('.edit-mode input').forEach(input => { if (input.type === 'number') input.value = 0; else input.value = ""; });
+        document.querySelectorAll('.edit-mode input').forEach(input => { 
+            if (input.type === 'number') input.value = 0; 
+            else if (input.type === 'checkbox') input.checked = true;
+            else input.value = ""; 
+        });
         fieldEditContainer.innerHTML = ''; scheduleEditContainer.innerHTML = ''; vacationEditContainer.innerHTML = '';
         resPhoto.src = "../img/default-profile.png"; currentPhotoBase64 = "";
         toggleEditMode(true); document.getElementById('editName').focus();
@@ -227,6 +240,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     saveBtn.addEventListener('click', async () => {
         const name = document.getElementById('editName').value.trim(); if (!name) return alert("이름 필수");
+        const nickname = document.getElementById('editNickName').value.trim();
         const customFields = [];
         fieldEditContainer.querySelectorAll('.custom-edit-row').forEach(row => {
             const k = row.querySelector('.custom-key').value.trim(); const v = row.querySelector('.custom-value').value.trim();
@@ -234,8 +248,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
         const customSchedules = [];
         scheduleEditContainer.querySelectorAll('.custom-edit-row').forEach(row => {
-            const l = row.querySelector('.custom-label').value.trim(); const d = row.querySelector('.custom-date').value;
-            if (l && d) customSchedules.push({ label: l, date: d });
+            const l = row.querySelector('.custom-label').value.trim(); 
+            const d = row.querySelector('.custom-date').value;
+            const sd = row.querySelector('.custom-show-dday').checked;
+            if (l && d) customSchedules.push({ label: l, date: d, showDday: sd });
         });
 
         const vacation = [];
@@ -247,7 +263,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const id = isAdding ? Date.now().toString() : members[selectEl.value].id;
         const updatedUser = {
-            id, name, affiliation: document.getElementById('editAffiliation').value.trim(),
+            id, name, nickname,
+            affiliation: document.getElementById('editAffiliation').value.trim(),
             position: document.getElementById('editPosition').value.trim(),
             start: document.getElementById('editStartDate').value, transfer: document.getElementById('editTransferDate').value,
             end: document.getElementById('editEndDate').value,
@@ -290,7 +307,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('progressBarFill').style.width = p + "%";
         document.getElementById('resPercent').textContent = p.toFixed(8) + "%";
 
-        // 주요 일정
+        // 복무 정보
         document.getElementById('resStartDate').textContent = user.start;
         document.getElementById('resTransferDate').textContent = user.transfer || "-";
         document.getElementById('resEndDateDate').textContent = user.end;
@@ -337,10 +354,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('resVacDday').textContent = "-";
         }
 
-        // 커스텀 일정 D-Day 업데이트
+        // 추가 일정 D-Day 업데이트
         (user.customSchedules || []).forEach(s => {
             const vDy = document.getElementById(`val-cust-dday-${s.label.replace(/\s/g, '')}`);
-            if (vDy) { vDy.textContent = getDday(s.date); }
+            if (vDy && s.showDday !== false) { 
+                vDy.textContent = getDday(s.date); 
+            }
         });
     }
 

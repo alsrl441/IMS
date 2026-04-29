@@ -68,13 +68,17 @@
                 </div>
 
                 <div class="main-info-area">
-                    <div id="resNickName" class="res-name-big view-mode">이름</div>
-                    <div id="resSubInfo" class="res-sub-info view-mode">소속 · 보직</div>
+                    <div id="resNickName" class="res-name-big view-mode">별명</div>
+                    <div id="resSubInfo" class="res-sub-info view-mode">이름 · 소속 · 보직</div>
                     
                     <div class="edit-mode hidden">
                         <div class="edit-form-group">
-                            <label>이름</label>
+                            <label>이름 (목록 표시)</label>
                             <input type="text" id="editName" class="form-control-custom" placeholder="이름">
+                        </div>
+                        <div class="edit-form-group">
+                            <label>별명 (상세 표시)</label>
+                            <input type="text" id="editNickName" class="form-control-custom" placeholder="별명">
                         </div>
                         <div class="edit-form-group">
                             <label>소속</label>
@@ -111,13 +115,12 @@
 
             <!-- Right Side: Details -->
             <div class="profile-main-content">
-                <!-- 일정 정보 -->
+                <!-- 복무 정보 (기존 주요 일정) -->
                 <section class="detail-section">
                     <div class="detail-section-title">
-                        <i class="fas fa-calendar-alt"></i> 주요 일정
-                        <button id="addCustomScheduleBtn" class="btn-minimal-xs edit-mode hidden ms-auto" style="border:none; background:none; color:#adb5bd;"><i class="fas fa-plus-circle"></i></button>
+                        복무 정보
                     </div>
-                    <div class="info-grid" id="scheduleInfoGrid">
+                    <div class="info-grid">
                         <div class="info-item">
                             <label>입대일</label>
                             <span id="resStartDate" class="value view-mode">-</span>
@@ -138,13 +141,12 @@
                             <span id="resDday" class="value">-</span>
                         </div>
                     </div>
-                    <div id="customSchedulesEditContainer" class="edit-mode hidden mt-3"></div>
                 </section>
 
                 <!-- 진급 및 휴가 -->
                 <section class="detail-section">
                     <div class="detail-section-title">
-                        <i class="fas fa-medal"></i> 진급 및 휴가
+                        진급 및 휴가
                     </div>
                     <div class="info-grid">
                         <div class="info-item view-mode">
@@ -178,17 +180,29 @@
                     <div class="edit-mode hidden mt-3 pt-3 border-top">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <label class="fw-bold" style="font-size: 0.85rem;">휴가 목록</label>
-                            <button id="addVacationBtn" class="btn-minimal-xs" style="border:none; background:none; color:#adb5bd;"><i class="fas fa-plus-circle"></i> 추가</button>
+                            <button id="addVacationBtn" class="btn-minimal-xs" style="border:none; background:none; color:#adb5bd;">추가</button>
                         </div>
                         <div id="vacationEditContainer"></div>
                     </div>
                 </section>
 
+                <!-- 추가 일정 (신설) -->
+                <section class="detail-section">
+                    <div class="detail-section-title">
+                        추가 일정
+                        <button id="addCustomScheduleBtn" class="btn-minimal-xs edit-mode hidden ms-auto" style="border:none; background:none; color:#adb5bd;">추가</button>
+                    </div>
+                    <div class="info-grid" id="scheduleInfoGrid">
+                        <!-- 추가 일정들이 여기에 추가됨 -->
+                    </div>
+                    <div id="customSchedulesEditContainer" class="edit-mode hidden mt-3"></div>
+                </section>
+
                 <!-- 추가 정보 -->
                 <section class="detail-section">
                     <div class="detail-section-title">
-                        <i class="fas fa-info-circle"></i> 추가 정보
-                        <button id="addCustomFieldBtn" class="btn-minimal-xs edit-mode hidden ms-auto" style="border:none; background:none; color:#adb5bd;"><i class="fas fa-plus-circle"></i></button>
+                        추가 정보
+                        <button id="addCustomFieldBtn" class="btn-minimal-xs edit-mode hidden ms-auto" style="border:none; background:none; color:#adb5bd;">추가</button>
                     </div>
                     <div class="info-grid" id="basicInfoGrid">
                         <!-- 커스텀 항목들이 여기에 추가됨 -->
