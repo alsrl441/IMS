@@ -119,36 +119,35 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function updateStaticProfile(user) {
-        document.getElementById('resName').textContent = user.name;
-        document.getElementById('resAffiliation').textContent = user.affiliation || "-";
-        document.getElementById('resPosition').textContent = user.position || "-";
+        document.getElementById('resNickName').textContent = user.name;
+        document.getElementById('resSubInfo').textContent = `${user.affiliation || "-"} · ${user.position || "-"}`;
         resPhoto.src = user.photo || "../img/default-profile.png";
         currentPhotoBase64 = user.photo || "";
 
-        // 커스텀 항목
-        document.querySelectorAll('.custom-field-row').forEach(el => el.remove());
+        // 커스텀 항목 (추가 정보)
+        document.querySelectorAll('.custom-field-item').forEach(el => el.remove());
         fieldEditContainer.innerHTML = '';
         (user.customFields || []).forEach(f => {
             addCustomFieldRow(f.key, f.value);
-            const row = document.createElement('div');
-            row.className = 'info-row-minimal custom-field-row view-mode';
-            row.innerHTML = `<label>${f.key}</label><span>${f.value}</span>`;
-            basicInfoGrid.appendChild(row);
+            const item = document.createElement('div');
+            item.className = 'info-item custom-field-item view-mode';
+            item.innerHTML = `<label>${f.key}</label><span class="value">${f.value}</span>`;
+            basicInfoGrid.appendChild(item);
         });
 
-        // 커스텀 일정 (2열 구조)
-        document.querySelectorAll('.custom-schedule-row').forEach(el => el.remove());
+        // 커스텀 일정 (주요 일정)
+        document.querySelectorAll('.custom-schedule-item').forEach(el => el.remove());
         scheduleEditContainer.innerHTML = '';
         (user.customSchedules || []).forEach(s => {
             addCustomScheduleRow(s.label, s.date);
-            const rowDate = document.createElement('div');
-            rowDate.className = 'info-row-minimal custom-schedule-row view-mode';
-            rowDate.innerHTML = `<label>${s.label}일자</label><span id="val-cust-date-${s.label.replace(/\s/g, '')}">${s.date}</span>`;
-            const rowDday = document.createElement('div');
-            rowDday.className = 'info-row-minimal custom-schedule-row view-mode';
-            rowDday.innerHTML = `<label>${s.label}</label><span id="val-cust-dday-${s.label.replace(/\s/g, '')}">-</span>`;
-            scheduleInfoGrid.appendChild(rowDate);
-            scheduleInfoGrid.appendChild(rowDday);
+            const itemDate = document.createElement('div');
+            itemDate.className = 'info-item custom-schedule-item view-mode';
+            itemDate.innerHTML = `<label>${s.label}일자</label><span class="value" id="val-cust-date-${s.label.replace(/\s/g, '')}">${s.date}</span>`;
+            const itemDday = document.createElement('div');
+            itemDday.className = 'info-item custom-schedule-item view-mode highlight';
+            itemDday.innerHTML = `<label>${s.label}</label><span class="value" id="val-cust-dday-${s.label.replace(/\s/g, '')}">-</span>`;
+            scheduleInfoGrid.appendChild(itemDate);
+            scheduleInfoGrid.appendChild(itemDday);
         });
 
         // 입력 채우기
@@ -168,18 +167,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function addCustomFieldRow(key = "", value = "") {
         const row = document.createElement('div'); row.className = 'custom-edit-row';
-        row.innerHTML = `<input type="text" class="form-control-minimal custom-key" placeholder="항목명" value="${key}">
-            <input type="text" class="form-control-minimal custom-value" placeholder="내용" value="${value}">
-            <button class="btn-remove-custom"><i class="fas fa-trash"></i></button>`;
+        row.innerHTML = `<input type="text" class="form-control-custom custom-key" placeholder="항목명" value="${key}" style="width: 100px;">
+            <input type="text" class="form-control-custom custom-value" placeholder="내용" value="${value}" style="flex: 1;">
+            <button class="btn-remove-custom" style="border:none; background:none; color:#fa5252;"><i class="fas fa-minus-circle"></i></button>`;
         row.querySelector('.btn-remove-custom').onclick = () => row.remove();
         fieldEditContainer.appendChild(row);
     }
 
     function addCustomScheduleRow(label = "", date = "") {
         const row = document.createElement('div'); row.className = 'custom-edit-row';
-        row.innerHTML = `<input type="text" class="form-control-minimal custom-label" placeholder="일정명" value="${label}">
-            <input type="date" class="form-control-minimal custom-date" value="${date}">
-            <button class="btn-remove-custom"><i class="fas fa-trash"></i></button>`;
+        row.innerHTML = `<input type="text" class="form-control-custom custom-label" placeholder="일정명" value="${label}" style="width: 100px;">
+            <input type="date" class="form-control-custom custom-date" value="${date}" style="flex: 1;">
+            <button class="btn-remove-custom" style="border:none; background:none; color:#fa5252;"><i class="fas fa-minus-circle"></i></button>`;
         row.querySelector('.btn-remove-custom').onclick = () => row.remove();
         scheduleEditContainer.appendChild(row);
     }
@@ -187,10 +186,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     function addVacationEditRow(start = "", end = "") {
         const row = document.createElement('div'); row.className = 'custom-edit-row';
         row.innerHTML = `
-            <input type="date" class="form-control-minimal vac-start" value="${start}">
+            <input type="date" class="form-control-custom vac-start" value="${start}" style="flex: 1;">
             <span style="font-size: 0.8rem; color: #999;">~</span>
-            <input type="date" class="form-control-minimal vac-end" value="${end}">
-            <button class="btn-remove-custom"><i class="fas fa-trash"></i></button>`;
+            <input type="date" class="form-control-custom vac-end" value="${end}" style="flex: 1;">
+            <button class="btn-remove-custom" style="border:none; background:none; color:#fa5252;"><i class="fas fa-minus-circle"></i></button>`;
         row.querySelector('.btn-remove-custom').onclick = () => row.remove();
         vacationEditContainer.appendChild(row);
     }
@@ -211,9 +210,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Photo Drop
     photoEditArea.addEventListener('dragover', (e) => { e.preventDefault(); photoEditArea.style.borderColor = "#212529"; });
-    photoEditArea.addEventListener('dragleave', () => { photoEditArea.style.borderColor = "#eee"; });
+    photoEditArea.addEventListener('dragleave', () => { photoEditArea.style.borderColor = "#f1f3f5"; });
     photoEditArea.addEventListener('drop', (e) => {
-        e.preventDefault(); photoEditArea.style.borderColor = "#eee";
+        e.preventDefault(); photoEditArea.style.borderColor = "#f1f3f5";
         const file = e.dataTransfer.files[0]; if (file && file.type.startsWith('image/')) handlePhoto(file);
     });
     photoOverlay.addEventListener('click', () => photoInput.click());
@@ -291,15 +290,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('progressBarFill').style.width = p + "%";
         document.getElementById('resPercent').textContent = p.toFixed(8) + "%";
 
-        // 1행
+        // 주요 일정
         document.getElementById('resStartDate').textContent = user.start;
         document.getElementById('resTransferDate').textContent = user.transfer || "-";
-        
-        // 2행
         document.getElementById('resEndDateDate').textContent = user.end;
         document.getElementById('resDday').textContent = getDday(user.end);
 
-        // 3행
+        // 진급 D-Day
         const pfc = getPromotionDate(user.start, 2, 0); const cpl = getPromotionDate(user.start, 8, user.pfc2cpl);
         const sgt = getPromotionDate(user.start, 14, user.cpl2sgt);
         const pDates = [{n:"일병",d:pfc},{n:"상병",d:cpl},{n:"병장",d:sgt},{n:"전역",d:end}];
@@ -308,28 +305,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('resPromoDate').textContent = nextP.d.toISOString().split('T')[0];
         document.getElementById('resPromoDday').textContent = getDday(nextP.d.toISOString().split('T')[0]);
 
-        // 4행: 휴가 계산 (지나지 않은 가장 최근 휴가)
+        // 휴가 계산
         const vList = (user.vacation && Array.isArray(user.vacation[0])) ? user.vacation : (user.vacation && user.vacation.length === 2 ? [user.vacation] : []);
         
         if (vList.length > 0) {
             const today = new Date(); today.setHours(0,0,0,0);
-            
-            // 아직 종료되지 않은 휴가들만 필터링
             const validVacations = vList.filter(v => {
                 const end = new Date(v[1]); end.setHours(23,59,59,999);
                 return end >= today;
             });
 
             if (validVacations.length > 0) {
-                // 시작일 기준 오름차순 정렬하여 가장 가까운 것 선택
                 validVacations.sort((a, b) => new Date(a[0]) - new Date(b[0]));
                 const activeVac = validVacations[0];
                 const vS = new Date(activeVac[0]); vS.setHours(0,0,0,0);
                 const vE = new Date(activeVac[1]); vE.setHours(0,0,0,0);
                 const days = Math.round((vE - vS) / 86400000) + 1;
-                
                 document.getElementById('resVacRange').textContent = `${activeVac[0]} (${days}일)`;
-                
                 if (today < vS) {
                     const diff = Math.ceil((vS - today) / 86400000);
                     document.getElementById('resVacDday').textContent = `D-${diff}`;
@@ -345,11 +337,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('resVacDday').textContent = "-";
         }
 
-        // 커스텀
+        // 커스텀 일정 D-Day 업데이트
         (user.customSchedules || []).forEach(s => {
-            const vD = document.getElementById(`val-cust-date-${s.label.replace(/\s/g, '')}`);
             const vDy = document.getElementById(`val-cust-dday-${s.label.replace(/\s/g, '')}`);
-            if (vD && vDy) { vD.textContent = s.date; vDy.textContent = getDday(s.date); }
+            if (vDy) { vDy.textContent = getDday(s.date); }
         });
     }
 

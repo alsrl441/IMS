@@ -46,165 +46,163 @@
     </nav>
 
     <main class="container py-4">
-        <div class="profile-layout">
-            <section class="content-section">
-                <div class="section-header">
-                    <h2 class="section-title">인사 정보</h2>
-                    <div class="d-flex align-items-center gap-2">
-                        <div class="selector-wrapper">
-                            <select id="memberSelect" class="form-select">
-                                <option value="">인원 선택</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="section-body">
-                    <div id="resultDisplay" class="result-content hidden">
-                        <!-- Top Profile Section -->
-                        <div class="profile-header-minimal mb-4">
-                            <div class="profile-photo-area" id="photoEditArea">
-                                <img id="resPhoto" src="../img/default-profile.png" alt="Profile" class="profile-photo-square">
-                                <div id="photoOverlay" class="photo-overlay hidden">
-                                    <i class="fas fa-camera"></i>
-                                    <span>변경</span>
-                                    <input type="file" id="photoInput" accept="image/*" class="hidden">
-                                </div>
-                            </div>
-                            <div class="profile-title-area">
-                                <div class="nickname-edit-wrapper">
-                                    <div id="resNickName" class="nickname-top view-mode"></div>
-                                    <input type="text" id="editNickName" class="form-control-minimal edit-mode hidden" placeholder="별명">
-                                </div>
-                                <div class="progress-wrapper-minimal mt-2 view-mode">
-                                    <div class="progress-bar-container-minimal">
-                                        <div id="progressBarFill" class="progress-bar-fill-minimal"></div>
-                                    </div>
-                                    <div id="resPercent" class="percent-label-minimal"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Info Sections -->
-                        <div class="profile-sections">
-                            <!-- 기본 정보 -->
-                            <div class="info-section">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <h6 class="section-title mb-0"><i class="fas fa-user-circle"></i> 기본 정보</h6>
-                                    <button id="addCustomFieldBtn" class="btn-minimal-xs edit-mode hidden"><i class="fas fa-plus"></i> 항목 추가</button>
-                                </div>
-                                <div class="info-grid-minimal" id="basicInfoGrid">
-                                    <div class="info-row-minimal">
-                                        <label>이름</label>
-                                        <span id="resName" class="view-mode"></span>
-                                        <input type="text" id="editName" class="form-control-minimal edit-mode hidden">
-                                    </div>
-                                    <div class="info-row-minimal">
-                                        <label>소속</label>
-                                        <span id="resAffiliation" class="view-mode"></span>
-                                        <input type="text" id="editAffiliation" class="form-control-minimal edit-mode hidden">
-                                    </div>
-                                    <div class="info-row-minimal">
-                                        <label>보직</label>
-                                        <span id="resPosition" class="view-mode"></span>
-                                        <input type="text" id="editPosition" class="form-control-minimal edit-mode hidden">
-                                    </div>
-                                    <!-- 커스텀 항목들이 여기에 추가됨 -->
-                                </div>
-                                <div id="customFieldsEditContainer" class="edit-mode hidden mt-2"></div>
-                            </div>
-
-                            <!-- 일정 정보 -->
-                            <div class="info-section">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <h6 class="section-title mb-0">일정</h6>
-                                    <button id="addCustomScheduleBtn" class="btn-minimal-xs edit-mode hidden"><i class="fas fa-plus"></i> 일정 추가</button>
-                                </div>
-                                <div class="info-grid-minimal" id="scheduleInfoGrid">
-                                    <!-- 1행: 입대 및 전입 -->
-                                    <div class="info-row-minimal">
-                                        <label>입대일</label>
-                                        <span id="resStartDate" class="view-mode"></span>
-                                        <input type="date" id="editStartDate" class="form-control-minimal edit-mode hidden">
-                                    </div>
-                                    <div class="info-row-minimal">
-                                        <label id="labelTransfer">전입일</label>
-                                        <span id="resTransferDate" class="view-mode"></span>
-                                        <input type="date" id="editTransferDate" class="form-control-minimal edit-mode hidden">
-                                    </div>
-                                    
-                                    <!-- 2행: 전역 관련 -->
-                                    <div class="info-row-minimal highlight-dday">
-                                        <label id="labelEnd">전역일자</label>
-                                        <span id="resEndDateDate" class="view-mode"></span>
-                                        <input type="date" id="editEndDate" class="form-control-minimal edit-mode hidden">
-                                    </div>
-                                    <div class="info-row-minimal highlight-dday view-mode">
-                                        <label>전역</label>
-                                        <span id="resDday"></span>
-                                    </div>
-
-                                    <!-- 3행: 진급 관련 -->
-                                    <div class="info-row-minimal highlight-promotion view-mode">
-                                        <label id="resPromoLabel">진급일</label>
-                                        <span id="resPromoDate"></span>
-                                    </div>
-                                    <div class="info-row-minimal highlight-promotion view-mode">
-                                        <label>진급</label>
-                                        <span id="resPromoDday"></span>
-                                    </div>
-
-                                    <!-- 4행: 휴가 관련 -->
-                                    <div class="info-row-minimal view-mode">
-                                        <label id="resVacLabel">휴가일</label>
-                                        <span id="resVacRange"></span>
-                                    </div>
-                                    <div class="info-row-minimal view-mode">
-                                        <label>휴가</label>
-                                        <span id="resVacDday"></span>
-                                    </div>
-                                    
-                                    <div class="full-width edit-mode hidden mt-2">
-                                        <div class="d-flex justify-content-between align-items-center mb-1">
-                                            <label style="font-size: 0.75rem; color: #666;">휴가 일정 관리</label>
-                                            <button id="addVacationBtn" class="btn-minimal-xs"><i class="fas fa-plus"></i> 휴가 추가</button>
-                                        </div>
-                                        <div id="vacationEditContainer" class="vacation-edit-list"></div>
-                                    </div>
-                                    
-                                    <!-- 진급 보정 (편집 모드에서만) -->
-                                    <div class="info-row-minimal edit-mode hidden">
-                                        <label>일병 > 상병 보정</label>
-                                        <input type="number" id="editPfc2cpl" class="form-control-minimal" placeholder="조기 +1, 누락 -1">
-                                    </div>
-                                    <div class="info-row-minimal edit-mode hidden">
-                                        <label>상병 > 병장 보정</label>
-                                        <input type="number" id="editCpl2sgt" class="form-control-minimal" placeholder="조기 +1, 누락 -1">
-                                    </div>
-                                </div>
-                                <div id="customSchedulesEditContainer" class="edit-mode hidden mt-2"></div>
-                            </div>
-                        </div>
-
-                        <!-- Action Buttons -->
-                        <div class="profile-actions-footer mt-4">
-                            <div class="view-mode">
-                                <button id="editMemberBtn" class="btn-minimal-sm text-primary">수정</button>
-                                <button id="deleteMemberBtn" class="btn-minimal-sm text-danger">삭제</button>
-                            </div>
-                            <div class="edit-mode hidden">
-                                <button id="saveMemberBtn" class="btn-minimal-sm text-success">저장</button>
-                                <button id="cancelEditBtn" class="btn-minimal-sm text-secondary">취소</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="noDataMessage" class="text-center py-5 text-muted">
-                    </div>
-                </div>
-            </section>
-
-            <div id="previewDisplay" class="preview-grid"></div>
+        <div class="section-header mb-4">
+            <h2 class="section-title">인사 정보</h2>
+            <div class="selector-wrapper">
+                <select id="memberSelect" class="form-select" style="min-width: 200px;">
+                    <option value="">인원 선택</option>
+                </select>
+            </div>
         </div>
+
+        <div id="resultDisplay" class="profile-layout hidden">
+            <!-- Left Side: Profile Card -->
+            <aside class="profile-side-card">
+                <div class="profile-photo-wrapper" id="photoEditArea">
+                    <img id="resPhoto" src="../img/default-profile.png" alt="Profile" class="profile-photo-square">
+                    <div id="photoOverlay" class="photo-overlay hidden">
+                        <i class="fas fa-camera fa-lg mb-2"></i>
+                        <span>사진 변경</span>
+                        <input type="file" id="photoInput" accept="image/*" class="hidden">
+                    </div>
+                </div>
+
+                <div class="main-info-area">
+                    <div id="resNickName" class="res-name-big view-mode">이름</div>
+                    <div id="resSubInfo" class="res-sub-info view-mode">소속 · 보직</div>
+                    
+                    <div class="edit-mode hidden">
+                        <div class="edit-form-group">
+                            <label>이름</label>
+                            <input type="text" id="editName" class="form-control-custom" placeholder="이름">
+                        </div>
+                        <div class="edit-form-group">
+                            <label>소속</label>
+                            <input type="text" id="editAffiliation" class="form-control-custom" placeholder="소속">
+                        </div>
+                        <div class="edit-form-group">
+                            <label>보직</label>
+                            <input type="text" id="editPosition" class="form-control-custom" placeholder="보직">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="progress-section-side view-mode">
+                    <div class="progress-label-row">
+                        <span class="progress-title">복무 진행률</span>
+                        <span id="resPercent" class="progress-percent-val">0.00%</span>
+                    </div>
+                    <div class="progress-bar-container-side">
+                        <div id="progressBarFill" class="progress-bar-fill-side" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="profile-actions mt-4">
+                    <div class="view-mode w-100 d-flex gap-2">
+                        <button id="editMemberBtn" class="btn-action btn-edit flex-grow-1">수정</button>
+                        <button id="deleteMemberBtn" class="btn-action btn-delete">삭제</button>
+                    </div>
+                    <div class="edit-mode hidden w-100 d-flex gap-2">
+                        <button id="saveMemberBtn" class="btn-action btn-save flex-grow-1">저장</button>
+                        <button id="cancelEditBtn" class="btn-action btn-cancel">취소</button>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Right Side: Details -->
+            <div class="profile-main-content">
+                <!-- 일정 정보 -->
+                <section class="detail-section">
+                    <div class="detail-section-title">
+                        <i class="fas fa-calendar-alt"></i> 주요 일정
+                        <button id="addCustomScheduleBtn" class="btn-minimal-xs edit-mode hidden ms-auto" style="border:none; background:none; color:#adb5bd;"><i class="fas fa-plus-circle"></i></button>
+                    </div>
+                    <div class="info-grid" id="scheduleInfoGrid">
+                        <div class="info-item">
+                            <label>입대일</label>
+                            <span id="resStartDate" class="value view-mode">-</span>
+                            <input type="date" id="editStartDate" class="form-control-custom edit-mode hidden">
+                        </div>
+                        <div class="info-item">
+                            <label>전입일</label>
+                            <span id="resTransferDate" class="value view-mode">-</span>
+                            <input type="date" id="editTransferDate" class="form-control-custom edit-mode hidden">
+                        </div>
+                        <div class="info-item highlight">
+                            <label>전역일</label>
+                            <span id="resEndDateDate" class="value view-mode">-</span>
+                            <input type="date" id="editEndDate" class="form-control-custom edit-mode hidden">
+                        </div>
+                        <div class="info-item highlight view-mode">
+                            <label>남은 기간</label>
+                            <span id="resDday" class="value">-</span>
+                        </div>
+                    </div>
+                    <div id="customSchedulesEditContainer" class="edit-mode hidden mt-3"></div>
+                </section>
+
+                <!-- 진급 및 휴가 -->
+                <section class="detail-section">
+                    <div class="detail-section-title">
+                        <i class="fas fa-medal"></i> 진급 및 휴가
+                    </div>
+                    <div class="info-grid">
+                        <div class="info-item view-mode">
+                            <label id="resPromoLabel">다음 진급일</label>
+                            <span id="resPromoDate" class="value">-</span>
+                        </div>
+                        <div class="info-item view-mode">
+                            <label>진급 D-Day</label>
+                            <span id="resPromoDday" class="value">-</span>
+                        </div>
+                        <div class="info-item view-mode">
+                            <label id="resVacLabel">가까운 휴가</label>
+                            <span id="resVacRange" class="value">-</span>
+                        </div>
+                        <div class="info-item view-mode">
+                            <label>휴가 D-Day</label>
+                            <span id="resVacDday" class="value">-</span>
+                        </div>
+
+                        <!-- 편집 모드 보정 및 휴가 관리 -->
+                        <div class="info-item edit-mode hidden">
+                            <label>일병 > 상병 보정</label>
+                            <input type="number" id="editPfc2cpl" class="form-control-custom" placeholder="조기/누락">
+                        </div>
+                        <div class="info-item edit-mode hidden">
+                            <label>상병 > 병장 보정</label>
+                            <input type="number" id="editCpl2sgt" class="form-control-custom" placeholder="조기/누락">
+                        </div>
+                    </div>
+                    
+                    <div class="edit-mode hidden mt-3 pt-3 border-top">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="fw-bold" style="font-size: 0.85rem;">휴가 목록</label>
+                            <button id="addVacationBtn" class="btn-minimal-xs" style="border:none; background:none; color:#adb5bd;"><i class="fas fa-plus-circle"></i> 추가</button>
+                        </div>
+                        <div id="vacationEditContainer"></div>
+                    </div>
+                </section>
+
+                <!-- 추가 정보 -->
+                <section class="detail-section">
+                    <div class="detail-section-title">
+                        <i class="fas fa-info-circle"></i> 추가 정보
+                        <button id="addCustomFieldBtn" class="btn-minimal-xs edit-mode hidden ms-auto" style="border:none; background:none; color:#adb5bd;"><i class="fas fa-plus-circle"></i></button>
+                    </div>
+                    <div class="info-grid" id="basicInfoGrid">
+                        <!-- 커스텀 항목들이 여기에 추가됨 -->
+                    </div>
+                    <div id="customFieldsEditContainer" class="edit-mode hidden mt-2"></div>
+                </section>
+            </div>
+        </div>
+
+        <div id="noDataMessage" class="text-center py-5">
+            <!-- 비어있을 때 표시될 내용 -->
+        </div>
+
+        <div id="previewDisplay" class="preview-grid"></div>
     </main>
 
     <footer class="footer">
