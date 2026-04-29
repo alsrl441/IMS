@@ -280,6 +280,18 @@ async function initFullMealSchedule() {
         renderWeeklySchedule();
     });
 
+    // 키보드 방향키 네비게이션 추가
+    window.addEventListener('keydown', (e) => {
+        if (isEditMode) return;
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+        if (e.key === 'ArrowLeft') {
+            prevWeekBtn?.click();
+        } else if (e.key === 'ArrowRight') {
+            nextWeekBtn?.click();
+        }
+    });
+
     renderWeeklySchedule();
 }
 

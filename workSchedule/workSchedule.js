@@ -1,18 +1,3 @@
-const WORK_WEIGHTS = {
-    weekday: {
-        cctv: { "06-14": [8, 0.5], "14-22": [8, 0.5], "22-06": [8, 0] },
-        tod: { "고하도": [9, 0], "외기 평시": [7, 0], "외기 핵취": [9, 0] }
-    },
-    saturday: {
-        cctv: { "06-14": [8, 2.5], "14-22": [8, 3.5], "22-06": [8, 3.5] },
-        tod: { "고하도": [9, 5.5], "외기 평시": [7, 3.5], "외기 핵취": [9, 3.5] }
-    },
-    holiday: {
-        cctv: { "06-14": [8, 6], "14-22": [8, 7], "22-06": [8, 7] },
-        tod: { "고하도": [9, 9], "외기 평시": [7, 7], "외기 핵취": [9, 7] }
-    }
-};
-
 async function updateWorkSchedule() {
     const STORE_NAME = "workSchedule";
 
@@ -487,6 +472,18 @@ async function updateWorkSchedule() {
         renderMonthlyView();
         monthPicker.addEventListener('change', () => {
             if (!isEditMode) renderMonthlyView();
+        });
+
+        // 키보드 방향키 네비게이션 추가
+        window.addEventListener('keydown', (e) => {
+            if (isEditMode) return;
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+            if (e.key === 'ArrowLeft') {
+                prevMonthBtn?.click();
+            } else if (e.key === 'ArrowRight') {
+                nextMonthBtn?.click();
+            }
         });
     }
 }
