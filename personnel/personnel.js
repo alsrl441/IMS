@@ -23,9 +23,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const scheduleEditContainer = document.getElementById('customSchedulesEditContainer');
     const scheduleInfoGrid = document.getElementById('scheduleInfoGrid');
 
-    const addVacationBtn = document.getElementById('addVacationBtn');
-    const vacationEditContainer = document.getElementById('vacationEditContainer');
-    
     let timerId = null; 
     let members = [];
     let currentPhotoBase64 = "";
@@ -43,10 +40,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             let data = await window.getDBData(STORE_NAME);
             if (!data || data.length === 0) {
                 const sampleMember = {
-                    "id": Date.now().toString(), "name": "홍길동", "affiliation": "1소대", "position": "운전병",
+                    "id": Date.now().toString(), "name": "홍길동", "nickname": "길동무", "affiliation": "1소대", "position": "운전병",
                     "start": "2024-03-15", "transfer": "2024-05-10", "end": "2025-09-14",
                     "pfc2cpl": 0, "cpl2sgt": 0, "photo": "",
-                    "vacation": ["2024-12-01", "2024-12-05"], "customFields": [], "customSchedules": []
+                    "vacationStart": "", "vacationEnd": "", "customFields": [], "customSchedules": []
                 };
                 await window.putDBData(STORE_NAME, sampleMember);
                 data = [sampleMember];
@@ -100,7 +97,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
         const addCard = document.createElement('div');
         addCard.className = 'preview-card preview-card-add';
-        addCard.innerHTML = `<i class="fas fa-plus"></i><span>추가</span>`;
+        addCard.innerHTML = `<span>추가</span>`;
         addCard.addEventListener('click', startAddMember);
         previewEl.appendChild(addCard);
         updateAllPreviews();
@@ -163,10 +160,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('editEndDate').value = user.end;
         document.getElementById('editPfc2cpl').value = user.pfc2cpl || 0;
         document.getElementById('editCpl2sgt').value = user.cpl2sgt || 0;
-
-        vacationEditContainer.innerHTML = '';
-        const vList = (user.vacation && Array.isArray(user.vacation[0])) ? user.vacation : (user.vacation && user.vacation.length === 2 ? [user.vacation] : []);
-        vList.forEach(v => addVacationEditRow(v[0], v[1]));
+        document.getElementById('editVacStart').value = user.vacationStart || "";
+        document.getElementById('editVacEnd').value = user.vacationEnd || "";
     }
 
     function addCustomFieldRow(key = "", value = "") {
@@ -192,20 +187,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         scheduleEditContainer.appendChild(row);
     }
 
-    function addVacationEditRow(start = "", end = "") {
-        const row = document.createElement('div'); row.className = 'custom-edit-row';
-        row.innerHTML = `
-            <input type="date" class="form-control-custom vac-start" value="${start}" style="flex: 1;">
-            <span style="font-size: 0.8rem; color: #999;">~</span>
-            <input type="date" class="form-control-custom vac-end" value="${end}" style="flex: 1;">
-            <button class="btn-remove-custom" style="border:none; background:none; color:#fa5252;"><i class="fas fa-minus-circle"></i></button>`;
-        row.querySelector('.btn-remove-custom').onclick = () => row.remove();
-        vacationEditContainer.appendChild(row);
-    }
-
     addFieldBtn.addEventListener('click', () => addCustomFieldRow());
     addScheduleBtn.addEventListener('click', () => addCustomScheduleRow());
-    addVacationBtn.addEventListener('click', () => addVacationEditRow());
 
     function startAddMember() {
         selectEl.value = ""; handleMemberSelect("");
@@ -216,7 +199,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             else if (input.type === 'checkbox') input.checked = true;
             else input.value = ""; 
         });
-        fieldEditContainer.innerHTML = ''; scheduleEditContainer.innerHTML = ''; vacationEditContainer.innerHTML = '';
+        fieldEditContainer.innerHTML = ''; scheduleEditContainer.innerHTML = '';
         resPhoto.src = "../img/default-profile.png"; currentPhotoBase64 = "";
         toggleEditMode(true); document.getElementById('editName').focus();
     }
@@ -254,13 +237,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (l && d) customSchedules.push({ label: l, date: d, showDday: sd });
         });
 
-        const vacation = [];
-        vacationEditContainer.querySelectorAll('.custom-edit-row').forEach(row => {
-            const s = row.querySelector('.vac-start').value;
-            const e = row.querySelector('.vac-end').value;
-            if (s && e) vacation.push([s, e]);
-        });
-
         const id = isAdding ? Date.now().toString() : members[selectEl.value].id;
         const updatedUser = {
             id, name, nickname,
@@ -270,7 +246,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             end: document.getElementById('editEndDate').value,
             pfc2cpl: parseInt(document.getElementById('editPfc2cpl').value) || 0,
             cpl2sgt: parseInt(document.getElementById('editCpl2sgt').value) || 0,
-            photo: currentPhotoBase64, vacation,
+            photo: currentPhotoBase64, 
+            vacationStart: document.getElementById('editVacStart').value,
+            vacationEnd: document.getElementById('editVacEnd').value,
             customFields, customSchedules
         };
         try {
@@ -323,31 +301,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('resPromoDday').textContent = getDday(nextP.d.toISOString().split('T')[0]);
 
         // 휴가 계산
-        const vList = (user.vacation && Array.isArray(user.vacation[0])) ? user.vacation : (user.vacation && user.vacation.length === 2 ? [user.vacation] : []);
-        
-        if (vList.length > 0) {
+        if (user.vacationStart && user.vacationEnd) {
             const today = new Date(); today.setHours(0,0,0,0);
-            const validVacations = vList.filter(v => {
-                const end = new Date(v[1]); end.setHours(23,59,59,999);
-                return end >= today;
-            });
-
-            if (validVacations.length > 0) {
-                validVacations.sort((a, b) => new Date(a[0]) - new Date(b[0]));
-                const activeVac = validVacations[0];
-                const vS = new Date(activeVac[0]); vS.setHours(0,0,0,0);
-                const vE = new Date(activeVac[1]); vE.setHours(0,0,0,0);
-                const days = Math.round((vE - vS) / 86400000) + 1;
-                document.getElementById('resVacRange').textContent = `${activeVac[0]} (${days}일)`;
-                if (today < vS) {
-                    const diff = Math.ceil((vS - today) / 86400000);
-                    document.getElementById('resVacDday').textContent = `D-${diff}`;
-                } else {
-                    document.getElementById('resVacDday').textContent = "휴가 중";
-                }
+            const vS = new Date(user.vacationStart); vS.setHours(0,0,0,0);
+            const vE = new Date(user.vacationEnd); vE.setHours(23,59,59,999);
+            const days = Math.round((vE - vS) / 86400000) + 1;
+            
+            document.getElementById('resVacRange').textContent = `${user.vacationStart} ~ ${user.vacationEnd.substring(5)} (${days}일)`;
+            
+            if (today < vS) {
+                document.getElementById('resVacDday').textContent = getDday(user.vacationStart);
+            } else if (today <= vE) {
+                document.getElementById('resVacDday').textContent = "휴가 중";
             } else {
-                document.getElementById('resVacRange').textContent = "예정 없음";
-                document.getElementById('resVacDday').textContent = "-";
+                document.getElementById('resVacDday').textContent = "종료";
             }
         } else {
             document.getElementById('resVacRange').textContent = "-";

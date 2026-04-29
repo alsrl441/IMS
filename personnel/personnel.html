@@ -158,7 +158,7 @@
                             <span id="resPromoDday" class="value">-</span>
                         </div>
                         <div class="info-item view-mode">
-                            <label id="resVacLabel">가까운 휴가</label>
+                            <label>휴가 기간</label>
                             <span id="resVacRange" class="value">-</span>
                         </div>
                         <div class="info-item view-mode">
@@ -166,7 +166,7 @@
                             <span id="resVacDday" class="value">-</span>
                         </div>
 
-                        <!-- 편집 모드 보정 및 휴가 관리 -->
+                        <!-- 편집 모드 -->
                         <div class="info-item edit-mode hidden">
                             <label>일병 > 상병 보정</label>
                             <input type="number" id="editPfc2cpl" class="form-control-custom" placeholder="조기/누락">
@@ -175,14 +175,14 @@
                             <label>상병 > 병장 보정</label>
                             <input type="number" id="editCpl2sgt" class="form-control-custom" placeholder="조기/누락">
                         </div>
-                    </div>
-                    
-                    <div class="edit-mode hidden mt-3 pt-3 border-top">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <label class="fw-bold" style="font-size: 0.85rem;">휴가 목록</label>
-                            <button id="addVacationBtn" class="btn-minimal-xs" style="border:none; background:none; color:#adb5bd;">추가</button>
+                        <div class="info-item edit-mode hidden">
+                            <label>휴가 시작일</label>
+                            <input type="date" id="editVacStart" class="form-control-custom">
                         </div>
-                        <div id="vacationEditContainer"></div>
+                        <div class="info-item edit-mode hidden">
+                            <label>휴가 종료일</label>
+                            <input type="date" id="editVacEnd" class="form-control-custom">
+                        </div>
                     </div>
                 </section>
 
