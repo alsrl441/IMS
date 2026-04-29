@@ -191,12 +191,54 @@
 
 .preview-card:hover { border-color: #212529; }
 
+.preview-card-add {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #868e96;
+    border: 1px dashed #dee2e6;
+    min-height: 80px;
+}
+
+.preview-card-add i { 
+    font-size: 1.2rem; 
+    margin-bottom: 5px; 
+}
+
+.preview-card-add span {
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
 .preview-name { font-size: 0.9rem; font-weight: 800; color: #212529; }
+
+.preview-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
 .preview-percent-text { 
     font-family: "Malgun Gothic", sans-serif; 
     font-size: 0.75rem; 
     font-weight: 700; 
     color: #212529; 
+}
+
+.preview-progress-container {
+    width: 100%;
+    height: 4px;
+    background-color: #f1f3f5;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.preview-progress-fill {
+    height: 100%;
+    background-color: #212529;
+    transition: width 0.1s linear;
 }
 
 .hidden { display: none !important; }
