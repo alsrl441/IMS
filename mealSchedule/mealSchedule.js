@@ -186,60 +186,62 @@ async function initFullMealSchedule() {
     displayEl.addEventListener('keydown', (e) => {
         if (!e.target.classList.contains('edit-meal-input')) return;
         const input = e.target;
-        const td = input.parentElement;
-        const tr = td.parentElement;
-        
-        const trs = Array.from(displayEl.querySelectorAll('tbody tr'));
-        const trIdx = trs.indexOf(tr);
-        const tdsInTr = Array.from(tr.querySelectorAll('td'));
-        const tdIdx = tdsInTr.indexOf(td);
+        const date = input.dataset.date;
+        const type = input.dataset.type;
 
         let targetInput = null;
 
+        const getNextDate = (dateStr) => {
+            const d = new Date(dateStr);
+            d.setDate(d.getDate() + 1);
+            return formatDate(d);
+        };
+        const getPrevDate = (dateStr) => {
+            const d = new Date(dateStr);
+            d.setDate(d.getDate() - 1);
+            return formatDate(d);
+        };
+
+        const findInput = (d, t) => displayEl.querySelector(`.edit-meal-input[data-date="${d}"][data-type="${t}"]`);
+
         switch (e.key) {
             case 'ArrowRight':
-                if (tdIdx < tdsInTr.length - 1) {
-                    targetInput = tdsInTr[tdIdx + 1].querySelector('.edit-meal-input');
+                {
+                    const nextDate = getNextDate(date);
+                    targetInput = findInput(nextDate, type);
+                    if (!targetInput) {
+                        if (type === 'breakfast') targetInput = findInput(nextDate, 'brunch');
+                        else if (type === 'brunch') targetInput = findInput(nextDate, 'breakfast');
+                        else if (type === 'lunch') targetInput = findInput(nextDate, 'brunch');
+                    }
                 }
                 break;
             case 'ArrowLeft':
-                if (tdIdx > 0) {
-                    targetInput = tdsInTr[tdIdx - 1].querySelector('.edit-meal-input');
+                {
+                    const prevDate = getPrevDate(date);
+                    targetInput = findInput(prevDate, type);
+                    if (!targetInput) {
+                        if (type === 'breakfast') targetInput = findInput(prevDate, 'brunch');
+                        else if (type === 'brunch') targetInput = findInput(prevDate, 'breakfast');
+                        else if (type === 'lunch') targetInput = findInput(prevDate, 'brunch');
+                    }
                 }
                 break;
             case 'ArrowDown':
-                if (trIdx < trs.length - 1) {
-                    // 일요일 브런치(rowspan=2)에서 아래로 갈 때 처리
-                    if (trIdx === 0 && tdIdx === 1) {
-                        targetInput = trs[2].querySelectorAll('td')[1]?.querySelector('.edit-meal-input');
-                    } else {
-                        targetInput = trs[trIdx + 1].querySelectorAll('td')[tdIdx]?.querySelector('.edit-meal-input') || 
-                                      trs[trIdx + 1].querySelectorAll('td')[tdIdx - 1]?.querySelector('.edit-meal-input');
-                    }
+            case 'Enter':
+                if (e.key === 'Enter' && e.shiftKey) return; // Shift+Enter는 기본 동작(개행) 유지
+                if (type === 'breakfast' || type === 'brunch') {
+                    targetInput = findInput(date, 'lunch') || findInput(date, 'dinner');
+                } else if (type === 'lunch') {
+                    targetInput = findInput(date, 'dinner');
                 }
+                if (e.key === 'Enter') e.preventDefault();
                 break;
             case 'ArrowUp':
-                if (trIdx > 0) {
-                    // 일요일 저녁에서 위로 갈 때 처리
-                    if (trIdx === 2 && tdIdx === 1) {
-                        targetInput = trs[0].querySelectorAll('td')[1]?.querySelector('.edit-meal-input');
-                    } else {
-                        targetInput = trs[trIdx - 1].querySelectorAll('td')[tdIdx]?.querySelector('.edit-meal-input') || 
-                                      trs[trIdx - 1].querySelectorAll('td')[tdIdx + 1]?.querySelector('.edit-meal-input');
-                    }
-                }
-                break;
-            case 'Enter':
-                if (!e.shiftKey) { // Shift+Enter는 개행, Enter는 아래로 이동
-                    e.preventDefault();
-                    if (trIdx < trs.length - 1) {
-                        if (trIdx === 0 && tdIdx === 1) {
-                            targetInput = trs[2].querySelectorAll('td')[1]?.querySelector('.edit-meal-input');
-                        } else {
-                            targetInput = trs[trIdx + 1].querySelectorAll('td')[tdIdx]?.querySelector('.edit-meal-input') || 
-                                          trs[trIdx + 1].querySelectorAll('td')[tdIdx - 1]?.querySelector('.edit-meal-input');
-                        }
-                    }
+                if (type === 'dinner') {
+                    targetInput = findInput(date, 'lunch') || findInput(date, 'brunch');
+                } else if (type === 'lunch') {
+                    targetInput = findInput(date, 'breakfast');
                 }
                 break;
         }
