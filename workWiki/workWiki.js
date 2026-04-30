@@ -63,14 +63,92 @@ document.addEventListener('DOMContentLoaded', async () => {
         currentDocId = id;
         docTitle.textContent = doc.title;
         
-        // Markdown Rendering
-        docBody.innerHTML = marked.parse(doc.content);
+        // 커스텀 바닐라 JS 마크다운 파서 사용
+        docBody.innerHTML = parseMarkdown(doc.content);
         
         // TOC Generation
         generateTOC();
         
         toggleEditMode(false);
         window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function parseMarkdown(markdown) {
+        if (!markdown) return "";
+        let html = markdown
+            // 보안을 위한 기본 이스케이프 (선택 사항)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+
+        // 블록 요소 처리
+        const lines = html.split('\n');
+        let result = [];
+        let inList = false;
+        let inOrderedList = false;
+
+        lines.forEach(line => {
+            // 제목 (Header)
+            if (line.startsWith('### ')) {
+                result.push(`<h3>${line.slice(4)}</h3>`);
+            } else if (line.startsWith('## ')) {
+                result.push(`<h2>${line.slice(3)}</h2>`);
+            } else if (line.startsWith('# ')) {
+                result.push(`<h1>${line.slice(2)}</h1>`);
+            }
+            // 인용문 (Blockquote)
+            else if (line.startsWith('&gt; ')) {
+                result.push(`<blockquote>${line.slice(5)}</blockquote>`);
+            }
+            // 목록 (List)
+            else if (line.trim().startsWith('- ') || line.trim().startsWith('* ')) {
+                if (!inList) {
+                    result.push('<ul>');
+                    inList = true;
+                }
+                result.push(`<li>${line.trim().slice(2)}</li>`);
+            }
+            // 순서 있는 목록 (Ordered List)
+            else if (/^\d+\.\s/.test(line.trim())) {
+                if (!inOrderedList) {
+                    result.push('<ol>');
+                    inOrderedList = true;
+                }
+                result.push(`<li>${line.trim().replace(/^\d+\.\s/, '')}</li>`);
+            }
+            // 구분선 (Horizontal Rule)
+            else if (line.trim() === '---' || line.trim() === '***') {
+                result.push('<hr>');
+            }
+            // 빈 줄
+            else if (line.trim() === '') {
+                if (inList) { result.push('</ul>'); inList = false; }
+                if (inOrderedList) { result.push('</ol>'); inOrderedList = false; }
+                result.push('<br>');
+            }
+            // 일반 텍스트 (Paragraph)
+            else {
+                if (inList) { result.push('</ul>'); inList = false; }
+                if (inOrderedList) { result.push('</ol>'); inOrderedList = false; }
+                result.push(`<p>${line}</p>`);
+            }
+        });
+
+        if (inList) result.push('</ul>');
+        if (inOrderedList) result.push('</ol>');
+
+        html = result.join('\n');
+
+        // 인라인 요소 처리 (Regex)
+        html = html
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
+            .replace(/__(.*?)__/g, '<strong>$1</strong>')
+            .replace(/\*(.*?)\*/g, '<em>$1</em>') // Italic
+            .replace(/_(.*?)_/g, '<em>$1</em>')
+            .replace(/`(.*?)`/g, '<code>$1</code>') // Inline Code
+            .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>'); // Link
+
+        return html;
     }
 
     function generateTOC() {
