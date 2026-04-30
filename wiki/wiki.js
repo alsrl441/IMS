@@ -110,53 +110,81 @@ document.addEventListener('DOMContentLoaded', async () => {
             .replace(/</g, "&lt;")
             .replace(/>/g, "&gt;");
 
-        // 블록 요소 처리
         const lines = html.split('\n');
         let result = [];
-        let inList = false;
-        let inOrderedList = false;
+        let listStack = []; // { type: 'ul'|'ol', indent: number }
+
+        function closeLists(targetIndent = -1) {
+            while (listStack.length > 0 && listStack[listStack.length - 1].indent > targetIndent) {
+                result.push(`</${listStack.pop().type}>`);
+            }
+        }
 
         lines.forEach(line => {
-            // 제목 (Header) - ID 부여 로직 강화
-            if (line.startsWith('### ')) {
-                const title = line.slice(4).trim();
+            const trimmed = line.trim();
+            const indent = line.search(/\S/);
+            
+            // 제목 (Header)
+            if (trimmed.startsWith('### ')) {
+                closeLists();
+                const title = trimmed.slice(4).trim();
                 result.push(`<h3 id="${title}">${title}</h3>`);
-            } else if (line.startsWith('## ')) {
-                const title = line.slice(3).trim();
+            } else if (trimmed.startsWith('## ')) {
+                closeLists();
+                const title = trimmed.slice(3).trim();
                 result.push(`<h2 id="${title}">${title}</h2>`);
-            } else if (line.startsWith('# ')) {
-                const title = line.slice(2).trim();
+            } else if (trimmed.startsWith('# ')) {
+                closeLists();
+                const title = trimmed.slice(2).trim();
                 result.push(`<h1 id="${title}">${title}</h1>`);
             }
-            // ... (나머지 블록 요소 로직 유지)
-            else if (line.startsWith('&gt; ')) {
-                result.push(`<blockquote>${line.slice(5)}</blockquote>`);
+            // 인용문 (Blockquote)
+            else if (trimmed.startsWith('&gt; ')) {
+                closeLists();
+                result.push(`<blockquote>${trimmed.slice(5)}</blockquote>`);
             }
-            else if (line.trim().startsWith('- ') || line.trim().startsWith('* ')) {
-                if (!inList) { result.push('<ul>'); inList = true; }
-                result.push(`<li>${line.trim().slice(2)}</li>`);
-            }
-            else if (/^\d+\.\s/.test(line.trim())) {
-                if (!inOrderedList) { result.push('<ol>'); inOrderedList = true; }
-                result.push(`<li>${line.trim().replace(/^\d+\.\s/, '')}</li>`);
-            }
-            else if (line.trim() === '---' || line.trim() === '***') {
+            // 구분선 (Horizontal Rule)
+            else if (trimmed === '---' || trimmed === '***') {
+                closeLists();
                 result.push('<hr>');
             }
-            else if (line.trim() === '') {
-                if (inList) { result.push('</ul>'); inList = false; }
-                if (inOrderedList) { result.push('</ol>'); inOrderedList = false; }
+            // 목록 (List)
+            else if (/^([-*]|\d+\.)\s/.test(trimmed)) {
+                const isOrdered = /^\d+\.\s/.test(trimmed);
+                const type = isOrdered ? 'ol' : 'ul';
+                const content = isOrdered ? trimmed.replace(/^\d+\.\s/, '') : trimmed.slice(2);
+
+                if (listStack.length === 0 || indent > listStack[listStack.length - 1].indent) {
+                    result.push(`<${type}>`);
+                    listStack.push({ type, indent });
+                } else if (indent < listStack[listStack.length - 1].indent) {
+                    closeLists(indent);
+                    if (listStack.length > 0 && listStack[listStack.length - 1].type !== type) {
+                        result.push(`</${listStack.pop().type}>`);
+                        result.push(`<${type}>`);
+                        listStack.push({ type, indent });
+                    }
+                } else if (listStack[listStack.length - 1].type !== type) {
+                    result.push(`</${listStack.pop().type}>`);
+                    result.push(`<${type}>`);
+                    listStack.push({ type, indent });
+                }
+
+                result.push(`<li>${content}</li>`);
+            }
+            // 빈 줄
+            else if (trimmed === '') {
+                closeLists();
                 result.push('<br>');
             }
+            // 일반 텍스트 (Paragraph)
             else {
-                if (inList) { result.push('</ul>'); inList = false; }
-                if (inOrderedList) { result.push('</ol>'); inOrderedList = false; }
+                closeLists();
                 result.push(`<p>${line}</p>`);
             }
         });
 
-        if (inList) result.push('</ul>');
-        if (inOrderedList) result.push('</ol>');
+        closeLists();
 
         html = result.join('\n');
 
