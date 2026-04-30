@@ -358,7 +358,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             const targetStr = targetDate.toISOString().split('T')[0];
-            if (dateEl) dateEl.textContent = targetStr;
+            if (dateEl) dateEl.textContent = s.date;
             if (vDy && s.showDday !== false) { 
                 const custDday = getDday(targetStr);
                 let labelText = s.label;
