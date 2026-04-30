@@ -6,6 +6,7 @@ const holdCanvas = document.getElementById('hold');
 const holdContext = holdCanvas.getContext('2d');
 const scoreElement = document.getElementById('score');
 const startBtn = document.getElementById('start-btn');
+const pauseBtn = document.getElementById('pause-btn');
 
 context.scale(30, 30);
 nextContext.scale(20, 20);
@@ -50,18 +51,18 @@ function renderRankings() {
         const rankings = request.result;
         rankings.sort((a, b) => b.score - a.score);
         
-        const top3 = rankings.slice(0, 3);
+        const top5 = rankings.slice(0, 5);
         const list = document.getElementById('ranking-list');
         list.innerHTML = '';
 
-        if (top3.length === 0) {
+        if (top5.length === 0) {
             list.innerHTML = '<tr><td colspan="3" class="text-secondary py-3">기록이 없습니다. 첫 랭커가 되어보세요!</td></tr>';
             return;
         }
 
-        top3.forEach((rank, index) => {
+        top5.forEach((rank, index) => {
             const tr = document.createElement('tr');
-            tr.classList.add('top-rank');
+            if (index < 3) tr.classList.add('top-rank');
             tr.innerHTML = `
                 <td>${index + 1}</td>
                 <td>${rank.name}</td>
@@ -109,8 +110,41 @@ function createPiece(type) {
 function draw() {
     context.fillStyle = '#000';
     context.fillRect(0, 0, canvas.width, canvas.height);
+    
+    drawGrid();
+    
+    // Ghost Piece
+    const ghostPos = getGhostPosition();
+    drawMatrix(player.matrix, ghostPos, context, true);
+    
     drawMatrix(arena, {x: 0, y: 0}, context);
     drawMatrix(player.matrix, player.pos, context);
+}
+
+function drawGrid() {
+    context.lineWidth = 0.02;
+    context.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+    for (let x = 0; x <= 12; x++) {
+        context.beginPath();
+        context.moveTo(x, 0);
+        context.lineTo(x, 20);
+        context.stroke();
+    }
+    for (let y = 0; y <= 20; y++) {
+        context.beginPath();
+        context.moveTo(0, y);
+        context.lineTo(12, y);
+        context.stroke();
+    }
+}
+
+function getGhostPosition() {
+    const pos = { x: player.pos.x, y: player.pos.y };
+    while (!collide(arena, { pos, matrix: player.matrix })) {
+        pos.y++;
+    }
+    pos.y--;
+    return pos;
 }
 
 function drawSideCanvas() {
@@ -125,15 +159,23 @@ function drawSideCanvas() {
     }
 }
 
-function drawMatrix(matrix, offset, ctx) {
+function drawMatrix(matrix, offset, ctx, isGhost = false) {
     matrix.forEach((row, y) => {
         row.forEach((value, x) => {
             if (value !== 0) {
-                ctx.fillStyle = colors[value];
-                ctx.fillRect(x + offset.x, y + offset.y, 1, 1);
-                ctx.lineWidth = 0.05;
-                ctx.strokeStyle = 'white';
-                ctx.strokeRect(x + offset.x, y + offset.y, 1, 1);
+                if (isGhost) {
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+                    ctx.fillRect(x + offset.x, y + offset.y, 1, 1);
+                    ctx.lineWidth = 0.05;
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                    ctx.strokeRect(x + offset.x, y + offset.y, 1, 1);
+                } else {
+                    ctx.fillStyle = colors[value];
+                    ctx.fillRect(x + offset.x, y + offset.y, 1, 1);
+                    ctx.lineWidth = 0.05;
+                    ctx.strokeStyle = 'white';
+                    ctx.strokeRect(x + offset.x, y + offset.y, 1, 1);
+                }
             }
         });
     });
@@ -158,7 +200,7 @@ function merge(arena, player) {
 }
 
 function arenaSweep() {
-    let rowCount = 1;
+    let rowCount = 0;
     outer: for (let y = arena.length - 1; y > 0; --y) {
         for (let x = 0; x < arena[y].length; ++x) {
             if (arena[y][x] === 0) continue outer;
@@ -166,10 +208,15 @@ function arenaSweep() {
         const row = arena.splice(y, 1)[0].fill(0);
         arena.unshift(row);
         ++y;
-        player.score += rowCount * 10;
-        rowCount *= 2;
+        rowCount++;
     }
-    updateScore();
+    
+    if (rowCount > 0) {
+        // 보너스 점수 시스템: 1줄:10, 2줄:30, 3줄:60, 4줄:100 (Tetris)
+        const bonus = [0, 10, 30, 60, 100];
+        player.score += bonus[rowCount] || rowCount * 25;
+        updateScore();
+    }
 }
 
 function playerDrop() {
@@ -216,11 +263,21 @@ function rotate(matrix, dir) {
 function playerReset() {
     const pieces = 'ILJOTSZ';
     if (!player.next) {
-        player.next = createPiece(pieces[pieces.length * Math.random() | 0]);
+        const type = pieces[pieces.length * Math.random() | 0];
+        player.next = createPiece(type);
+        player.next.type = type;
     }
     
     player.matrix = player.next;
-    player.next = createPiece(pieces[pieces.length * Math.random() | 0]);
+    
+    let nextType;
+    do {
+        nextType = pieces[pieces.length * Math.random() | 0];
+    } while (nextType === player.matrix.type);
+    
+    player.next = createPiece(nextType);
+    player.next.type = nextType;
+    
     player.pos.y = 0;
     player.pos.x = (arena[0].length / 2 | 0) - (player.matrix[0].length / 2 | 0);
     player.canHold = true;
@@ -276,9 +333,28 @@ let dropCounter = 0;
 let dropInterval = 1200;
 let lastTime = 0;
 let gameRunning = false;
+let isPaused = false;
+
+function togglePause() {
+    if (!gameRunning) return;
+    isPaused = !isPaused;
+    if (isPaused) {
+        pauseBtn.innerText = "계속하기";
+        context.fillStyle = 'rgba(0, 0, 0, 0.5)';
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        context.fillStyle = 'white';
+        context.font = '1px "Malgun Gothic"';
+        context.textAlign = 'center';
+        context.fillText('PAUSED', 6, 10);
+    } else {
+        pauseBtn.innerText = "일시정지";
+        lastTime = performance.now();
+        update();
+    }
+}
 
 function update(time = 0) {
-    if (!gameRunning) return;
+    if (!gameRunning || isPaused) return;
     const deltaTime = time - lastTime;
     lastTime = time;
     dropCounter += deltaTime;
@@ -299,7 +375,12 @@ const player = {
 };
 
 document.addEventListener('keydown', event => {
-    if (!gameRunning) return;
+    if (event.keyCode === 80) { // P
+        togglePause();
+        return;
+    }
+
+    if (!gameRunning || isPaused) return;
     if (event.keyCode === 37) playerMove(-1);       // ←
     else if (event.keyCode === 39) playerMove(1);   // →
     else if (event.keyCode === 40) playerDrop();    // ↓
@@ -320,9 +401,15 @@ startBtn.addEventListener('click', () => {
     player.next = null;
     player.score = 0;
     gameRunning = true;
+    isPaused = false;
     playerReset();
     updateScore();
+    lastTime = performance.now();
     update();
     startBtn.disabled = true;
     startBtn.innerText = "게임 진행 중";
+    pauseBtn.style.display = "block";
+    pauseBtn.innerText = "일시정지";
 });
+
+pauseBtn.addEventListener('click', togglePause);

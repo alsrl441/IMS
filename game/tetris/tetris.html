@@ -71,13 +71,17 @@
                     <p>↑: 회전(시계 방향)</p>
                     <p>Space: 내리기</p>
                     <p>C: 블럭 교체</p>
+                    <p>P: 일시정지</p>
                 </div>
-                <button id="start-btn">게임 시작</button>
+                <div class="d-flex gap-2">
+                    <button id="start-btn" class="flex-grow-1">게임 시작</button>
+                    <button id="pause-btn" class="btn-outline" style="padding: 12px; border-radius: 5px; cursor: pointer; display: none;">일시정지</button>
+                </div>
             </div>
         </div>
 
         <div class="ranking-section">
-            <h3 class="ranking-title">🏆 랭킹 (Top 10)</h3>
+            <h3 class="ranking-title">랭킹 (Top 5)</h3>
             <table class="ranking-table">
                 <thead>
                     <tr>

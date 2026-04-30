@@ -83,46 +83,59 @@
 
 /* Ranking Styles */
 .ranking-section {
-    width: 580px; /* tetris-container의 너비와 대략 맞춤 */
-    margin-top: 30px;
+    width: 480px;
+    margin-top: 40px;
     background: #fff;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    border: 1px solid #e9ecef;
 }
 
 .ranking-title {
-    font-size: 1.2rem;
-    color: #1a2a3a;
-    margin-bottom: 15px;
+    font-size: 1.1rem;
+    color: #343a40;
+    margin-bottom: 20px;
     text-align: center;
-    border-bottom: 2px solid #4db8ff;
-    padding-bottom: 10px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
 }
 
 .ranking-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.9rem;
-}
-
-.ranking-table th, .ranking-table td {
-    padding: 10px;
-    text-align: center;
-    border-bottom: 1px solid #eee;
 }
 
 .ranking-table th {
-    background: #f8f9fa;
-    color: #666;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: #adb5bd;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #f1f3f5;
     font-weight: 600;
+    text-align: center;
+}
+
+.ranking-table td {
+    padding: 12px 10px;
+    text-align: center;
+    border-bottom: 1px solid #f8f9fa;
+    color: #495057;
+    font-size: 0.9rem;
+}
+
+.ranking-table tr:last-child td {
+    border-bottom: none;
 }
 
 .ranking-table .top-rank {
-    font-weight: bold;
-    color: #e67e22;
+    font-weight: 600;
 }
 
+.ranking-table tr:nth-child(1) td:first-child { color: #fcc419; font-weight: 800; }
+.ranking-table tr:nth-child(2) td:first-child { color: #adb5bd; font-weight: 800; }
+.ranking-table tr:nth-child(3) td:first-child { color: #e67e22; font-weight: 800; }
+
 .ranking-table tr:hover {
-    background-color: #f1f8ff;
+    background-color: #f8f9fa;
 }
