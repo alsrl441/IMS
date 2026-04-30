@@ -6,7 +6,6 @@ const holdCanvas = document.getElementById('hold');
 const holdContext = holdCanvas.getContext('2d');
 const scoreElement = document.getElementById('score');
 const startBtn = document.getElementById('start-btn');
-const pauseBtn = document.getElementById('pause-btn');
 
 context.scale(30, 30);
 nextContext.scale(20, 20);
@@ -16,7 +15,7 @@ const colors = [null, '#9b59b6', '#f1c40f', '#e67e22', '#2980b9', '#1abc9c', '#2
 
 // IndexedDB 초기화
 let db;
-const dbRequest = indexedDB.open("gameDB", 1);
+const dbRequest = indexedDB.open("Game_database", 1);
 
 dbRequest.onupgradeneeded = function(event) {
     db = event.target.result;
@@ -300,8 +299,8 @@ function playerReset() {
                 alert(`게임 오버!\n\n점수: ${finalScore}`);
             }
             
-            startBtn.disabled = false;
             startBtn.innerText = "다시 시작";
+            startBtn.style.background = "#4db8ff";
         });
     }
     drawSideCanvas();
@@ -339,7 +338,8 @@ function togglePause() {
     if (!gameRunning) return;
     isPaused = !isPaused;
     if (isPaused) {
-        pauseBtn.innerText = "계속하기";
+        startBtn.innerText = "계속하기";
+        startBtn.style.background = "#2ecc71"; // 녹색
         context.fillStyle = 'rgba(0, 0, 0, 0.5)';
         context.fillRect(0, 0, canvas.width, canvas.height);
         context.fillStyle = 'white';
@@ -347,7 +347,8 @@ function togglePause() {
         context.textAlign = 'center';
         context.fillText('PAUSED', 6, 10);
     } else {
-        pauseBtn.innerText = "일시정지";
+        startBtn.innerText = "일시정지";
+        startBtn.style.background = "#fab005"; // 노란색
         lastTime = performance.now();
         update();
     }
@@ -396,20 +397,20 @@ document.addEventListener('keydown', event => {
 });
 
 startBtn.addEventListener('click', () => {
-    arena.forEach(row => row.fill(0));
-    player.hold = null;
-    player.next = null;
-    player.score = 0;
-    gameRunning = true;
-    isPaused = false;
-    playerReset();
-    updateScore();
-    lastTime = performance.now();
-    update();
-    startBtn.disabled = true;
-    startBtn.innerText = "게임 진행 중";
-    pauseBtn.style.display = "block";
-    pauseBtn.innerText = "일시정지";
+    if (!gameRunning) {
+        arena.forEach(row => row.fill(0));
+        player.hold = null;
+        player.next = null;
+        player.score = 0;
+        gameRunning = true;
+        isPaused = false;
+        playerReset();
+        updateScore();
+        lastTime = performance.now();
+        update();
+        startBtn.innerText = "일시정지";
+        startBtn.style.background = "#fab005";
+    } else {
+        togglePause();
+    }
 });
-
-pauseBtn.addEventListener('click', togglePause);
