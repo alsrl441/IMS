@@ -251,9 +251,9 @@ function arenaSweep() {
     }
     
     if (rowCount > 0) {
-        // 보너스 점수 시스템: 1줄:10, 2줄:30, 3줄:60, 4줄:100 (Tetris)
-        const bonus = [0, 10, 30, 60, 100];
-        player.score += bonus[rowCount] || rowCount * 25;
+        // 보너스 점수 시스템: 1줄:100, 2줄:250, 3줄:400, 4줄:600
+        const bonus = [0, 100, 250, 400, 600];
+        player.score += bonus[rowCount] || rowCount * 150;
         updateScore();
     }
 }
