@@ -116,7 +116,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function updateStaticProfile(user) {
-        document.getElementById('resNickName').textContent = user.nickname || "-";
+        document.getElementById('resNickName').textContent = user.nickname || user.name;
         document.getElementById('resSubInfo').textContent = `${user.affiliation || "-"} · ${user.position || "-"}`;
         resPhoto.src = user.photo || "../img/default-profile.png";
         currentPhotoBase64 = user.photo || "";
