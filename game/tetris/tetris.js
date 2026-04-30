@@ -13,6 +13,32 @@ holdContext.scale(20, 20);
 
 const colors = [null, '#9b59b6', '#f1c40f', '#e67e22', '#2980b9', '#1abc9c', '#2ecc71', '#e74c3c'];
 
+// Particle System
+class Particle {
+    constructor(x, y, color) {
+        this.x = x + 0.5;
+        this.y = y + 0.5;
+        this.vx = (Math.random() - 0.5) * 0.4;
+        this.vy = (Math.random() - 0.5) * 0.4 - 0.2;
+        this.color = color;
+        this.life = 1.0;
+        this.decay = 0.02 + Math.random() * 0.02;
+    }
+    update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.vy += 0.02; // gravity
+        this.life -= this.decay;
+    }
+    draw(ctx) {
+        ctx.globalAlpha = Math.max(0, this.life);
+        ctx.fillStyle = this.color;
+        ctx.fillRect(this.x - 0.1, this.y - 0.1, 0.2, 0.2);
+        ctx.globalAlpha = 1.0;
+    }
+}
+let particles = [];
+
 // IndexedDB 초기화
 let db;
 const dbRequest = indexedDB.open("Game_database", 1);
@@ -118,6 +144,9 @@ function draw() {
     
     drawMatrix(arena, {x: 0, y: 0}, context);
     drawMatrix(player.matrix, player.pos, context);
+
+    // Draw Particles
+    particles.forEach(p => p.draw(context));
 }
 
 function drawGrid() {
@@ -204,6 +233,15 @@ function arenaSweep() {
         for (let x = 0; x < arena[y].length; ++x) {
             if (arena[y][x] === 0) continue outer;
         }
+
+        // 폭발 파티클 생성
+        for (let x = 0; x < arena[y].length; ++x) {
+            const color = colors[arena[y][x]];
+            for (let i = 0; i < 4; i++) {
+                particles.push(new Particle(x, y, color));
+            }
+        }
+
         const row = arena.splice(y, 1)[0].fill(0);
         arena.unshift(row);
         ++y;
@@ -358,6 +396,15 @@ function update(time = 0) {
     if (!gameRunning || isPaused) return;
     const deltaTime = time - lastTime;
     lastTime = time;
+
+    // 파티클 업데이트
+    for (let i = particles.length - 1; i >= 0; i--) {
+        particles[i].update();
+        if (particles[i].life <= 0) {
+            particles.splice(i, 1);
+        }
+    }
+
     dropCounter += deltaTime;
     if (dropCounter > dropInterval) playerDrop();
     if (dropInterval > 200) dropInterval = dropInterval - 0.05;
