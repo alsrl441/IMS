@@ -18,22 +18,24 @@ class Particle {
     constructor(x, y, color) {
         this.x = x + 0.5;
         this.y = y + 0.5;
-        this.vx = (Math.random() - 0.5) * 0.4;
-        this.vy = (Math.random() - 0.5) * 0.4 - 0.2;
+        this.vx = (Math.random() - 0.5) * 0.8;
+        this.vy = (Math.random() - 0.5) * 0.8 - 0.3;
         this.color = color;
         this.life = 1.0;
-        this.decay = 0.02 + Math.random() * 0.02;
+        this.decay = 0.01 + Math.random() * 0.015;
     }
     update() {
         this.x += this.vx;
         this.y += this.vy;
-        this.vy += 0.02; // gravity
+        this.vy += 0.03; // gravity
         this.life -= this.decay;
     }
     draw(ctx) {
-        ctx.globalAlpha = Math.max(0, this.life);
+        if (this.life <= 0) return;
+        ctx.globalAlpha = this.life;
         ctx.fillStyle = this.color;
-        ctx.fillRect(this.x - 0.1, this.y - 0.1, 0.2, 0.2);
+        const size = 0.4;
+        ctx.fillRect(this.x - size/2, this.y - size/2, size, size);
         ctx.globalAlpha = 1.0;
     }
 }
@@ -237,7 +239,7 @@ function arenaSweep() {
         // 폭발 파티클 생성
         for (let x = 0; x < arena[y].length; ++x) {
             const color = colors[arena[y][x]];
-            for (let i = 0; i < 4; i++) {
+            for (let i = 0; i < 8; i++) {
                 particles.push(new Particle(x, y, color));
             }
         }
