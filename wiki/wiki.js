@@ -59,6 +59,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         // 커스텀 바닐라 JS 마크다운 파서 사용
         docBody.innerHTML = parseMarkdown(doc.content);
         
+        // 내부 링크 클릭 이벤트 위임
+        bindInternalLinks();
+        
         // TOC Generation
         generateTOC();
         
@@ -66,10 +69,43 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
+    function bindInternalLinks() {
+        docBody.querySelectorAll('.wiki-internal-link').forEach(link => {
+            link.onclick = (e) => {
+                e.preventDefault();
+                const targetTitle = link.getAttribute('data-target');
+                const targetHash = link.getAttribute('data-hash');
+
+                if (targetTitle) {
+                    const targetDoc = documents.find(d => d.title === targetTitle);
+                    if (targetDoc) {
+                        loadDocument(targetDoc.id);
+                        if (targetHash) {
+                            setTimeout(() => {
+                                const el = document.getElementById(targetHash);
+                                if (el) el.scrollIntoView({ behavior: 'smooth' });
+                            }, 100);
+                        }
+                    } else {
+                        // 문서가 없으면 새 문서 만들기 모드로 전환
+                        if (confirm(`'${targetTitle}' 문서는 아직 없습니다. 새로 만드시겠습니까?`)) {
+                            currentDocId = null;
+                            editDocTitle.value = targetTitle;
+                            markdownEditor.value = '';
+                            toggleEditMode(true);
+                        }
+                    }
+                } else if (targetHash) {
+                    const el = document.getElementById(targetHash);
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                }
+            };
+        });
+    }
+
     function parseMarkdown(markdown) {
         if (!markdown) return "";
         let html = markdown
-            // 보안을 위한 기본 이스케이프 (선택 사항)
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
             .replace(/>/g, "&gt;");
@@ -81,45 +117,37 @@ document.addEventListener('DOMContentLoaded', async () => {
         let inOrderedList = false;
 
         lines.forEach(line => {
-            // 제목 (Header)
+            // 제목 (Header) - ID 부여 로직 강화
             if (line.startsWith('### ')) {
-                result.push(`<h3>${line.slice(4)}</h3>`);
+                const title = line.slice(4).trim();
+                result.push(`<h3 id="${title}">${title}</h3>`);
             } else if (line.startsWith('## ')) {
-                result.push(`<h2>${line.slice(3)}</h2>`);
+                const title = line.slice(3).trim();
+                result.push(`<h2 id="${title}">${title}</h2>`);
             } else if (line.startsWith('# ')) {
-                result.push(`<h1>${line.slice(2)}</h1>`);
+                const title = line.slice(2).trim();
+                result.push(`<h1 id="${title}">${title}</h1>`);
             }
-            // 인용문 (Blockquote)
+            // ... (나머지 블록 요소 로직 유지)
             else if (line.startsWith('&gt; ')) {
                 result.push(`<blockquote>${line.slice(5)}</blockquote>`);
             }
-            // 목록 (List)
             else if (line.trim().startsWith('- ') || line.trim().startsWith('* ')) {
-                if (!inList) {
-                    result.push('<ul>');
-                    inList = true;
-                }
+                if (!inList) { result.push('<ul>'); inList = true; }
                 result.push(`<li>${line.trim().slice(2)}</li>`);
             }
-            // 순서 있는 목록 (Ordered List)
             else if (/^\d+\.\s/.test(line.trim())) {
-                if (!inOrderedList) {
-                    result.push('<ol>');
-                    inOrderedList = true;
-                }
+                if (!inOrderedList) { result.push('<ol>'); inOrderedList = true; }
                 result.push(`<li>${line.trim().replace(/^\d+\.\s/, '')}</li>`);
             }
-            // 구분선 (Horizontal Rule)
             else if (line.trim() === '---' || line.trim() === '***') {
                 result.push('<hr>');
             }
-            // 빈 줄
             else if (line.trim() === '') {
                 if (inList) { result.push('</ul>'); inList = false; }
                 if (inOrderedList) { result.push('</ol>'); inOrderedList = false; }
                 result.push('<br>');
             }
-            // 일반 텍스트 (Paragraph)
             else {
                 if (inList) { result.push('</ul>'); inList = false; }
                 if (inOrderedList) { result.push('</ol>'); inOrderedList = false; }
@@ -132,14 +160,23 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         html = result.join('\n');
 
-        // 인라인 요소 처리 (Regex)
+        // 나무위키 스타일 내부 링크 처리 [[문서명#섹션|표시텍스트]]
+        html = html.replace(/\[\[(.*?)(#(.*?))?(\|(.*?))?\]\]/g, (match, docName, hashPart, hash, pipePart, displayText) => {
+            const finalDocName = docName ? docName.trim() : "";
+            const finalHash = hash ? hash.trim() : "";
+            const finalDisplay = displayText ? displayText.trim() : (finalDocName + (finalHash ? '#' + finalHash : ""));
+            
+            return `<a class="wiki-internal-link" data-target="${finalDocName}" data-hash="${finalHash}" href="#">${finalDisplay}</a>`;
+        });
+
+        // 인라인 요소 처리
         html = html
-            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
             .replace(/__(.*?)__/g, '<strong>$1</strong>')
-            .replace(/\*(.*?)\*/g, '<em>$1</em>') // Italic
+            .replace(/\*(.*?)\*/g, '<em>$1</em>')
             .replace(/_(.*?)_/g, '<em>$1</em>')
-            .replace(/`(.*?)`/g, '<code>$1</code>') // Inline Code
-            .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>'); // Link
+            .replace(/`(.*?)`/g, '<code>$1</code>')
+            .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>');
 
         return html;
     }
@@ -153,9 +190,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         wikiToc.classList.remove('hidden');
         tocList.innerHTML = '';
-        headers.forEach((h, idx) => {
-            const id = `header-${idx}`;
-            h.id = id;
+        headers.forEach((h) => {
+            const id = h.id;
             const li = document.createElement('li');
             li.style.paddingLeft = h.tagName === 'H3' ? '15px' : '0';
             li.innerHTML = `<a href="#${id}">${h.textContent}</a>`;
