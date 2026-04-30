@@ -278,9 +278,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         const target = new Date(dateStr); target.setHours(0,0,0,0);
         const today = new Date(); today.setHours(0,0,0,0);
         const diff = Math.ceil((target - today) / 86400000);
-        if (diff > 0) return `D-${diff}까지`;
+        if (diff > 0) return `D-${diff}`;
         if (diff === 0) return "D-Day";
-        return `D+${Math.abs(diff)}부터`;
+        return `D+${Math.abs(diff)}`;
     }
 
     function calculateMilitary(user) {
@@ -295,16 +295,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('resStartDate').textContent = user.start;
         document.getElementById('resTransferDate').textContent = user.transfer || "-";
         document.getElementById('resEndDateDate').textContent = user.end;
-        document.getElementById('resDday').textContent = getDday(user.end);
+        const dischargeDday = getDday(user.end);
+        const dischargeSuffix = dischargeDday.startsWith('D-') ? "까지" : (dischargeDday.startsWith('D+') ? "부터" : "");
+        document.getElementById('resDday').previousElementSibling.textContent = "전역" + dischargeSuffix;
+        document.getElementById('resDday').textContent = dischargeDday;
 
         // 진급 D-Day
         const pfc = getPromotionDate(user.start, 2, 0); const cpl = getPromotionDate(user.start, 8, user.pfc2cpl);
         const sgt = getPromotionDate(user.start, 14, user.cpl2sgt);
         const pDates = [{n:"일병",d:pfc},{n:"상병",d:cpl},{n:"병장",d:sgt},{n:"전역",d:end}];
         const nextP = pDates.find(x => x.d > now) || pDates[3];
-        document.getElementById('resPromoLabel').textContent = `${nextP.n} 진급`;
+        document.getElementById('resPromoLabel').textContent = `${nextP.n} 진급일`;
         document.getElementById('resPromoDate').textContent = nextP.d.toISOString().split('T')[0];
-        document.getElementById('resPromoDday').textContent = getDday(nextP.d.toISOString().split('T')[0]);
+        
+        const promoDday = getDday(nextP.d.toISOString().split('T')[0]);
+        const promoSuffix = promoDday.startsWith('D-') ? "까지" : (promoDday.startsWith('D+') ? "부터" : "");
+        document.getElementById('resPromoDday').previousElementSibling.textContent = `${nextP.n} 진급` + promoSuffix;
+        document.getElementById('resPromoDday').textContent = promoDday;
 
         // 휴가 계산
         if (user.vacationStart && user.vacationEnd) {
@@ -316,8 +323,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('resVacRange').textContent = `${user.vacationStart} ~ ${user.vacationEnd.substring(5)} (${days}일)`;
             
             if (today < vS) {
-                document.getElementById('resVacDday').textContent = getDday(user.vacationStart);
+                const vacDday = getDday(user.vacationStart);
+                const vacSuffix = vacDday.startsWith('D-') ? "까지" : (vacDday.startsWith('D+') ? "부터" : "");
+                document.getElementById('resVacDday').previousElementSibling.textContent = "휴가" + vacSuffix;
+                document.getElementById('resVacDday').textContent = vacDday;
             } else if (today <= vE) {
+                document.getElementById('resVacDday').previousElementSibling.textContent = "휴가";
                 document.getElementById('resVacDday').textContent = "휴가 중";
             } else {
                 document.getElementById('resVacRange').textContent = "-";
@@ -349,7 +360,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             const targetStr = targetDate.toISOString().split('T')[0];
             if (dateEl) dateEl.textContent = targetStr;
             if (vDy && s.showDday !== false) { 
-                vDy.textContent = getDday(targetStr); 
+                const custDday = getDday(targetStr);
+                const custSuffix = custDday.startsWith('D-') ? "까지" : (custDday.startsWith('D+') ? "부터" : "");
+                vDy.previousElementSibling.textContent = s.label + custSuffix;
+                vDy.textContent = custDday; 
             }
         });
     }
