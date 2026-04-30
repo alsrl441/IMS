@@ -14,7 +14,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const editDocTitle = document.getElementById('editDocTitle');
     const markdownEditor = document.getElementById('markdownEditor');
     
-    const recentDocsList = document.getElementById('recentDocs');
     const allDocsList = document.getElementById('allDocs');
     const wikiSearch = document.getElementById('wikiSearch');
     
@@ -38,12 +37,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function renderSidebar(docs) {
-        // 최근 변경 순 (updatedAt 기준 내림차순)
-        const sortedRecent = [...docs].sort((a, b) => b.updatedAt - a.updatedAt).slice(0, 5);
-        recentDocsList.innerHTML = sortedRecent.map(doc => 
-            `<li><a data-id="${doc.id}">${doc.title}</a></li>`
-        ).join('');
-
         // 전체 목록 (가나다 순)
         const sortedAll = [...docs].sort((a, b) => a.title.localeCompare(b.title));
         allDocsList.innerHTML = sortedAll.map(doc => 
@@ -238,7 +231,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     cancelBtn.onclick = () => {
         if (currentDocId) toggleEditMode(false);
         else {
-            docTitle.textContent = '근무 위키';
+            docTitle.textContent = 'Wiki';
             docBody.innerHTML = '왼쪽에서 문서를 선택하거나 새 문서를 만들어보세요.';
             toggleEditMode(false);
         }
