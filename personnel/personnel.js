@@ -116,7 +116,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function updateStaticProfile(user) {
-        document.getElementById('resNickName').textContent = user.nickname || user.name;
+        document.getElementById('resNickName').textContent = user.nickname || "-";
         document.getElementById('resSubInfo').textContent = `${user.affiliation || "-"} · ${user.position || "-"}`;
         resPhoto.src = user.photo || "../img/default-profile.png";
         currentPhotoBase64 = user.photo || "";
@@ -145,7 +145,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (s.showDday !== false) {
                 const itemDday = document.createElement('div');
                 itemDday.className = 'info-item custom-schedule-item view-mode highlight';
-                itemDday.innerHTML = `<label>${s.label} D-Day</label><span class="value" id="val-cust-dday-${s.label.replace(/\s/g, '')}">-</span>`;
+                itemDday.innerHTML = `<label>${s.label}</label><span class="value" id="val-cust-dday-${s.label.replace(/\s/g, '')}">-</span>`;
                 scheduleInfoGrid.appendChild(itemDday);
             }
         });
@@ -320,7 +320,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             } else if (today <= vE) {
                 document.getElementById('resVacDday').textContent = "휴가 중";
             } else {
-                document.getElementById('resVacDday').textContent = "종료";
+                document.getElementById('resVacRange').textContent = "-";
+                document.getElementById('resVacDday').textContent = "-";
             }
         } else {
             document.getElementById('resVacRange').textContent = "-";
