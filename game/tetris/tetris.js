@@ -423,6 +423,11 @@ const player = {
 };
 
 document.addEventListener('keydown', event => {
+    // 게임에 사용되는 키들의 기본 동작(스크롤 등) 방지
+    if ([32, 37, 38, 39, 40, 80, 67].includes(event.keyCode)) {
+        event.preventDefault();
+    }
+
     if (event.keyCode === 80) { // P
         togglePause();
         return;
