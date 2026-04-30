@@ -361,8 +361,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (dateEl) dateEl.textContent = targetStr;
             if (vDy && s.showDday !== false) { 
                 const custDday = getDday(targetStr);
-                const custSuffix = custDday.startsWith('D-') ? "까지" : (custDday.startsWith('D+') ? "부터" : "");
-                vDy.previousElementSibling.textContent = s.label + custSuffix;
+                let labelText = s.label;
+                if (s.period && s.period !== 'none') {
+                    labelText = "다음 " + s.label + (custDday === "D-Day" ? "" : "까지");
+                } else {
+                    const custSuffix = custDday.startsWith('D-') ? "까지" : (custDday.startsWith('D+') ? "부터" : "");
+                    labelText += custSuffix;
+                }
+                vDy.previousElementSibling.textContent = labelText;
                 vDy.textContent = custDday; 
             }
         });
