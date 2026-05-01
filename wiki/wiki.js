@@ -105,60 +105,176 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function parseMarkdown(markdown) {
         if (!markdown) return "";
+
+        // 1. HTML 엔티티 이스케이프 (코드 블록 제외 처리를 위해 먼저 수행)
         let html = markdown
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
             .replace(/>/g, "&gt;");
 
+        // 2. 다중 행 코드 블록 처리 (기존 마크다운 파싱에서 제외)
+        const codeBlocks = [];
+        html = html.replace(/^```(\w+)?\n([\s\S]*?)\n```/gm, (match, lang, content) => {
+            const id = `__CODE_BLOCK_${codeBlocks.length}__`;
+            codeBlocks.push(`<pre><code class="language-${lang || 'none'}">${content}</code></pre>`);
+            return id;
+        });
+
         const lines = html.split('\n');
         let result = [];
-        let listStack = []; // { type: 'ul'|'ol', indent: number }
+        let listStack = [];
+        let inTable = false;
+        let tableRows = [];
 
-        function closeLists(targetIndent = -1) {
-            while (listStack.length > 0 && listStack[listStack.length - 1].indent > targetIndent) {
+        function closeLists() {
+            while (listStack.length > 0) {
                 result.push(`</${listStack.pop().type}>`);
             }
         }
 
+        function closeTable() {
+            if (inTable) {
+                result.push(renderTable(tableRows));
+                tableRows = [];
+                inTable = false;
+            }
+        }
+
+        function renderTable(rows) {
+            if (rows.length < 2) return rows.join('<br>');
+            const splitRow = (row) => {
+                let parts = row.trim().split('|');
+                if (parts[0] === '') parts.shift();
+                if (parts[parts.length - 1] === '') parts.pop();
+                return parts.map(p => p.trim());
+            };
+
+            const headers = splitRow(rows[0]);
+            const separator = splitRow(rows[1]);
+            
+            if (!separator.every(s => /^-+$/.test(s))) {
+                return rows.map(r => `<p>${parseInline(r)}</p>`).join('\n');
+            }
+
+            let tableHtml = '<table><thead><tr>';
+            headers.forEach(h => tableHtml += `<th>${parseInline(h)}</th>`);
+            tableHtml += '</tr></thead><tbody>';
+
+            for (let i = 2; i < rows.length; i++) {
+                const cols = splitRow(rows[i]);
+                tableHtml += '<tr>';
+                // 헤더 개수에 맞춰 셀 생성
+                for (let j = 0; j < headers.length; j++) {
+                    tableHtml += `<td>${parseInline(cols[j] || '')}</td>`;
+                }
+                tableHtml += '</tr>';
+            }
+            tableHtml += '</tbody></table>';
+            return tableHtml;
+        }
+
+        function parseInline(text) {
+            if (!text) return "";
+            let inline = text;
+            
+            // 이스케이프 문자 처리 (\` -> `, \\ -> \)
+            inline = inline.replace(/\\`/g, '&#96;').replace(/\\\\/g, '&#92;');
+
+            // 이미지: ![alt](url)
+            inline = inline.replace(/!\[(.*?)\]\((.*?)\)/g, '<img src="$2" alt="$1" class="wiki-img">');
+
+            // 내부 링크: [[문서명#섹션|표시명]]
+            inline = inline.replace(/\[\[(.*?)(#(.*?))?(\|(.*?))?\]\]/g, (match, docName, hashPart, hash, pipePart, displayText) => {
+                const finalDocName = docName ? docName.trim() : "";
+                const finalHash = hash ? hash.trim() : "";
+                const finalDisplay = displayText ? displayText.trim() : (finalDocName + (finalHash ? '#' + finalHash : ""));
+                return `<a class="wiki-internal-link" data-target="${finalDocName}" data-hash="${finalHash}" href="#">${finalDisplay}</a>`;
+            });
+
+            // 외부 링크: [표시명](주소)
+            inline = inline.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>');
+
+            // 글자 모양 (중첩 가능하도록 순차 처리)
+            inline = inline.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            inline = inline.replace(/\*(.*?)\*/g, '<em>$1</em>');
+            inline = inline.replace(/~(.*?)~/g, '<del>$1</del>');
+            inline = inline.replace(/`(.*?)`/g, '<code>$1</code>');
+
+            return inline;
+        }
+
         lines.forEach(line => {
             const trimmed = line.trim();
-            const indent = line.search(/\S/);
             
-            // 제목 (Header)
-            if (trimmed.startsWith('### ')) {
+            // 코드 블록 치환자 처리
+            if (trimmed.startsWith('__CODE_BLOCK_') && trimmed.endsWith('__')) {
                 closeLists();
-                const title = trimmed.slice(4).trim();
-                result.push(`<h3 id="${title}">${title}</h3>`);
-            } else if (trimmed.startsWith('## ')) {
-                closeLists();
-                const title = trimmed.slice(3).trim();
-                result.push(`<h2 id="${title}">${title}</h2>`);
-            } else if (trimmed.startsWith('# ')) {
-                closeLists();
-                const title = trimmed.slice(2).trim();
-                result.push(`<h1 id="${title}">${title}</h1>`);
+                closeTable();
+                result.push(trimmed);
+                return;
             }
-            // 인용문 (Blockquote)
-            else if (trimmed.startsWith('&gt; ')) {
+
+            // 1. 제목 (Headers)
+            const headerMatch = line.match(/^(#{1,6})\s+(.*)$/);
+            if (headerMatch) {
                 closeLists();
-                result.push(`<blockquote>${trimmed.slice(5)}</blockquote>`);
+                closeTable();
+                const level = headerMatch[1].length;
+                const content = parseInline(headerMatch[2]);
+                const id = content.replace(/<\/?[^>]+(>|$)/g, "").replace(/\s+/g, "-").trim();
+                result.push(`<h${level} id="${id}">${content}</h${level}>`);
+                return;
             }
-            // 구분선 (Horizontal Rule)
-            else if (trimmed === '---' || trimmed === '***') {
+
+            // 2. 구분선 (Horizontal Rule)
+            if (trimmed === '---' || trimmed === '***') {
                 closeLists();
+                closeTable();
                 result.push('<hr>');
+                return;
             }
-            // 목록 (List)
-            else if (/^([-*]|\d+\.)\s/.test(trimmed)) {
-                const isOrdered = /^\d+\.\s/.test(trimmed);
-                const type = isOrdered ? 'ol' : 'ul';
-                const content = isOrdered ? trimmed.replace(/^\d+\.\s/, '') : trimmed.slice(2);
+
+            // 3. 인용구 (Blockquote)
+            if (trimmed.startsWith('&gt;')) {
+                closeLists();
+                closeTable();
+                const content = parseInline(line.replace(/^\s*&gt;\s?/, ''));
+                result.push(`<blockquote>${content}</blockquote>`);
+                return;
+            }
+
+            // 4. 표 (Table)
+            if (trimmed.startsWith('|') && trimmed.endsWith('|')) {
+                closeLists();
+                inTable = true;
+                tableRows.push(line);
+                return;
+            } else if (inTable && trimmed !== '') {
+                // 표 진행 중
+                tableRows.push(line);
+                return;
+            } else {
+                closeTable();
+            }
+
+            // 5. 목록 (List)
+            const ulMatch = line.match(/^(\s*)([-*+])\s+(.*)$/);
+            // 숫자 목록 및 2-1. 형태 대응
+            const olMatch = line.match(/^(\s*)(\d+[\d.-]*\.)\s+(.*)$/);
+            
+            if (ulMatch || olMatch) {
+                const indent = (ulMatch || olMatch)[1].length;
+                const type = ulMatch ? 'ul' : 'ol';
+                const content = parseInline((ulMatch || olMatch)[3]);
 
                 if (listStack.length === 0 || indent > listStack[listStack.length - 1].indent) {
                     result.push(`<${type}>`);
                     listStack.push({ type, indent });
                 } else if (indent < listStack[listStack.length - 1].indent) {
-                    closeLists(indent);
+                    while (listStack.length > 0 && indent < listStack[listStack.length - 1].indent) {
+                        result.push(`</${listStack.pop().type}>`);
+                    }
+                    // 들여쓰기는 같은데 타입이 다른 경우 처리
                     if (listStack.length > 0 && listStack[listStack.length - 1].type !== type) {
                         result.push(`</${listStack.pop().type}>`);
                         result.push(`<${type}>`);
@@ -171,42 +287,30 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
 
                 result.push(`<li>${content}</li>`);
-            }
-            // 빈 줄
-            else if (trimmed === '') {
+                return;
+            } else {
                 closeLists();
+            }
+
+            // 6. 일반 텍스트 및 빈 줄
+            if (trimmed === '') {
                 result.push('<br>');
-            }
-            // 일반 텍스트 (Paragraph)
-            else {
-                closeLists();
-                result.push(`<p>${line}</p>`);
+            } else {
+                result.push(`<p>${parseInline(line)}</p>`);
             }
         });
 
         closeLists();
+        closeTable();
 
-        html = result.join('\n');
+        let finalHtml = result.join('\n');
 
-        // 나무위키 스타일 내부 링크 처리 [[문서명#섹션|표시텍스트]]
-        html = html.replace(/\[\[(.*?)(#(.*?))?(\|(.*?))?\]\]/g, (match, docName, hashPart, hash, pipePart, displayText) => {
-            const finalDocName = docName ? docName.trim() : "";
-            const finalHash = hash ? hash.trim() : "";
-            const finalDisplay = displayText ? displayText.trim() : (finalDocName + (finalHash ? '#' + finalHash : ""));
-            
-            return `<a class="wiki-internal-link" data-target="${finalDocName}" data-hash="${finalHash}" href="#">${finalDisplay}</a>`;
+        // 코드 블록 복원
+        codeBlocks.forEach((block, index) => {
+            finalHtml = finalHtml.replace(`__CODE_BLOCK_${index}__`, block);
         });
 
-        // 인라인 요소 처리
-        html = html
-            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-            .replace(/__(.*?)__/g, '<strong>$1</strong>')
-            .replace(/\*(.*?)\*/g, '<em>$1</em>')
-            .replace(/_(.*?)_/g, '<em>$1</em>')
-            .replace(/`(.*?)`/g, '<code>$1</code>')
-            .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>');
-
-        return html;
+        return finalHtml;
     }
 
     function generateTOC() {
