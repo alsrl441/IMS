@@ -163,22 +163,23 @@
 .wiki-body th { background: #f8f9fa; font-weight: 700; }
 
 .wiki-body code {
-    background: #f1f3f5;
-    padding: 2px 5px;
+    background: #343a40;
+    padding: 2px 6px;
     border-radius: 4px;
-    font-family: 'Consolas', monospace;
-    color: #e64980;
+    font-family: 'Consolas', 'Monaco', monospace;
+    color: #e9ecef;
     font-size: 0.9em;
 }
 
 .wiki-body pre {
-    background: #212529;
-    color: #f8f9fa;
+    background: #343a40;
+    color: #e9ecef;
     padding: 15px;
     border-radius: 6px;
     overflow-x: auto;
     margin: 20px 0;
     line-height: 1.5;
+    border: 1px solid #495057;
 }
 
 .wiki-body pre code {
@@ -186,6 +187,7 @@
     padding: 0;
     color: inherit;
     font-size: 0.9rem;
+    border: none;
 }
 
 .wiki-img {

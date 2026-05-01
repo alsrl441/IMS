@@ -106,17 +106,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     function parseMarkdown(markdown) {
         if (!markdown) return "";
 
-        // 1. HTML 엔티티 이스케이프 (코드 블록 제외 처리를 위해 먼저 수행)
+        // 1. HTML 엔티티 이스케이프 (기본 보안)
         let html = markdown
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
             .replace(/>/g, "&gt;");
 
-        // 2. 다중 행 코드 블록 처리 (기존 마크다운 파싱에서 제외)
+        // 2. 다중 행 코드 블록 처리 (``` 사용)
+        // 코드 내의 이스케이프(\`, \\)를 먼저 처리한 후 추출
         const codeBlocks = [];
         html = html.replace(/^```(\w+)?\n([\s\S]*?)\n```/gm, (match, lang, content) => {
             const id = `__CODE_BLOCK_${codeBlocks.length}__`;
-            codeBlocks.push(`<pre><code class="language-${lang || 'none'}">${content}</code></pre>`);
+            // 코드 블록 내부의 \` -> ` , \\ -> \ 변환
+            let cleanContent = content
+                .replace(/\\`/g, '`')
+                .replace(/\\\\/g, '\\');
+            codeBlocks.push(`<pre><code class="language-${lang || 'none'}">${cleanContent}</code></pre>`);
             return id;
         });
 
@@ -163,7 +168,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             for (let i = 2; i < rows.length; i++) {
                 const cols = splitRow(rows[i]);
                 tableHtml += '<tr>';
-                // 헤더 개수에 맞춰 셀 생성
                 for (let j = 0; j < headers.length; j++) {
                     tableHtml += `<td>${parseInline(cols[j] || '')}</td>`;
                 }
@@ -176,9 +180,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         function parseInline(text) {
             if (!text) return "";
             let inline = text;
-            
-            // 이스케이프 문자 처리 (\` -> `, \\ -> \)
-            inline = inline.replace(/\\`/g, '&#96;').replace(/\\\\/g, '&#92;');
+
+            // 인라인 코드 우선 처리 (백틱 1개)
+            // 인라인 코드 내부에서도 \`와 \\ 이스케이프 지원
+            inline = inline.replace(/`((?:\\`|\\\\|[^`])+)`/g, (match, content) => {
+                let cleanContent = content
+                    .replace(/\\`/g, '&#96;')
+                    .replace(/\\\\/g, '&#92;');
+                return `<code>${cleanContent}</code>`;
+            });
 
             // 이미지: ![alt](url)
             inline = inline.replace(/!\[(.*?)\]\((.*?)\)/g, '<img src="$2" alt="$1" class="wiki-img">');
@@ -194,11 +204,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             // 외부 링크: [표시명](주소)
             inline = inline.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>');
 
-            // 글자 모양 (중첩 가능하도록 순차 처리)
+            // 글자 모양
             inline = inline.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
             inline = inline.replace(/\*(.*?)\*/g, '<em>$1</em>');
             inline = inline.replace(/~(.*?)~/g, '<del>$1</del>');
-            inline = inline.replace(/`(.*?)`/g, '<code>$1</code>');
 
             return inline;
         }
