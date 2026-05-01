@@ -170,11 +170,11 @@
 .wiki-body th { background: #f8f9fa; font-weight: 700; }
 
 .wiki-body code {
-    background: #ccc;
+    background: #ddd;
     padding: 2px 6px;
     border-radius: 4px;
     font-family: 'Consolas', 'Monaco', monospace;
-    color: #888888;
+    color: #444;
     font-size: 0.9em;
 }
 
