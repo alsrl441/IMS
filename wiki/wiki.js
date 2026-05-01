@@ -56,6 +56,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         currentDocId = id;
         docTitle.textContent = doc.title;
         
+        // 최근 수정일 표시
+        const lastUpdateEl = document.getElementById('wikiLastUpdate');
+        if (doc.updatedAt) {
+            const date = new Date(doc.updatedAt);
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            const hh = String(date.getHours()).padStart(2, '0');
+            const mm = String(date.getMinutes()).padStart(2, '0');
+            const ss = String(date.getSeconds()).padStart(2, '0');
+            lastUpdateEl.textContent = `최근 수정일: ${y}-${m}-${d} ${hh}:${mm}:${ss}`;
+            lastUpdateEl.classList.remove('hidden');
+        } else {
+            lastUpdateEl.classList.add('hidden');
+        }
+        
         // 커스텀 바닐라 JS 마크다운 파서 사용
         docBody.innerHTML = parseMarkdown(doc.content);
         

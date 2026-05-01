@@ -82,6 +82,13 @@
     gap: 10px;
 }
 
+.wiki-last-update {
+    font-size: 0.85rem;
+    color: #868e96;
+    margin-bottom: 10px;
+    text-align: right;
+}
+
 /* Table of Contents (TOC) */
 .wiki-toc {
     background: #f8f9fa;
