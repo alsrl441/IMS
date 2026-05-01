@@ -317,10 +317,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         // 모든 헤더(h1~h6)를 가져옴
         const headers = Array.from(docBody.querySelectorAll('h1, h2, h3, h4, h5, h6'));
         
-        // 필터링: H1이거나, 숫자로 시작하는 순서 있는 목록 형태의 제목만 포함
+        // 필터링: 모든 레벨(H1~H6)에 대해 숫자로 시작하는 '순서 있는 목록' 형태만 포함
         const tocHeaders = headers.filter(h => {
-            if (h.tagName === 'H1') return true;
-            // 텍스트가 숫자 또는 "숫자-숫자." 등으로 시작하는지 확인
+            // 텍스트가 숫자 또는 "숫자-숫자." 등으로 시작하는지 엄격히 확인
             return /^(\d+[\d.-]*\.)/.test(h.textContent.trim());
         });
 
@@ -337,7 +336,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const id = h.id;
             const li = document.createElement('li');
             
-            // 레벨에 따른 들여쓰기 적용 (H1: 0, H2: 15px, H3: 30px ...)
+            // 레벨에 따른 들여쓰기 적용
             li.style.paddingLeft = `${(level - 1) * 15}px`;
             
             const a = document.createElement('a');
