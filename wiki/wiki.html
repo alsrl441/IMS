@@ -3,20 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wiki - CCSS</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>IMS</title>
     <link rel="stylesheet" href="../style.css">
-    <link rel="stylesheet" href="wiki.css">
+    <link rel="stylesheet" href="./wiki.css">
 </head>
-<body class="bg-light">
+<body>
     <nav class="navbar">
         <div class="container navbar-container">
             <div class="navbar-nav">
                 <div class="nav-item">
-                    <a href="../index.html" class="nav-link">대시보드</a>
+                    <a href="#" class="nav-link active">홈</a>
                 </div>
                 <div class="nav-item">
-                    <a href="#" class="nav-link active">업무</a>
+                    <a href="#" class="nav-link">업무</a>
                 </div>
                 <div class="nav-item">
                     <a href="#" class="nav-link">비업무</a>
@@ -36,10 +35,12 @@
                     <a href="../shipDB/identified/identified.html" class="mega-menu-item">식별 선박 DB</a>
                     <a href="../shipDB/unidentified/unidentified.html" class="mega-menu-item">미식별 선박 DB</a>
                     <a href="../shipTrace/shipTrace.html" class="mega-menu-item">선박 추적</a>
+                    <a href="../workSchedule/workSchedule.html" class="mega-menu-item">근무표</a>
                 </div>
                 <div class="mega-menu-column">
                     <a href="../personnel/personnel.html" class="mega-menu-item">인사 정보</a>
-                    <a href="wiki.html" class="mega-menu-item">Wiki</a>
+                    <a href="./wiki.html" class="mega-menu-item">Wiki</a>
+                    <a href="../mealSchedule/mealSchedule.html" class="mega-menu-item">식단표</a>
                     <a href="../game/game.html" class="mega-menu-item game-link">놀이터</a>
                 </div>
             </div>
@@ -53,7 +54,7 @@
                 <!-- View Mode -->
                 <div id="wikiViewArea" class="view-mode">
                     <div class="wiki-header">
-                        <h1 id="docTitle" class="wiki-page-title">Wiki에 오신 것을 환영합니다</h1>
+                        <h1 id="docTitle" class="wiki-page-title">Wiki</h1>
                         <div class="wiki-actions">
                             <button id="editDocBtn" class="btn-minimal-xs"><i class="fas fa-edit"></i> 편집</button>
                             <button id="deleteDocBtn" class="btn-minimal-xs text-danger"><i class="fas fa-trash"></i> 삭제</button>
@@ -75,7 +76,7 @@
                         <input type="text" id="editDocTitle" class="form-control-custom wiki-title-input" placeholder="문서 제목">
                     </div>
                     <div class="wiki-editor-wrapper mt-3">
-                        <textarea id="markdownEditor" class="wiki-textarea" placeholder="마크다운으로 내용을 작성하세요..."></textarea>
+                        <textarea id="markdownEditor" class="wiki-textarea" placeholder="내용을 작성하세요."></textarea>
                     </div>
                     <div class="wiki-edit-actions mt-3">
                         <button id="saveDocBtn" class="btn-action btn-save">저장</button>
@@ -89,10 +90,10 @@
                 <div class="sidebar-section">
                     <div class="search-box mb-3">
                         <label class="sidebar-title" style="border:none; margin-bottom:5px;">문서 검색</label>
-                        <input type="text" id="wikiSearch" class="form-control-custom" placeholder="검색어 입력...">
+                        <input type="text" id="wikiSearch" class="form-control-custom" placeholder="검색어 입력">
                     </div>
                     <button id="createNewDocBtn" class="btn-action btn-save w-100 mb-4">
-                        <i class="fas fa-plus me-2"></i>새 문서 만들기
+                        <i class="fas fa-plus me-2"></i>새 문서
                     </button>
                     <h5 class="sidebar-title">문서 목록</h5>
                     <ul id="allDocs" class="sidebar-list">
@@ -105,15 +106,17 @@
 
     <footer class="footer">
         <div class="container text-center">
-            <div class="btn-group">
-                <a href="../databaseManager/databaseManager.html" target="_blank" class="btn-outline">DBM</a>
-                <a href="#" target="_blank" class="btn-outline">국방인사정보체계</a>
-                <a href="#" target="_blank" class="btn-outline">제96보병여단</a>
+            <div class="footer-links">
+                <a href="databaseManager/databaseManager.html" target="_blank">DBM</a>
+                <span class="sep">|</span>
+                <a href="#">국방인사정보체계</a>
+                <span class="sep">|</span>
+                <a href="#">제96보병여단</a>
             </div>
         </div>
     </footer>
 
     <script src="../script.js"></script>
-    <script src="wiki.js"></script>
+    <script src="./wiki.js"></script>
 </body>
 </html>
