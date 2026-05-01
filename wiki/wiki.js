@@ -194,11 +194,23 @@ document.addEventListener('DOMContentLoaded', async () => {
             // 이미지: ![alt](url)
             inline = inline.replace(/!\[(.*?)\]\((.*?)\)/g, '<img src="$2" alt="$1" class="wiki-img">');
 
-            // 내부 링크
-            inline = inline.replace(/\[\[(.*?)(#(.*?))?(\|(.*?))?\]\]/g, (match, docName, hashPart, hash, pipePart, displayText) => {
+            // 내부 링크: [[문서명#섹션|표시명]]
+            // 정규식 개선: [[ (문서명)? (#섹션)? (|표시명)? ]]
+            inline = inline.replace(/\[\[([^|#\]]+)?(?:#([^|\]]+))?(?:\|([^\]]+))?\]\]/g, (match, docName, hash, displayText) => {
                 const finalDocName = docName ? docName.trim() : "";
-                const finalHash = hash ? hash.trim() : "";
-                const finalDisplay = displayText ? displayText.trim() : (finalDocName + (finalHash ? '#' + finalHash : ""));
+                const rawHash = hash ? hash.trim() : "";
+                // ID와 매칭되도록 해시의 공백을 하이픈으로 변경
+                const finalHash = rawHash.replace(/\s+/g, "-");
+                
+                let finalDisplay = "";
+                if (displayText) {
+                    finalDisplay = displayText.trim();
+                } else {
+                    // 표시명이 없으면 [문서명#섹션] 형태를 기본으로 하되, 하나가 없으면 있는 것만 표시
+                    if (finalDocName && rawHash) finalDisplay = `${finalDocName}#${rawHash}`;
+                    else finalDisplay = finalDocName || rawHash;
+                }
+                
                 return `<a class="wiki-internal-link" data-target="${finalDocName}" data-hash="${finalHash}" href="#">${finalDisplay}</a>`;
             });
 
