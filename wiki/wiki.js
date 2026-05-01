@@ -314,19 +314,42 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function generateTOC() {
-        const headers = docBody.querySelectorAll('h2, h3');
-        if (headers.length === 0) {
+        // 모든 헤더(h1~h6)를 가져옴
+        const headers = Array.from(docBody.querySelectorAll('h1, h2, h3, h4, h5, h6'));
+        
+        // 필터링: H1이거나, 숫자로 시작하는 순서 있는 목록 형태의 제목만 포함
+        const tocHeaders = headers.filter(h => {
+            if (h.tagName === 'H1') return true;
+            // 텍스트가 숫자 또는 "숫자-숫자." 등으로 시작하는지 확인
+            return /^(\d+[\d.-]*\.)/.test(h.textContent.trim());
+        });
+
+        if (tocHeaders.length === 0) {
             wikiToc.classList.add('hidden');
             return;
         }
 
         wikiToc.classList.remove('hidden');
         tocList.innerHTML = '';
-        headers.forEach((h) => {
+        
+        tocHeaders.forEach((h) => {
+            const level = parseInt(h.tagName.substring(1));
             const id = h.id;
             const li = document.createElement('li');
-            li.style.paddingLeft = h.tagName === 'H3' ? '15px' : '0';
-            li.innerHTML = `<a href="#${id}">${h.textContent}</a>`;
+            
+            // 레벨에 따른 들여쓰기 적용 (H1: 0, H2: 15px, H3: 30px ...)
+            li.style.paddingLeft = `${(level - 1) * 15}px`;
+            
+            const a = document.createElement('a');
+            a.href = `#${id}`;
+            a.textContent = h.textContent;
+            a.onclick = (e) => {
+                e.preventDefault();
+                const target = document.getElementById(id);
+                if (target) target.scrollIntoView({ behavior: 'smooth' });
+            };
+            
+            li.appendChild(a);
             tocList.appendChild(li);
         });
     }
