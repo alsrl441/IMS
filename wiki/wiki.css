@@ -73,7 +73,7 @@
 .wiki-page-title {
     font-size: 1.8rem;
     font-weight: 800;
-    color: #212529;
+    color: #222222;
     margin: 0;
 }
 
@@ -84,7 +84,7 @@
 
 .wiki-last-update {
     font-size: 0.85rem;
-    color: #868e96;
+    color: #888888;
     margin-bottom: 10px;
     text-align: right;
 }
@@ -170,11 +170,11 @@
 .wiki-body th { background: #f8f9fa; font-weight: 700; }
 
 .wiki-body code {
-    background: #343a40;
+    background: #ccc;
     padding: 2px 6px;
     border-radius: 4px;
     font-family: 'Consolas', 'Monaco', monospace;
-    color: #e9ecef;
+    color: #888888;
     font-size: 0.9em;
 }
 
