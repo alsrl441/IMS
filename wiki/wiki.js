@@ -237,6 +237,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             inline = inline.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
             inline = inline.replace(/\*(.*?)\*/g, '<em>$1</em>');
             inline = inline.replace(/~(.*?)~/g, '<del>$1</del>');
+            inline = inline.replace(/_(.*?)_/g, '<u>$1</u>');
 
             // [복원] 인라인 코드 복원
             inlineCodes.forEach((code, i) => {
