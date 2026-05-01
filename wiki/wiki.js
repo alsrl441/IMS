@@ -106,23 +106,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     function parseMarkdown(markdown) {
         if (!markdown) return "";
 
-        // 1. HTML 엔티티 이스케이프 (기본 보안)
+        // 1. HTML 엔티티 이스케이프
         let html = markdown
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
             .replace(/>/g, "&gt;");
 
         // 2. 다중 행 코드 블록 처리 (``` 사용)
-        // 코드 내의 이스케이프(\`, \\)를 먼저 처리한 후 추출
         const codeBlocks = [];
-        html = html.replace(/^```(\w+)?\n([\s\S]*?)\n```/gm, (match, lang, content) => {
+        // 정규식 개선: 줄 시작 공백 허용 및 placeholder 전후 줄바꿈 관리
+        html = html.replace(/(?:^|\n)\s*```(\w+)?\n([\s\S]*?)\n\s*```/g, (match, lang, content) => {
             const id = `__CODE_BLOCK_${codeBlocks.length}__`;
-            // 코드 블록 내부의 \` -> ` , \\ -> \ 변환
             let cleanContent = content
-                .replace(/\\`/g, '`')
-                .replace(/\\\\/g, '\\');
+                .replace(/\\`/g, '&#96;')
+                .replace(/\\\\/g, '&#92;');
             codeBlocks.push(`<pre><code class="language-${lang || 'none'}">${cleanContent}</code></pre>`);
-            return id;
+            return `\n${id}\n`;
         });
 
         const lines = html.split('\n');
@@ -180,20 +179,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         function parseInline(text) {
             if (!text) return "";
             let inline = text;
+            const inlineCodes = [];
 
-            // 인라인 코드 우선 처리 (백틱 1개)
-            // 인라인 코드 내부에서도 \`와 \\ 이스케이프 지원
+            // [보호] 인라인 코드 추출
             inline = inline.replace(/`((?:\\`|\\\\|[^`])+)`/g, (match, content) => {
+                const placeholder = `__INLINE_CODE_${inlineCodes.length}__`;
                 let cleanContent = content
                     .replace(/\\`/g, '&#96;')
                     .replace(/\\\\/g, '&#92;');
-                return `<code>${cleanContent}</code>`;
+                inlineCodes.push(`<code>${cleanContent}</code>`);
+                return placeholder;
             });
 
             // 이미지: ![alt](url)
             inline = inline.replace(/!\[(.*?)\]\((.*?)\)/g, '<img src="$2" alt="$1" class="wiki-img">');
 
-            // 내부 링크: [[문서명#섹션|표시명]]
+            // 내부 링크
             inline = inline.replace(/\[\[(.*?)(#(.*?))?(\|(.*?))?\]\]/g, (match, docName, hashPart, hash, pipePart, displayText) => {
                 const finalDocName = docName ? docName.trim() : "";
                 const finalHash = hash ? hash.trim() : "";
@@ -201,7 +202,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return `<a class="wiki-internal-link" data-target="${finalDocName}" data-hash="${finalHash}" href="#">${finalDisplay}</a>`;
             });
 
-            // 외부 링크: [표시명](주소)
+            // 외부 링크
             inline = inline.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>');
 
             // 글자 모양
@@ -209,14 +210,19 @@ document.addEventListener('DOMContentLoaded', async () => {
             inline = inline.replace(/\*(.*?)\*/g, '<em>$1</em>');
             inline = inline.replace(/~(.*?)~/g, '<del>$1</del>');
 
+            // [복원] 인라인 코드 복원
+            inlineCodes.forEach((code, i) => {
+                inline = inline.replace(`__INLINE_CODE_${i}__`, code);
+            });
+
             return inline;
         }
 
         lines.forEach(line => {
             const trimmed = line.trim();
             
-            // 코드 블록 치환자 처리
-            if (trimmed.startsWith('__CODE_BLOCK_') && trimmed.endsWith('__')) {
+            // 다중 행 코드 블록 치환자 처리
+            if (/^__CODE_BLOCK_\d+__$/.test(trimmed)) {
                 closeLists();
                 closeTable();
                 result.push(trimmed);
