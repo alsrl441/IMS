@@ -1,3 +1,15 @@
+.dbm-page {
+    overflow: auto;
+    background-color: #fcfcfc;
+}
+
+.container-fluid {
+    width: 100%;
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
 /* DBM Layout */
 .dbm-layout {
     display: flex;
