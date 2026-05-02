@@ -46,7 +46,7 @@ async function refreshTree() {
     }
 }
 
-function createItemUI(text, type) {
+function createItemUI(text, type, parentDB = null) {
     const wrap = document.createElement('div');
     const item = document.createElement('div');
     item.className = 'tree-item';
@@ -54,7 +54,7 @@ function createItemUI(text, type) {
     const label = document.createElement('div');
     label.className = 'tree-label';
     label.innerHTML = `<span>${text}</span>`;
-    label.onclick = () => (type === 'db') ? toggleDB(text, wrap) : openStore(currentDB, text);
+    label.onclick = () => (type === 'db') ? toggleDB(text, wrap) : openStore(parentDB, text);
     
     const actions = document.createElement('div');
     actions.className = 'item-actions';
@@ -62,7 +62,10 @@ function createItemUI(text, type) {
     const delBtn = document.createElement('button');
     delBtn.className = 'btn-sm-outline btn-del-sm';
     delBtn.textContent = '삭제';
-    delBtn.onclick = (e) => { e.stopPropagation(); deleteTarget(text, type); };
+    delBtn.onclick = (e) => { 
+        e.stopPropagation(); 
+        deleteTarget(text, type, parentDB); 
+    };
     
     actions.appendChild(delBtn);
     item.appendChild(label);
@@ -72,7 +75,6 @@ function createItemUI(text, type) {
 }
 
 async function toggleDB(dbName, wrap) {
-    currentDB = dbName;
     const existing = wrap.querySelector('.indent');
     if (existing) { 
         existing.remove(); 
@@ -92,15 +94,17 @@ async function toggleDB(dbName, wrap) {
             empty.textContent = "(스토어 없음)";
             container.appendChild(empty);
         } else {
-            stores.sort().forEach(sName => container.appendChild(createItemUI(sName, 'store')));
+            stores.sort().forEach(sName => container.appendChild(createItemUI(sName, 'store', dbName)));
         }
         wrap.appendChild(container); 
         db.close();
     };
+    req.onerror = () => logToConsole(`DB [${dbName}] 열기 실패.`, 'error');
 }
 
 // Data Handling
 async function openStore(dbName, storeName) {
+    if (!dbName || !storeName) return;
     currentDB = dbName;
     currentStore = storeName;
     pathDisplay.textContent = `${dbName} > ${storeName}`;
@@ -108,22 +112,35 @@ async function openStore(dbName, storeName) {
     const req = indexedDB.open(dbName);
     req.onsuccess = (e) => {
         const db = e.target.result;
-        const tx = db.transaction(storeName, 'readonly');
-        const store = tx.objectStore(storeName);
-        const data = [];
-        
-        store.openCursor().onsuccess = (ev) => {
-            const cursor = ev.target.result;
-            if (cursor) {
-                data.push({ _key: cursor.key, ...cursor.value });
-                cursor.continue();
-            } else {
-                renderTable(data);
-                db.close();
-                logToConsole(`스토어 [${storeName}] 로드 완료. (${data.length}개 레코드)`, 'success');
+        try {
+            if (!db.objectStoreNames.contains(storeName)) {
+                throw new Error(`스토어 [${storeName}]를 찾을 수 없습니다.`);
             }
-        };
+            const tx = db.transaction(storeName, 'readonly');
+            const store = tx.objectStore(storeName);
+            const data = [];
+            
+            store.openCursor().onsuccess = (ev) => {
+                const cursor = ev.target.result;
+                if (cursor) {
+                    data.push({ _key: cursor.key, ...cursor.value });
+                    cursor.continue();
+                } else {
+                    renderTable(data);
+                    db.close();
+                    logToConsole(`스토어 [${storeName}] 로드 완료. (${data.length}개 레코드)`, 'success');
+                }
+            };
+            tx.onerror = (err) => {
+                logToConsole(`트랜잭션 오류: ${err.target.error}`, 'error');
+                db.close();
+            };
+        } catch (err) {
+            logToConsole(`오류: ${err.message}`, 'error');
+            db.close();
+        }
     };
+    req.onerror = () => logToConsole(`DB [${dbName}] 열기 실패.`, 'error');
 }
 
 function renderTable(data) {
