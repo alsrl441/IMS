@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Database Manager</title>
+    <title>IMS - Database Manager</title>
     <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="databaseManager.css">
 </head>
@@ -47,60 +47,75 @@
         </div>
     </nav>
 
-<div id="password-overlay">
-    <div class="password-box">
-        <h3>[ Access Locked ]</h3>
-        <p>Please enter password.</p>
-        <input type="password" id="db-password" placeholder="Password" onkeydown="if(event.key==='Enter') verifyPassword()">
-        <button onclick="verifyPassword()" class="btn btn-primary">Verify</button>
-        <div id="pw-error" class="log-error" style="margin-top: 10px; font-size: 0.8rem; display: none;">wrong password.</div>
+    <div id="password-overlay">
+        <div class="password-box">
+            <h3>[ Access Locked ]</h3>
+            <p>데이터 관리를 위해 비밀번호를 입력하세요.</p>
+            <input type="password" id="db-password" placeholder="Password" onkeydown="if(event.key==='Enter') verifyPassword()">
+            <button onclick="verifyPassword()" class="btn btn-primary">인증</button>
+            <div id="pw-error" class="log-error" style="margin-top: 10px; font-size: 0.8rem; display: none;">비밀번호가 틀렸습니다.</div>
+        </div>
     </div>
-</div>
 
-<div class="wrapper" id="wrapper">
-    <aside id="sidebar">
-        <div class="sidebar-header">
-            <h6>DATABASE</h6>
-            <button class="add-db-btn" onclick="createNewDB()">ADD DB</button>
+    <main class="container py-4">
+        <div class="dbm-layout">
+            <!-- Sidebar: DB & Store Selection -->
+            <aside class="dbm-sidebar">
+                <section class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-title">DB 목록</h2>
+                        <button class="btn btn-sm btn-primary" onclick="createNewDB()">추가</button>
+                    </div>
+                    <div class="sidebar-body">
+                        <div id="tree-root" class="dbm-tree"></div>
+                    </div>
+                </section>
+            </aside>
+
+            <!-- Main: Data Display & Actions -->
+            <article class="dbm-content">
+                <section class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-title" id="path-display">데이터 탐색</h2>
+                        <div class="dbm-actions">
+                            <input type="file" id="import-file" class="hidden" accept=".json" onchange="handleFile(this.files[0])">
+                            <button class="btn btn-secondary" onclick="document.getElementById('import-file').click()">가져오기 (Import)</button>
+                            <button class="btn btn-primary" onclick="processExport()">내보내기 (Export)</button>
+                        </div>
+                    </div>
+                    <div class="section-body">
+                        <div id="data-preview-container" class="data-view">
+                            <div id="welcome-msg" class="empty-state">
+                                <p>왼쪽 목록에서 스토어를 선택하여 데이터를 확인하세요.</p>
+                            </div>
+                            <div id="data-table-wrapper" class="hidden">
+                                <table id="data-table">
+                                    <thead>
+                                        <tr id="table-header"></tr>
+                                    </thead>
+                                    <tbody id="table-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Console: Activity Log -->
+                <section class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-title">활동 로그</h2>
+                        <button onclick="clearConsole()" class="btn-clear">지우기</button>
+                    </div>
+                    <div id="console-log" class="console-box"></div>
+                </section>
+            </article>
         </div>
-        <div id="tree-root"></div>
-    </aside>
-
-    <main id="main">
-        <header class="header-controls">
-            <div class="path-info">
-                <span id="path-display">PATH: ROOT</span>
-                <span id="status-msg"></span>
-            </div>
-            <div class="button-group">
-                <input type="file" id="import-file" class="hidden" accept=".json,.js" onchange="handleFile(this.files[0])">
-                <button class="btn btn-outline-secondary" onclick="document.getElementById('import-file').click()">Import</button>
-                <button class="btn btn-outline-secondary" onclick="processExport()">Export</button>
-                <button class="btn btn-primary" onclick="saveData()">Save Changes</button>
-            </div>
-        </header>
-
-        <div id="editor-container">
-            <textarea id="json-editor" style="display:none;" spellcheck="false" placeholder="Enter JSON data here..."></textarea>
-            <div id="welcome-msg">
-                <h3 style="font-weight: 300;">Select a store from the sidebar.</h3>
-            </div>
-        </div>
-
-        <footer id="console-container">
-            <div class="console-header">
-                <span>CONSOLE</span>
-                <button onclick="clearConsole()" class="btn-clear">Clear</button>
-            </div>
-            <div id="console-log"></div>
-        </footer>
     </main>
-</div>
 
     <footer class="footer">
         <div class="container text-center">
             <div class="footer-links">
-                <a href="../databaseManager/databaseManager.html" target="_blank">DBM</a>
+                <a href="databaseManager.html">DBM</a>
                 <span class="sep">|</span>
                 <a href="#">국방인사정보체계</a>
                 <span class="sep">|</span>
@@ -109,7 +124,7 @@
         </div>
     </footer>
 
-<script src="../script.js"></script>
-<script src="databaseManager.js"></script>
+    <script src="../script.js"></script>
+    <script src="databaseManager.js"></script>
 </body>
 </html>
