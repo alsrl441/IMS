@@ -378,6 +378,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         const title = editDocTitle.value.trim();
         const content = markdownEditor.value;
         if (!title) return alert('제목을 입력해주세요.');
+
+        // 중복 제목 체크 (새 문서 생성 시 혹은 제목을 수정할 때)
+        const isDuplicate = documents.some(doc => 
+            doc.title === title && doc.id !== currentDocId
+        );
+        if (isDuplicate) {
+            return alert('이미 같은 제목의 문서가 존재합니다. 다른 제목을 입력해주세요.');
+        }
+
         const id = currentDocId || Date.now().toString();
         const newDoc = { id, title, content, updatedAt: Date.now() };
         await window.putDBData(STORE_NAME, newDoc);
