@@ -4,9 +4,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Database Manager</title>
+    <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="databaseManager.css">
 </head>
 <body>
+    <nav class="navbar">
+        <div class="container navbar-container">
+            <div class="navbar-nav">
+                <div class="nav-item">
+                    <a href="../index.html" class="nav-link">홈</a>
+                </div>
+                <div class="nav-item">
+                    <a href="#" class="nav-link active">업무</a>
+                </div>
+                <div class="nav-item">
+                    <a href="#" class="nav-link">비업무</a>
+                </div>
+            </div>
+            <div class="navbar-right">
+                <div id="clock" class="clock"></div>
+            </div>
+        </div>
+
+        <div class="mega-menu">
+            <div class="mega-menu-container">
+                <div class="mega-menu-column">
+                    <a href="../index.html" class="mega-menu-item">대시보드</a>
+                </div>
+                <div class="mega-menu-column">
+                    <a href="../shipDB/identified/identified.html" class="mega-menu-item">식별 선박 DB</a>
+                    <a href="../shipDB/unidentified/unidentified.html" class="mega-menu-item">미식별 선박 DB</a>
+                    <a href="../shipTrace/shipTrace.html" class="mega-menu-item">선박 추적</a>
+                    <a href="../workSchedule/workSchedule.html" class="mega-menu-item">근무표</a>
+                </div>
+                <div class="mega-menu-column">
+                    <a href="../personnel/personnel.html" class="mega-menu-item">인사 정보</a>
+                    <a href="../wiki/wiki.html" class="mega-menu-item">Wiki</a>
+                    <a href="../mealSchedule/mealSchedule.html" class="mega-menu-item">식단표</a>
+                    <a href="../game/game.html" class="mega-menu-item game-link">놀이터</a>
+                </div>
+            </div>
+        </div>
+    </nav>
 
 <div id="password-overlay">
     <div class="password-box">
@@ -58,6 +97,19 @@
     </main>
 </div>
 
+    <footer class="footer">
+        <div class="container text-center">
+            <div class="footer-links">
+                <a href="../databaseManager/databaseManager.html" target="_blank">DBM</a>
+                <span class="sep">|</span>
+                <a href="#">국방인사정보체계</a>
+                <span class="sep">|</span>
+                <a href="#">제96보병여단</a>
+            </div>
+        </div>
+    </footer>
+
+<script src="../script.js"></script>
 <script src="databaseManager.js"></script>
 </body>
 </html>
