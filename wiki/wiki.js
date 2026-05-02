@@ -120,7 +120,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // 2. 다중 행 코드 블록 보호
         const blockCodePlaceholders = [];
         html = html.replace(/(?:^|\n)```(\w+)?\n([\s\S]*?)\n```(?:\n|$)/g, (match, lang, content) => {
-            const id = `__BLOCK_CODE_${blockCodePlaceholders.length}__`;
+            const id = `BLOCK_CODE_PLC_${blockCodePlaceholders.length}`;
             let cleanContent = content
                 .replace(/\\`/g, '&#96;')
                 .replace(/\\\\/g, '&#92;');
@@ -135,7 +135,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             // [보호] 인라인 코드
             inline = inline.replace(/`((?:\\`|\\\\|[^`])+)`/g, (match, content) => {
-                const id = `__INLINE_CODE_${inlineCodePlaceholders.length}__`;
+                const id = `INLINE_CODE_PLC_${inlineCodePlaceholders.length}`;
                 let cleanContent = content
                     .replace(/\\`/g, '&#96;')
                     .replace(/\\\\/g, '&#92;');
@@ -167,7 +167,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             // [복원] 인라인 코드
             inlineCodePlaceholders.forEach((code, i) => {
-                const id = `__INLINE_CODE_${i}__`;
+                const id = `INLINE_CODE_PLC_${i}`;
                 inline = inline.split(id).join(code);
             });
 
@@ -225,7 +225,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         lines.forEach(line => {
             const trimmed = line.trim();
             
-            if (/^__BLOCK_CODE_\d+__$/.test(trimmed)) {
+            if (/^BLOCK_CODE_PLC_\d+$/.test(trimmed)) {
                 closeLists();
                 closeTable();
                 result.push(trimmed);
@@ -302,7 +302,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         let finalHtml = result.join('\n');
         blockCodePlaceholders.forEach((block, i) => {
-            const id = `__BLOCK_CODE_${i}__`;
+            const id = `BLOCK_CODE_PLC_${i}`;
             finalHtml = finalHtml.split(id).join(block);
         });
 
