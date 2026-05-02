@@ -99,7 +99,6 @@ async function loadShipsFromDB() {
                             "lastTime": "23:05",
                             "lastAzEl": "4567 89",
                             "lastPos": "송공항",
-                            "tags": ["선미 검은색 모터", "조타실 상부 항해등"],
                             "moveDirOverall": "북동진",
                             "terminationReason": "입항",
                             "movementPath": "송공항 남서쪽 1.9km에서 북동진하여 송공항에 입항.",
