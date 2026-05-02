@@ -34,9 +34,24 @@ document.addEventListener('DOMContentLoaded', async () => {
         renderSidebar(documents);
     }
 
-    function renderSidebar(docs) {
-        const sortedAll = [...docs].sort((a, b) => a.title.localeCompare(b.title));
-        allDocsList.innerHTML = sortedAll.map(doc => 
+    function renderSidebar(docs, searchTerm = '') {
+        const sortedDocs = [...docs].sort((a, b) => {
+            if (searchTerm) {
+                const getScore = (doc) => {
+                    const term = searchTerm.toLowerCase();
+                    const titleCount = (doc.title.toLowerCase().split(term).length - 1);
+                    const contentCount = (doc.content.toLowerCase().split(term).length - 1);
+                    return (titleCount * 2) + contentCount; // 제목 일치를 더 높게 가중치 부여 가능
+                };
+                const scoreA = getScore(a);
+                const scoreB = getScore(b);
+                if (scoreB !== scoreA) return scoreB - scoreA;
+            }
+            // 2순위 혹은 기본: 최근 수정일 순
+            return (b.updatedAt || 0) - (a.updatedAt || 0);
+        });
+
+        allDocsList.innerHTML = sortedDocs.map(doc => 
             `<li><a data-id="${doc.id}">${doc.title}</a></li>`
         ).join('');
 
@@ -409,7 +424,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             doc.title.toLowerCase().includes(term) || 
             doc.content.toLowerCase().includes(term)
         );
-        renderSidebar(filtered);
+        renderSidebar(filtered, term);
     };
 
     init();
