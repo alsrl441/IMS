@@ -124,6 +124,10 @@
     font-size: 1rem;
 }
 
+.wiki-body h1, .wiki-body h2, .wiki-body h3, .wiki-body h4, .wiki-body h5, .wiki-body h6 {
+    scroll-margin-top: 80px;
+}
+
 .wiki-body h2 {
     font-size: 1.4rem;
     border-bottom: 1px solid #dee2e6;
@@ -246,5 +250,87 @@
     outline: none;
     border-color: #339af0;
 }
+
+/* Button and Input Styles */
+.btn-action {
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-save {
+    background-color: #339af0;
+    color: white;
+}
+
+.btn-save:hover {
+    background-color: #228be6;
+    box-shadow: 0 4px 12px rgba(51, 154, 240, 0.3);
+}
+
+.btn-cancel {
+    background-color: #e9ecef;
+    color: #495057;
+}
+
+.btn-cancel:hover {
+    background-color: #dee2e6;
+}
+
+.btn-minimal-xs {
+    background: transparent;
+    border: 1px solid #dee2e6;
+    color: #495057;
+    padding: 4px 10px;
+    font-size: 0.8rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-minimal-xs:hover {
+    background-color: #f8f9fa;
+    border-color: #adb5bd;
+}
+
+.btn-minimal-xs.text-danger {
+    color: #fa5252;
+}
+
+.btn-minimal-xs.text-danger:hover {
+    background-color: #fff5f5;
+    border-color: #ffa8a8;
+}
+
+.form-control-custom {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    background-color: #fcfcfc;
+}
+
+.form-control-custom:focus {
+    outline: none;
+    border-color: #339af0;
+    background-color: white;
+    box-shadow: 0 0 0 3px rgba(51, 154, 240, 0.1);
+}
+
+.w-100 { width: 100%; }
+.mb-3 { margin-bottom: 1rem; }
+.mb-4 { margin-bottom: 1.5rem; }
+.mt-3 { margin-top: 1rem; }
+.me-2 { margin-right: 0.5rem; }
 
 .hidden { display: none !important; }
