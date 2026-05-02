@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IMS</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="./wiki.css">
 </head>
@@ -57,8 +56,8 @@
                     <div class="wiki-header">
                         <h1 id="docTitle" class="wiki-page-title">Wiki</h1>
                         <div class="wiki-actions">
-                            <button id="editDocBtn" class="btn-minimal-xs"><i class="fas fa-edit"></i> 편집</button>
-                            <button id="deleteDocBtn" class="btn-minimal-xs text-danger"><i class="fas fa-trash"></i> 삭제</button>
+                            <button id="editDocBtn" class="btn-minimal-xs">편집</button>
+                            <button id="deleteDocBtn" class="btn-minimal-xs text-danger">삭제</button>
                         </div>
                     </div>
                     <div id="wikiLastUpdate" class="wiki-last-update hidden"></div>
@@ -94,9 +93,7 @@
                         <label class="sidebar-title" style="border:none; margin-bottom:5px;">문서 검색</label>
                         <input type="text" id="wikiSearch" class="form-control-custom" placeholder="검색어 입력">
                     </div>
-                    <button id="createNewDocBtn" class="btn-action btn-save w-100 mb-4">
-                        <i class="fas fa-plus me-2"></i>새 문서
-                    </button>
+                    <button id="createNewDocBtn" class="btn-action btn-save w-100 mb-4">새 문서</button>
                     <h5 class="sidebar-title">문서 목록</h5>
                     <ul id="allDocs" class="sidebar-list">
                         <!-- JS에서 동적 생성 -->
