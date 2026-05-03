@@ -51,9 +51,7 @@ async function updateWorkSchedule() {
             const isSat = d.getDay() === 6;
             const isHoliday = data && data.isHoliday;
 
-            let textColor = "#212529";
-            if (isSun || isHoliday) textColor = "#dc3545";
-            else if (isSat) textColor = "#0d6efd";
+            let textColor = "#212529"; // 대시보드에서는 항상 검은색으로 표시
 
             if (!data) return `<div class="no-data" style="padding: 20px; text-align: center; color: #666;">${displayDate} (${label}) 데이터 없음</div>`;
 
