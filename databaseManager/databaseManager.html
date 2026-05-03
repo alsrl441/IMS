@@ -39,12 +39,14 @@
                     <div class="section-header">
                         <h2 class="section-title" id="path-display">Explorer</h2>
                         <div class="dbm-actions">
-                            <select id="import-mode" class="import-select">
-                                <option value="overwrite">덮어쓰기</option>
-                                <option value="append">중복 제외 추가</option>
-                            </select>
+                            <div class="dropdown">
+                                <button class="btn btn-secondary dropdown-toggle" onclick="toggleImportDropdown()">Import</button>
+                                <div id="import-dropdown" class="dropdown-menu">
+                                    <button onclick="triggerImport('overwrite')">Overwrite</button>
+                                    <button onclick="triggerImport('append')">Skip Duplicates & Add</button>
+                                </div>
+                            </div>
                             <input type="file" id="import-file" class="hidden" accept=".json" onchange="handleFile(this.files[0])">
-                            <button class="btn btn-secondary" onclick="document.getElementById('import-file').click()">Import</button>
                             <button class="btn btn-primary" onclick="processExport()">Export</button>
                         </div>
                     </div>

@@ -1,4 +1,32 @@
 let currentDB = null, currentStore = null;
+let selectedImportMode = 'overwrite';
+
+// Dropdown handling
+function toggleImportDropdown() {
+    document.getElementById('import-dropdown').classList.toggle('show');
+}
+
+window.onclick = function(event) {
+    if (!event.target.matches('.dropdown-toggle')) {
+        const dropdowns = document.getElementsByClassName("dropdown-menu");
+        for (let i = 0; i < dropdowns.length; i++) {
+            const openDropdown = dropdowns[i];
+            if (openDropdown.classList.contains('show')) {
+                openDropdown.classList.remove('show');
+            }
+        }
+    }
+}
+
+function triggerImport(mode) {
+    if (!currentDB || !currentStore) {
+        alert("먼저 대상 스토어를 선택하세요.");
+        return;
+    }
+    selectedImportMode = mode;
+    document.getElementById('import-file').click();
+}
+
 const treeRoot = document.getElementById('tree-root');
 const pathDisplay = document.getElementById('path-display');
 const consoleLog = document.getElementById('console-log');
@@ -222,26 +250,30 @@ async function processExport() {
 }
 
 async function handleFile(file) {
-    if (!file || !currentDB || !currentStore) return alert("먼저 대상 스토어를 선택하세요.");
-    
-    const mode = document.getElementById('import-mode').value;
-    const modeText = mode === 'overwrite' ? "기존 데이터를 모두 삭제하고" : "중복을 제외하고";
-    
-    if (!confirm(`[${currentStore}]에 ${modeText} 데이터를 가져오시겠습니까?`)) return;
+    if (!file || !currentDB || !currentStore) return;
+
+    const mode = selectedImportMode;
+    const modeText = mode === 'overwrite' ? "기존 데이터를 모두 삭제하고 (Overwrite)" : "중복을 제외하고 (Skip Duplicates & Add)";
+
+    if (!confirm(`[${currentStore}]에 ${modeText} 데이터를 가져오시겠습니까?`)) {
+        document.getElementById('import-file').value = '';
+        return;
+    }
 
     const reader = new FileReader();
     reader.onload = async (e) => {
         try {
             const data = JSON.parse(e.target.result);
             executeImport(currentDB, currentStore, data, mode);
+            document.getElementById('import-file').value = '';
         } catch (err) {
             logToConsole(`파일 읽기 실패: ${err.message}`, 'error');
             alert("JSON 파일 형식이 올바르지 않습니다.");
+            document.getElementById('import-file').value = '';
         }
     };
     reader.readAsText(file);
 }
-
 function executeImport(dbName, storeName, data, mode) {
     const req = indexedDB.open(dbName);
     req.onsuccess = (e) => {
