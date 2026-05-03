@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         toggleEditMode(false);
         if (val === "") {
             displayEl.classList.add('hidden'); noDataEl.classList.remove('hidden'); previewEl.classList.remove('hidden');
-            renderPreview(); timerId = setInterval(updateAllPreviews, 1);
+            renderPreview(); timerId = setInterval(updateAllPreviews, 50);
         } else {
             const user = members[val];
             displayEl.classList.remove('hidden'); noDataEl.classList.add('hidden'); previewEl.classList.add('hidden');
