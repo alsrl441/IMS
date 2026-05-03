@@ -545,7 +545,7 @@ function renderShips() {
                             <div class="expand-btn" onclick="toggleCard(${shipIdx})"><span>&#9013;</span></div>
                             ${isEditing ? `<div class="edit-group" style="flex:1; margin-bottom:0;"><input type="text" id="edit-name" value="${ship.name}" placeholder="선명 입력" style="font-weight:700;"></div>` : `<h4>${ship.name}</h4>`}
                             ${!isEditing ? `<div class="ship-actions-wrapper">
-                                <button class="btn-actions" onclick="event.stopPropagation(); toggleActionsDropdown(${shipIdx})" title="작업">⋮</button>
+                                <button class="btn-actions" onclick="event.stopPropagation(); toggleActionsDropdown(${shipIdx})" title="작업">&#8942;</button>
                                 <div id="actions-dropdown-${shipIdx}" class="actions-dropdown">
                                     <button class="actions-dropdown-item" onclick="event.stopPropagation(); editShipMainInfo(${shipIdx})">수정</button>
                                     <button class="actions-dropdown-item delete" onclick="event.stopPropagation(); deleteShip(${shipIdx})">삭제</button>
