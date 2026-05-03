@@ -40,10 +40,21 @@ document.addEventListener('DOMContentLoaded', async () => {
             let data = await window.getDBData(STORE_NAME);
             if (!data || data.length === 0) {
                 const sampleMember = {
-                    "id": Date.now().toString(), "name": "홍길동", "nickname": "길동무", "affiliation": "1소대", "position": "운전병",
-                    "start": "2024-03-15", "transfer": "2024-05-10", "end": "2025-09-14",
-                    "pfc2cpl": 0, "cpl2sgt": 0, "photo": "",
-                    "vacationStart": "", "vacationEnd": "", "customFields": [], "customSchedules": []
+                    "id": Date.now().toString(),
+                    "name": "이름",
+                    "nickname": "별명",
+                    "affiliation": "소속",
+                    "position": "보직",
+                    "start": "2026-01-01",
+                    "transfer": "2026-02-01",
+                    "end": "2027-05-31",
+                    "pfc2cpl": 0,
+                    "cpl2sgt": 0,
+                    "photo": "",
+                    "vacationStart": "",
+                    "vacationEnd": "",
+                    "customFields": [],
+                    "customSchedules": []
                 };
                 await window.putDBData(STORE_NAME, sampleMember);
                 data = [sampleMember];
@@ -53,7 +64,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function refreshUI() {
-        selectEl.innerHTML = '<option value="">인원 선택</option>';
+        selectEl.innerHTML = '<option value="">선택</option>';
         members.forEach((m, idx) => {
             let opt = document.createElement('option');
             opt.value = idx; opt.textContent = m.name;
@@ -121,7 +132,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         resPhoto.src = user.photo || "../img/default-profile.png";
         currentPhotoBase64 = user.photo || "";
 
-        // 추가 정보
         document.querySelectorAll('.custom-field-item').forEach(el => el.remove());
         fieldEditContainer.innerHTML = '';
         (user.customFields || []).forEach(f => {
@@ -132,7 +142,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             basicInfoGrid.appendChild(item);
         });
 
-        // 추가 일정
         document.querySelectorAll('.custom-schedule-item').forEach(el => el.remove());
         scheduleEditContainer.innerHTML = '';
         (user.customSchedules || []).forEach(s => {
@@ -209,7 +218,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         toggleEditMode(true); document.getElementById('editName').focus();
     }
 
-    // Photo Drop
     photoEditArea.addEventListener('dragover', (e) => { e.preventDefault(); photoEditArea.style.borderColor = "#212529"; });
     photoEditArea.addEventListener('dragleave', () => { photoEditArea.style.borderColor = "#f1f3f5"; });
     photoEditArea.addEventListener('drop', (e) => {
@@ -291,29 +299,41 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('progressBarFill').style.width = p + "%";
         document.getElementById('resPercent').textContent = p.toFixed(8) + "%";
 
-        // 복무 정보
         document.getElementById('resStartDate').textContent = user.start;
         document.getElementById('resTransferDate').textContent = user.transfer || "-";
         document.getElementById('resEndDateDate').textContent = user.end;
-        const dischargeDday = getDday(user.end);
-        const dischargeSuffix = dischargeDday.startsWith('D-') ? "까지" : (dischargeDday.startsWith('D+') ? "부터" : "");
+        
+        const endDay = new Date(user.end); endDay.setHours(0,0,0,0);
+        const todayObj = new Date(); todayObj.setHours(0,0,0,0);
+        let dischargeDday = getDday(user.end);
+        if (todayObj > endDay) {
+            dischargeDday = "전역 완료";
+        }
+        
+        const dischargeSuffix = dischargeDday.startsWith('D-') ? "까지" : (dischargeDday === "전역 완료" ? "" : (dischargeDday.startsWith('D+') ? "부터" : ""));
         document.getElementById('resDday').previousElementSibling.textContent = "전역" + dischargeSuffix;
         document.getElementById('resDday').textContent = dischargeDday;
 
-        // 진급 D-Day
         const pfc = getPromotionDate(user.start, 2, 0); const cpl = getPromotionDate(user.start, 8, user.pfc2cpl);
         const sgt = getPromotionDate(user.start, 14, user.cpl2sgt);
         const pDates = [{n:"일병",d:pfc},{n:"상병",d:cpl},{n:"병장",d:sgt},{n:"전역",d:end}];
         const nextP = pDates.find(x => x.d > now) || pDates[3];
-        document.getElementById('resPromoLabel').textContent = `${nextP.n} 진급일`;
-        document.getElementById('resPromoDate').textContent = nextP.d.toISOString().split('T')[0];
-        
-        const promoDday = getDday(nextP.d.toISOString().split('T')[0]);
-        const promoSuffix = promoDday.startsWith('D-') ? "까지" : (promoDday.startsWith('D+') ? "부터" : "");
-        document.getElementById('resPromoDday').previousElementSibling.textContent = `${nextP.n} 진급` + promoSuffix;
-        document.getElementById('resPromoDday').textContent = promoDday;
 
-        // 휴가 계산
+        if (nextP.n === "전역") {
+            document.getElementById('resPromoLabel').textContent = "다음 진급일";
+            document.getElementById('resPromoDate').textContent = "-";
+            document.getElementById('resPromoDday').previousElementSibling.textContent = "진급";
+            document.getElementById('resPromoDday').textContent = "-";
+        } else {
+            document.getElementById('resPromoLabel').textContent = `${nextP.n} 진급일`;
+            document.getElementById('resPromoDate').textContent = nextP.d.toISOString().split('T')[0];
+            
+            const promoDday = getDday(nextP.d.toISOString().split('T')[0]);
+            const promoSuffix = promoDday.startsWith('D-') ? "까지" : (promoDday.startsWith('D+') ? "부터" : "");
+            document.getElementById('resPromoDday').previousElementSibling.textContent = `${nextP.n} 진급` + promoSuffix;
+            document.getElementById('resPromoDday').textContent = promoDday;
+        }
+
         if (user.vacationStart && user.vacationEnd) {
             const today = new Date(); today.setHours(0,0,0,0);
             const vS = new Date(user.vacationStart); vS.setHours(0,0,0,0);
@@ -339,7 +359,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('resVacDday').textContent = "-";
         }
 
-        // 추가 일정 업데이트
         (user.customSchedules || []).forEach(s => {
             const dateEl = document.getElementById(`val-cust-date-${s.label.replace(/\s/g, '')}`);
             const vDy = document.getElementById(`val-cust-dday-${s.label.replace(/\s/g, '')}`);

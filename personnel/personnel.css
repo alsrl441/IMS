@@ -7,7 +7,6 @@
     align-items: start;
 }
 
-/* 왼쪽 프로필 카드 */
 .profile-side-card {
     background: #fff;
     border: 1px solid #e9ecef;
@@ -101,7 +100,6 @@
     transition: width 0.1s linear;
 }
 
-/* 오른쪽 상세 정보 섹션 */
 .profile-main-content {
     display: flex;
     flex-direction: column;
@@ -191,7 +189,6 @@
     align-items: center;
 }
 
-/* 버튼 */
 .profile-actions {
     display: flex;
     justify-content: flex-end;
@@ -214,7 +211,6 @@
 .btn-save { background: #212529; color: #fff; }
 .btn-cancel { background: #fff; color: #868e96; border-color: #dee2e6; }
 
-/* 미리보기 그리드 */
 .preview-grid {
     grid-column: 1 / -1;
     display: grid;
