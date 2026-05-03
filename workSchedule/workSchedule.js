@@ -89,7 +89,7 @@ async function updateWorkSchedule() {
                             <td>${formatName(data.cctv[2]?.p2)}</td>
                         </tr>
                         <tr>
-                            <td rowspan="3" class="group-header table-fdfdfd-bg v-middle">TOD</td>
+                            <td rowspan="3" class="group-header table-fdfdfd-bg v-middle">T<br>O<br>D</td>
                             <td class="sub-group">${data.tod[0]?.location || "고하도"}</td>
                             <td>${formatName(data.tod[0]?.p1)}</td>
                             <td>${formatName(data.tod[0]?.p2)}</td>
