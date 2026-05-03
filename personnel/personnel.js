@@ -59,6 +59,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                 await window.putDBData(STORE_NAME, sampleMember);
                 data = [sampleMember];
             }
+            // 입대일(start) 기준 오름차순 정렬
+            data.sort((a, b) => {
+                const dateA = a.start || "9999-12-31";
+                const dateB = b.start || "9999-12-31";
+                if (dateA < dateB) return -1;
+                if (dateA > dateB) return 1;
+                return (a.name || "").localeCompare(b.name || "");
+            });
             return data;
         } catch (err) { return []; }
     }
