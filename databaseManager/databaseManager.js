@@ -158,7 +158,6 @@ function renderTable(data) {
     // Extract unique keys
     const keys = ['_key', ...new Set(data.flatMap(item => Object.keys(item).filter(k => k !== '_key')))];
     
-    // Header
     keys.forEach(key => {
         const th = document.createElement('th');
         th.textContent = key;
@@ -224,13 +223,17 @@ async function processExport() {
 
 async function handleFile(file) {
     if (!file || !currentDB || !currentStore) return alert("먼저 대상 스토어를 선택하세요.");
-    if (!confirm(`[${currentStore}]의 기존 데이터를 모두 삭제하고 파일을 가져오시겠습니까?`)) return;
+    
+    const mode = document.getElementById('import-mode').value;
+    const modeText = mode === 'overwrite' ? "기존 데이터를 모두 삭제하고" : "중복을 제외하고";
+    
+    if (!confirm(`[${currentStore}]에 ${modeText} 데이터를 가져오시겠습니까?`)) return;
 
     const reader = new FileReader();
     reader.onload = async (e) => {
         try {
             const data = JSON.parse(e.target.result);
-            executeImport(currentDB, currentStore, data);
+            executeImport(currentDB, currentStore, data, mode);
         } catch (err) {
             logToConsole(`파일 읽기 실패: ${err.message}`, 'error');
             alert("JSON 파일 형식이 올바르지 않습니다.");
@@ -239,23 +242,46 @@ async function handleFile(file) {
     reader.readAsText(file);
 }
 
-function executeImport(dbName, storeName, data) {
+function executeImport(dbName, storeName, data, mode) {
     const req = indexedDB.open(dbName);
     req.onsuccess = (e) => {
         const db = e.target.result;
         const tx = db.transaction(storeName, 'readwrite');
         const store = tx.objectStore(storeName);
         
-        store.clear().onsuccess = () => {
+        let successCount = 0;
+        let skipCount = 0;
+        
+        if (mode === 'overwrite') {
+            store.clear().onsuccess = () => {
+                Object.keys(data).forEach(key => {
+                    const putReq = store.put(data[key], key);
+                    putReq.onsuccess = () => {
+                        successCount++;
+                    };
+                });
+            };
+        } else {
             Object.keys(data).forEach(key => {
-                store.put(data[key], key);
+                const addReq = store.add(data[key], key);
+                addReq.onsuccess = () => {
+                    successCount++;
+                };
+                addReq.onerror = (err) => {
+                    err.preventDefault();
+                    err.stopPropagation();
+                    skipCount++;
+                };
             });
-        };
+        }
         
         tx.oncomplete = () => {
             db.close();
             openStore(dbName, storeName);
-            logToConsole(`[${storeName}] 데이터 가져오기 완료.`, 'success');
+            const msg = mode === 'overwrite' 
+                ? `[${storeName}] 데이터 덮어쓰기 완료. (총 ${successCount}개)`
+                : `[${storeName}] 데이터 추가 완료. (성공: ${successCount}, 중복 건너뜀: ${skipCount})`;
+            logToConsole(msg, 'success');
         };
         tx.onerror = (err) => {
             logToConsole(`Import 오류: ${err.target.error}`, 'error');
@@ -264,7 +290,6 @@ function executeImport(dbName, storeName, data) {
     };
 }
 
-// DB Management
 async function createNewDB() {
     const name = prompt("새 데이터베이스 이름을 입력하세요:");
     if (!name) return;
@@ -296,7 +321,6 @@ async function deleteTarget(name, type) {
     }
 }
 
-// Console
 function logToConsole(msg, type = 'info') {
     const entry = document.createElement('div');
     entry.className = `log-entry log-${type}`;
@@ -310,5 +334,4 @@ function clearConsole() {
     consoleLog.innerHTML = '';
 }
 
-// Init
 refreshTree();
