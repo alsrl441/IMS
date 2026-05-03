@@ -199,47 +199,7 @@
     color: var(--bs-primary);
 }
 
-.dropdown-toggle::after {
-    content: ' ▼';
-    font-size: 0.7rem;
-    vertical-align: middle;
-}
-
-/* Password Overlay */
-#password-overlay {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0,0,0,0.85);
-    z-index: 9999;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    backdrop-filter: blur(5px);
-}
-
-.password-box {
-    background: white;
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-    text-align: center;
-    width: 350px;
-}
-
-.password-box h3 { margin-bottom: 10px; color: #111; }
-.password-box p { color: #666; font-size: 0.9rem; margin-bottom: 25px; }
-.password-box input {
-    width: 100%;
-    padding: 12px;
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 1.1rem;
-    text-align: center;
-}
-
-.password-box button { width: 100%; }
+/* Password Overlay 삭제됨 */
 
 /* Small buttons */
 .btn-sm-outline {

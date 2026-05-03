@@ -8,16 +8,6 @@
     <link rel="stylesheet" href="databaseManager.css">
 </head>
 <body class="dbm-page">
-    <div id="password-overlay">
-        <div class="password-box">
-            <h3>[ Access Locked ]</h3>
-            <p>비밀번호를 입력하세요.</p>
-            <input type="password" id="db-password" placeholder="Password" onkeydown="if(event.key==='Enter') verifyPassword()">
-            <button onclick="verifyPassword()" class="btn btn-primary">인증</button>
-            <div id="pw-error" class="log-error" style="margin-top: 10px; font-size: 0.8rem; display: none;">비밀번호가 틀렸습니다.</div>
-        </div>
-    </div>
-
     <main class="container-fluid py-4">
         <div class="dbm-layout">
             <!-- Sidebar: DB & Store Selection -->
@@ -70,7 +60,7 @@
                 <!-- Console: Activity Log -->
                 <section class="content-section">
                     <div class="section-header">
-                        <h2 class="section-title">콘솔 로그</h2>
+                        <h2 class="section-title">ConsoleLog</h2>
                         <button onclick="clearConsole()" class="btn-clear">Clear</button>
                     </div>
                     <div id="console-log" class="console-box"></div>

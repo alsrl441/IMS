@@ -35,29 +35,6 @@ const tableBody = document.getElementById('table-body');
 const tableWrapper = document.getElementById('data-table-wrapper');
 const welcomeMsg = document.getElementById('welcome-msg');
 
-// Password Verification
-function verifyPassword() {
-    const input = document.getElementById('db-password');
-    const error = document.getElementById('pw-error');
-    const overlay = document.getElementById('password-overlay');
-    
-    const now = new Date();
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const timeStr = hours + minutes;
-    const correctPassword = timeStr.split('').reverse().join('');
-    
-    if (input.value === correctPassword) {
-        overlay.style.display = 'none';
-        logToConsole("인증 성공. 데이터 관리 모드 활성화.", "success");
-    } else {
-        error.style.display = 'block';
-        input.value = '';
-        input.focus();
-        logToConsole("인증 실패: 잘못된 비밀번호.", "error");
-    }
-}
-
 // Sidebar Tree
 async function refreshTree() {
     treeRoot.innerHTML = '';
@@ -253,7 +230,7 @@ async function handleFile(file) {
     if (!file || !currentDB || !currentStore) return;
 
     const mode = selectedImportMode;
-    const modeText = mode === 'overwrite' ? "기존 데이터를 모두 삭제하고 (Overwrite)" : "중복을 제외하고 (Skip Duplicates & Add)";
+    const modeText = mode === 'overwrite' ? "기존 데이터를 모두 삭제하고" : "중복을 제외하고";
 
     if (!confirm(`[${currentStore}]에 ${modeText} 데이터를 가져오시겠습니까?`)) {
         document.getElementById('import-file').value = '';
