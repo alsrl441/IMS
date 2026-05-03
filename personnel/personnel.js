@@ -177,7 +177,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const row = document.createElement('div'); row.className = 'custom-edit-row';
         row.innerHTML = `<input type="text" class="form-control-custom custom-key" placeholder="항목명" value="${key}" style="width: 100px;">
             <input type="text" class="form-control-custom custom-value" placeholder="내용" value="${value}" style="flex: 1;">
-            <button class="btn-remove-custom" style="border:none; background:none; color:#fa5252;"><i class="fas fa-minus-circle"></i></button>`;
+            <button class="btn-remove-custom" style="border:none; background:none; color:#fa5252; cursor:pointer;">➖</button>`;
         row.querySelector('.btn-remove-custom').onclick = () => row.remove();
         fieldEditContainer.appendChild(row);
     }
@@ -196,7 +196,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <input type="checkbox" class="custom-show-dday" ${showDday !== false ? 'checked' : ''} style="width:14px; height:14px; cursor:pointer;">
                 <label style="font-size:0.7rem; color:#666; margin-bottom:0; cursor:pointer;">D-Day</label>
             </div>
-            <button class="btn-remove-custom" style="border:none; background:none; color:#fa5252;"><i class="fas fa-minus-circle"></i></button>`;
+            <button class="btn-remove-custom" style="border:none; background:none; color:#fa5252; cursor:pointer;">➖</button>`;
         row.querySelector('.btn-remove-custom').onclick = () => row.remove();
         scheduleEditContainer.appendChild(row);
     }

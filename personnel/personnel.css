@@ -124,10 +124,6 @@
     gap: 10px;
 }
 
-.detail-section-title i {
-    color: #adb5bd;
-}
-
 .info-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
