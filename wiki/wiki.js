@@ -159,7 +159,26 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
 
             // 이미지
-            inline = inline.replace(/!\[(.*?)\]\((.*?)\)/g, '<img src="$2" alt="$1" class="wiki-img">');
+            inline = inline.replace(/!\[(.*?)\]\((.*?)\)/g, (match, alt, urlPart) => {
+                const parts = urlPart.split(',');
+                const src = parts[0].trim();
+                const width = (parts[1] && parts[1].trim() !== '') ? parts[1].trim() : null;
+                const height = (parts[2] && parts[2].trim() !== '') ? parts[2].trim() : null;
+                
+                let style = '';
+                if (width && !isNaN(width)) {
+                    style += `width: ${width}px; `;
+                    if (!height || isNaN(height)) {
+                        style += `height: auto; `; // 너비만 있을 때 비율 유지
+                    }
+                }
+                if (height && !isNaN(height)) {
+                    style += `height: ${height}px; `;
+                }
+                
+                const styleAttr = style ? ` style="${style.trim()}"` : '';
+                return `<img src="${src}" alt="${alt}"${styleAttr} class="wiki-img">`;
+            });
 
             // 내부 링크
             inline = inline.replace(/\[\[([^|#\]]+)?(?:#([^|\]]+))?(?:\|([^\]]+))?\]\]/g, (match, docName, hash, displayText) => {
