@@ -104,7 +104,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             }, 100);
                         }
                     } else {
-                        if (confirm(`'${targetTitle}'는 없는 문서입니다. 새로 만드시겠습니까?`)) {
+                        if (confirm(`'${targetTitle}'는 존재하지 않는 문서입니다. 새로 만드시겠습니까?`)) {
                             currentDocId = null;
                             editDocTitle.value = targetTitle;
                             markdownEditor.value = '';
