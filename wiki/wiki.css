@@ -248,19 +248,26 @@
 }
 
 .footnote-list {
-    padding-left: 20px;
+    padding-left: 0;
     margin: 0;
+    list-style: none;
 }
 
 .footnote-item {
     margin-bottom: 8px;
+    display: flex;
+    gap: 8px;
 }
 
-.footnote-backref {
-    margin-left: 5px;
+.footnote-backlink {
     color: #339af0;
     text-decoration: none;
-    font-size: 0.8rem;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.footnote-backlink:hover {
+    text-decoration: underline;
 }
 
 /* Editor Styles */
