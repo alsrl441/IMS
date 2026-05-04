@@ -346,7 +346,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (footnoteIds.length > 0) {
             let footnotesHtml = `<div class="footnotes-section"><div class="footnotes-title">각주</div><ul class="footnote-list">`;
             footnoteIds.forEach(id => {
-                footnotesHtml += `<li class="footnote-item" id="fn-${id}"><a href="#fnref-${id}" class="footnote-backlink">[^${id}]</a> ${parseInline(footnotes[id])}</li>`;
+                footnotesHtml += `<li class="footnote-item" id="fn-${id}"><a href="#fnref-${id}" class="footnote-backlink">[${id}]</a> ${parseInline(footnotes[id])}</li>`;
             });
             footnotesHtml += `</ul></div>`;
             result.push(footnotesHtml);
