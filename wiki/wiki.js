@@ -39,13 +39,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const term = searchTerm.toLowerCase();
                     const titleCount = (doc.title.toLowerCase().split(term).length - 1);
                     const contentCount = (doc.content.toLowerCase().split(term).length - 1);
-                    return (titleCount * 2) + contentCount; // 제목 일치를 더 높게 가중치 부여 가능
+                    return (titleCount * 2) + contentCount;
                 };
                 const scoreA = getScore(a);
                 const scoreB = getScore(b);
                 if (scoreB !== scoreA) return scoreB - scoreA;
             }
-            // 2순위 혹은 기본: 최근 수정일 순
             return (b.updatedAt || 0) - (a.updatedAt || 0);
         });
 
@@ -65,7 +64,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         currentDocId = id;
         docTitle.textContent = doc.title;
         
-        // 최근 수정일 표시
         const lastUpdateEl = document.getElementById('wikiLastUpdate');
         if (doc.updatedAt) {
             const date = new Date(doc.updatedAt);
@@ -106,7 +104,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             }, 100);
                         }
                     } else {
-                        if (confirm(`'${targetTitle}' 문서는 아직 없습니다. 새로 만드시겠습니까?`)) {
+                        if (confirm(`'${targetTitle}'는 없는 문서입니다. 새로 만드시겠습니까?`)) {
                             currentDocId = null;
                             editDocTitle.value = targetTitle;
                             markdownEditor.value = '';
@@ -124,13 +122,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     function parseMarkdown(markdown) {
         if (!markdown) return "";
 
-        // 1. HTML 엔티티 이스케이프
         let html = markdown
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
             .replace(/>/g, "&gt;");
 
-        // 2. 다중 행 코드 블록 보호
         const blockCodePlaceholders = [];
         html = html.replace(/(?:^|\n)```(\w+)?\n([\s\S]*?)\n```(?:\n|$)/g, (match, lang, content) => {
             const id = `BLOCK_CODE_PLC_${blockCodePlaceholders.length}`;
@@ -146,7 +142,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             let inline = text;
             const inlineCodePlaceholders = [];
 
-            // [보호] 인라인 코드
             inline = inline.replace(/`((?:\\`|\\\\|[^`])+)`/g, (match, content) => {
                 const id = `INLINE_CODE_PLC_${inlineCodePlaceholders.length}`;
                 let cleanContent = content
@@ -156,7 +151,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return id;
             });
 
-            // 이미지
             inline = inline.replace(/!\[(.*?)\]\((.*?)\)/g, (match, alt, urlPart) => {
                 const parts = urlPart.split(',');
                 const src = parts[0].trim();
@@ -167,7 +161,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (width && !isNaN(width)) {
                     style += `width: ${width}px; `;
                     if (!height || isNaN(height)) {
-                        style += `height: auto; `; // 너비만 있을 때 비율 유지
+                        style += `height: auto; `;
                     }
                 }
                 if (height && !isNaN(height)) {
@@ -178,7 +172,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return `<img src="${src}" alt="${alt}"${styleAttr} class="wiki-img">`;
             });
 
-            // 내부 링크
             inline = inline.replace(/\[\[([^|#\]]+)?(?:#([^|\]]+))?(?:\|([^\]]+))?\]\]/g, (match, docName, hash, displayText) => {
                 const finalDocName = docName ? docName.trim() : "";
                 const rawHash = hash ? hash.trim() : "";
@@ -187,17 +180,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return `<a class="wiki-internal-link" data-target="${finalDocName}" data-hash="${finalHash}" href="#">${finalDisplay}</a>`;
             });
 
-            // 외부 링크
             inline = inline.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>');
-
-            // 글자 모양
             inline = inline.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
             inline = inline.replace(/\*(.*?)\*/g, '<em>$1</em>');
             inline = inline.replace(/~(.*?)~/g, '<del>$1</del>');
-            // 밑줄 (_텍스트_) - snake_case 보호를 위해 단어 경계 및 공백 체크 강화
             inline = inline.replace(/(^|[^a-zA-Z0-9])_(\S|\S.*?\S)_(?=[^a-zA-Z0-9]|$)/g, '$1<u>$2</u>');
 
-            // [복원] 인라인 코드
             inlineCodePlaceholders.forEach((code, i) => {
                 const id = `INLINE_CODE_PLC_${i}`;
                 inline = inline.split(id).join(code);
@@ -401,7 +389,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         await refreshDocLists();
         currentDocId = null;
         docTitle.textContent = '문서가 삭제되었습니다';
-        docBody.innerHTML = '왼쪽에서 다른 문서를 선택해주세요.';
+        docBody.innerHTML = '다른 문서를 선택해주세요.';
         wikiToc.classList.add('hidden');
         document.getElementById('wikiLastUpdate').classList.add('hidden');
     };
@@ -411,7 +399,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         const content = markdownEditor.value;
         if (!title) return alert('제목을 입력해주세요.');
 
-        // 중복 제목 체크 (새 문서 생성 시 혹은 제목을 수정할 때)
         const isDuplicate = documents.some(doc => 
             doc.title === title && doc.id !== currentDocId
         );
@@ -430,7 +417,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (currentDocId) toggleEditMode(false);
         else {
             docTitle.textContent = 'Wiki';
-            docBody.innerHTML = '왼쪽에서 문서를 선택하거나 새 문서를 만들어보세요.';
+            docBody.innerHTML = '문서를 선택하거나 새 문서를 만들어보세요.';
             toggleEditMode(false);
         }
     };
