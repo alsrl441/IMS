@@ -127,13 +127,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             .replace(/</g, "&lt;")
             .replace(/>/g, "&gt;");
 
-        // Footnotes extraction
-        const footnotes = {};
-        html = html.replace(/^\[\^([^\]]+)\]:\s*(.*)$/gm, (match, id, content) => {
-            footnotes[id] = content.trim();
-            return ""; 
-        });
-
         const blockCodePlaceholders = [];
         html = html.replace(/(?:^|\n)```(\w+)?\n([\s\S]*?)\n```(?:\n|$)/g, (match, lang, content) => {
             const id = `BLOCK_CODE_PLC_${blockCodePlaceholders.length}`;
@@ -142,6 +135,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 .replace(/\\\\/g, '&#92;');
             blockCodePlaceholders.push(`<pre><code class="language-${lang || 'none'}">${cleanContent}</code></pre>`);
             return `\n\n${id}\n\n`;
+        });
+
+        // Footnotes extraction
+        const footnotes = {};
+        html = html.replace(/^\[\^([^\]]+)\]:\s*(.*)$/gm, (match, id, content) => {
+            footnotes[id] = content.trim();
+            return ""; 
         });
 
         function parseInline(text) {
