@@ -3,7 +3,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     let documents = [];
     let currentDocId = null;
 
-    // DOM Elements
     const wikiViewArea = document.getElementById('wikiViewArea');
     const wikiEditArea = document.getElementById('wikiEditArea');
     const docTitle = document.getElementById('docTitle');
@@ -23,7 +22,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const saveBtn = document.getElementById('saveDocBtn');
     const cancelBtn = document.getElementById('cancelEditBtn');
 
-    // Initialize
     async function init() {
         await window.ensureStore(STORE_NAME, 'id');
         await refreshDocLists();
