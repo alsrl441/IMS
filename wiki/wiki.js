@@ -127,6 +127,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             .replace(/</g, "&lt;")
             .replace(/>/g, "&gt;");
 
+        // Footnotes extraction
+        const footnotes = {};
+        html = html.replace(/^\[\^([^\]]+)\]:\s*(.*)$/gm, (match, id, content) => {
+            footnotes[id] = content.trim();
+            return ""; 
+        });
+
         const blockCodePlaceholders = [];
         html = html.replace(/(?:^|\n)```(\w+)?\n([\s\S]*?)\n```(?:\n|$)/g, (match, lang, content) => {
             const id = `BLOCK_CODE_PLC_${blockCodePlaceholders.length}`;
@@ -177,10 +184,24 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const rawHash = hash ? hash.trim() : "";
                 const finalHash = rawHash.replace(/\s+/g, "-");
                 let finalDisplay = displayText ? displayText.trim() : (finalDocName && rawHash ? `${finalDocName}#${rawHash}` : (finalDocName || rawHash));
-                return `<a class="wiki-internal-link" data-target="${finalDocName}" data-hash="${finalHash}" href="#">${finalDisplay}</a>`;
+                
+                // Add title attribute for document name hover
+                const titleAttr = (finalDocName && finalDisplay !== finalDocName) ? ` title="${finalDocName}"` : "";
+                
+                return `<a class="wiki-internal-link" data-target="${finalDocName}" data-hash="${finalHash}" href="#"${titleAttr}>${finalDisplay}</a>`;
             });
 
             inline = inline.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>');
+            
+            // Footnote references
+            inline = inline.replace(/\[\^([^\]]+)\]/g, (match, id) => {
+                if (footnotes[id]) {
+                    const cleanContent = footnotes[id].replace(/<\/?[^>]+(>|$)/g, "").replace(/"/g, "&quot;");
+                    return `<a href="#fn-${id}" class="footnote-ref" id="fnref-${id}" title="${cleanContent}">[${id}]</a>`;
+                }
+                return match;
+            });
+
             inline = inline.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
             inline = inline.replace(/\*(.*?)\*/g, '<em>$1</em>');
             inline = inline.replace(/~(.*?)~/g, '<del>$1</del>');
@@ -320,6 +341,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         closeLists();
         closeTable();
 
+        // Append Footnotes section
+        const footnoteIds = Object.keys(footnotes);
+        if (footnoteIds.length > 0) {
+            let footnotesHtml = `<div class="footnotes-section"><div class="footnotes-title">각주</div><ol class="footnote-list">`;
+            footnoteIds.forEach(id => {
+                footnotesHtml += `<li class="footnote-item" id="fn-${id}">${parseInline(footnotes[id])} <a href="#fnref-${id}" class="footnote-backref">↩</a></li>`;
+            });
+            footnotesHtml += `</ol></div>`;
+            result.push(footnotesHtml);
+        }
+
         let finalHtml = result.join('\n');
         blockCodePlaceholders.forEach((block, i) => {
             const id = `BLOCK_CODE_PLC_${i}`;
@@ -328,6 +360,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         return finalHtml;
     }
+
 
     function generateTOC() {
         const headers = Array.from(docBody.querySelectorAll('h1, h2, h3, h4, h5, h6'));
